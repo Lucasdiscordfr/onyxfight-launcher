@@ -64,6 +64,10 @@ async function jouer(reglages, autorisation, ev) {
     await telecharger(url, forge, (r, t) => ev.etat('Téléchargement de Forge…', t ? r / t : 0));
   }
   const serveur = manifeste.serveur || cfg.SERVEUR;
+  // Minecraft 1.7.10 plante si « --userProperties » n'a pas de valeur : il lui faut un texte JSON ('{}')
+  if (typeof autorisation.user_properties !== 'string') {
+    autorisation.user_properties = JSON.stringify(autorisation.user_properties || {});
+  }
   const client = new Client();
   client.on('progress', (p) => {
     const quoi = { assets: 'ressources', natives: 'fichiers système', classes: 'bibliothèques', 'assets-copy': 'ressources', forge: 'Forge' }[p.type] || p.type;
