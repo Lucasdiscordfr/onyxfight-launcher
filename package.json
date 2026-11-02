@@ -1,0 +1,41 @@
+{
+  "name": "onyxfight-launcher",
+  "productName": "OnyxFight Launcher",
+  "version": "1.0.0",
+  "description": "Launcher officiel du serveur OnyxFight",
+  "main": "src/main.js",
+  "author": "OnyxFight",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never",
+    "publier": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.10",
+    "extract-zip": "2.0.1",
+    "minecraft-launcher-core": "3.18.2",
+    "minecraft-server-util": "5.4.4",
+    "msmc": "5.0.5"
+  },
+  "devDependencies": {
+    "electron": "42.11.14",
+    "electron-builder": "26.17.0"
+  },
+  "build": {
+    "appId": "fr.onyxfight.launcher",
+    "productName": "OnyxFight Launcher",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["src/**/*", "assets/**/*", "package.json"],
+    "win": { "target": "nsis", "icon": "build/icon.ico", "artifactName": "OnyxFight-Launcher-Setup-${version}.${ext}" },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "OnyxFight",
+      "language": "1036"
+    },
+    "publish": { "provider": "github", "owner": "Lucasdiscordfr", "repo": "onyxfight-launcher", "releaseType": "release" }
+  }
+}

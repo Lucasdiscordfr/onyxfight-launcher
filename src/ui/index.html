@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://mc-heads.net https://raw.githubusercontent.com data:; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com">
+  <title>OnyxFight Launcher</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="fond"></div>
+  <div class="voile"></div>
+
+  <header class="barre">
+    <div class="titre"><img src="../../assets/icone.png" alt=""><span>OnyxFight Launcher</span><small id="version"></small></div>
+    <div class="boutons-fenetre">
+      <button id="reduire" title="Réduire">&#x2014;</button>
+      <button id="fermer" class="fermer" title="Fermer">&#x2715;</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="gauche">
+      <img class="logo" src="../../assets/logo.png" alt="OnyxFight">
+      <div class="actus">
+        <h2>Actualités</h2>
+        <div id="actus" class="liste-actus"><p class="vide">Chargement…</p></div>
+      </div>
+    </section>
+
+    <section class="droite">
+      <div class="carte compte" id="compte">
+        <div id="sans-compte">
+          <p class="petit">Connecte-toi avec ton compte Microsoft (Minecraft Java Edition).</p>
+          <button id="connecter" class="bouton secondaire">Se connecter avec Microsoft</button>
+        </div>
+        <div id="avec-compte" class="cache">
+          <img id="tete" class="tete" alt="">
+          <div class="qui">
+            <span class="petit">Connecté en tant que</span>
+            <strong id="pseudo"></strong>
+          </div>
+          <button id="deconnecter" class="lien" title="Se déconnecter">Changer de compte</button>
+        </div>
+      </div>
+
+      <div class="carte serveur">
+        <span id="pastille" class="pastille"></span>
+        <div>
+          <strong>Serveur OnyxFight</strong>
+          <span id="statut" class="petit">Recherche du serveur…</span>
+        </div>
+      </div>
+
+      <div class="jouer-zone">
+        <button id="jouer" class="bouton jouer" disabled>JOUER</button>
+        <div class="progression cache" id="progression"><div id="barre"></div></div>
+        <p id="etat" class="etat"></p>
+      </div>
+
+      <div class="pied">
+        <button id="ouvrir-reglages" class="lien">⚙ Réglages</button>
+        <button id="site" class="lien">Site</button>
+        <button id="discord" class="lien">Discord</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="reglages" class="modale cache">
+    <div class="boite">
+      <h2>Réglages</h2>
+      <label>Mémoire pour le jeu : <strong id="ram-valeur"></strong> Go
+        <input type="range" id="ram" min="2" max="16" step="1">
+      </label>
+      <p class="petit">4 Go suffisent en général. Ne dépasse pas la moitié de la mémoire de ton ordinateur.</p>
+      <label class="case"><input type="checkbox" id="garder"> Garder le launcher ouvert pendant le jeu</label>
+      <label class="case"><input type="checkbox" id="direct"> Se connecter directement au serveur au lancement</label>
+      <div class="actions">
+        <button id="dossier" class="lien">Ouvrir le dossier du jeu</button>
+        <button id="fermer-reglages" class="bouton secondaire">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="maj" class="maj cache"></div>
+  <script src="app.js"></script>
+</body>
+</html>

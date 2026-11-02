@@ -1,0 +1,42 @@
+name: Launcher (Windows)
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/**', 'assets/**', 'build/**', 'package.json', 'package-lock.json', '.github/workflows/launcher.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Version déjà publiée ?
+        id: version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(node -p "require('./package.json').version")
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          if gh release view "v$V" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "publier=non" >> "$GITHUB_OUTPUT"; else echo "publier=oui" >> "$GITHUB_OUTPUT"; fi
+      - name: Construire (sans publier)
+        if: steps.version.outputs.publier == 'non'
+        run: npx electron-builder --win --publish never
+      - name: Construire et publier la version
+        if: steps.version.outputs.publier == 'oui'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: npx electron-builder --win --publish always
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OnyxFight-Launcher-Setup
+          path: dist/*.exe
