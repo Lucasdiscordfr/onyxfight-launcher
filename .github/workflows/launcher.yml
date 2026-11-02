@@ -28,14 +28,17 @@ jobs:
           V=$(node -p "require('./package.json').version")
           echo "version=$V" >> "$GITHUB_OUTPUT"
           if gh release view "v$V" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "publier=non" >> "$GITHUB_OUTPUT"; else echo "publier=oui" >> "$GITHUB_OUTPUT"; fi
-      - name: Construire (sans publier)
-        if: steps.version.outputs.publier == 'non'
+      - name: Construire l'installateur Windows
         run: npx electron-builder --win --publish never
-      - name: Construire et publier la version
+      - name: Publier la version (installateur + fichiers de mise à jour automatique)
         if: steps.version.outputs.publier == 'oui'
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: npx electron-builder --win --publish always
+        run: |
+          V="${{ steps.version.outputs.version }}"
+          gh release create "v$V" dist/*.exe dist/*.blockmap dist/latest.yml -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "OnyxFight Launcher $V" --notes "Télécharge **OnyxFight-Launcher-Setup-$V.exe** et lance-le. Les launchers déjà installés se mettent à jour tout seuls."
       - uses: actions/upload-artifact@v4
         with:
           name: OnyxFight-Launcher-Setup
