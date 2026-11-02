@@ -27,7 +27,7 @@ jobs:
         run: |
           V=$(node -p "require('./package.json').version")
           echo "version=$V" >> "$GITHUB_OUTPUT"
-          if gh release view "v$V" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "publier=non" >> "$GITHUB_OUTPUT"; else echo "publier=oui" >> "$GITHUB_OUTPUT"; fi
+          if gh release view "v$V" -R "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' 2>/dev/null | grep -q '^latest.yml$'; then echo "publier=non" >> "$GITHUB_OUTPUT"; else echo "publier=oui" >> "$GITHUB_OUTPUT"; fi
       - name: Construire l'installateur Windows
         run: npx electron-builder --win --publish never
       - name: Publier la version (installateur + fichiers de mise à jour automatique)
