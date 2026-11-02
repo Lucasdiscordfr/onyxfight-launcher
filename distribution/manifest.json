@@ -1,5 +1,15 @@
 {
-  "serveur": { "hote": "play.onyxfight.fr", "port": 25565 },
-  "fichiers": [],
+  "serveur": {
+    "hote": "play.onyxfight.fr",
+    "port": 25565
+  },
+  "fichiers": [
+    {
+      "chemin": "mods/onyxfight.jar",
+      "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod/onyxfight-122.jar",
+      "sha1": "6779be1ed9de80cf89b534d2269891d521d0d483",
+      "taille": 346312
+    }
+  ],
   "supprimer": []
 }
