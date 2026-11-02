@@ -38,7 +38,7 @@ jobs:
         run: |
           V="${{ steps.version.outputs.version }}"
           gh release create "v$V" dist/*.exe dist/*.blockmap dist/latest.yml -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "OnyxFight Launcher $V" --notes "Télécharge **OnyxFight-Launcher-Setup-$V.exe** et lance-le. Les launchers déjà installés se mettent à jour tout seuls."
+            --title "OnyxFight Launcher $V" --notes "Télécharge **OnyxFight-Launcher.exe** et double-clique dessus : le launcher s’ouvre directement. Les launchers déjà installés se mettent à jour tout seuls."
       - uses: actions/upload-artifact@v4
         with:
           name: OnyxFight-Launcher-Setup

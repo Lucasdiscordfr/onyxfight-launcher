@@ -1,7 +1,7 @@
 {
   "name": "onyxfight-launcher",
   "productName": "OnyxFight Launcher",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Launcher officiel du serveur OnyxFight",
   "main": "src/main.js",
   "author": "OnyxFight",
@@ -25,17 +25,37 @@
   "build": {
     "appId": "fr.onyxfight.launcher",
     "productName": "OnyxFight Launcher",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["src/**/*", "assets/**/*", "package.json"],
-    "win": { "target": "nsis", "icon": "build/icon.ico", "artifactName": "OnyxFight-Launcher-Setup-${version}.${ext}" },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "shortcutName": "OnyxFight",
-      "language": "1036"
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
     },
-    "publish": { "provider": "github", "owner": "Lucasdiscordfr", "repo": "onyxfight-launcher", "releaseType": "release" }
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "artifactName": "OnyxFight-Launcher.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "OnyxFight",
+      "deleteAppDataOnUninstall": false,
+      "language": "1036",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Lucasdiscordfr",
+      "repo": "onyxfight-launcher",
+      "releaseType": "release"
+    }
   }
 }

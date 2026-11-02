@@ -8,7 +8,7 @@ Launcher officiel du serveur **OnyxFight** (Minecraft 1.7.10 moddé, PvP Faction
 - Bouton **Jouer** qui connecte directement au serveur.
 
 ## Télécharger
-Dernière version : onglet **Releases** de ce dépôt (`OnyxFight-Launcher-Setup-x.y.z.exe`).
+Dernière version : onglet **Releases** de ce dépôt (`OnyxFight-Launcher.exe` : double-clic, le launcher s’ouvre directement).
 
 ## Pour l'équipe
 - `distribution/manifest.json` : adresse du serveur et fichiers à installer (mis à jour automatiquement à chaque
