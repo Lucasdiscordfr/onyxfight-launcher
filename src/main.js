@@ -6,6 +6,7 @@ const cfg = require('./config');
 const Compte = require('./compte');
 const { jouer } = require('./jeu');
 const { lireJson } = require('./telechargement');
+const discord = require('./discord');
 
 let fenetre = null;
 let enJeu = false;
@@ -140,10 +141,12 @@ ipcMain.handle('jouer', async () => {
       journal: (l) => flux.write(l.endsWith('\n') ? l : l + '\n'),
       lance: () => {
         envoyer('etat', { texte: 'Bon jeu sur OnyxFight !', part: 1, lance: true });
+        discord.statut('En jeu sur OnyxFight', 'PvP Faction moddé (1.7.10)', true);
         if (!r.garderOuvert && fenetre) fenetre.hide();
       },
       ferme: (code) => {
         enJeu = false;
+        discord.statut('Dans le launcher', 'Prépare sa partie', true);
         flux.end();
         if (fenetre) {
           fenetre.show();
@@ -158,6 +161,17 @@ ipcMain.handle('jouer', async () => {
     return { erreur: String((e && e.message) || e) };
   }
 });
+
+// ---------- Statut Discord ----------
+async function lancerDiscord() {
+  try {
+    const m = await lireJson(cfg.MANIFESTE);
+    discord.demarrer(m.discordApplication, { site: m.site || cfg.SITE, discord: m.discord || cfg.DISCORD });
+    discord.statut('Dans le launcher', 'Prépare sa partie', true);
+  } catch (e) {
+    // pas de connexion : pas de statut
+  }
+}
 
 // ---------- Mises à jour du launcher ----------
 function verifierMisesAJour() {
@@ -188,9 +202,13 @@ if (!app.requestSingleInstanceLock()) {
     app.setAppUserModelId('fr.onyxfight.launcher');
     creerFenetre();
     verifierMisesAJour();
+    lancerDiscord();
   });
   app.on('window-all-closed', () => {
-    if (!enJeu) app.quit();
+    if (!enJeu) {
+      discord.arreter();
+      app.quit();
+    }
   });
 }
 
