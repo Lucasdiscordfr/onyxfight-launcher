@@ -87,10 +87,27 @@ class Compte {
     return this.profil();
   }
 
-  /** Autorisation de jeu : celle gardée si elle est encore bonne, sinon renouvelée. */
+  /**
+   * Le jeton de jeu est-il encore accepté par Minecraft ? Il peut être annulé avant l'heure (connexion sur un autre
+   * ordinateur, changement de mot de passe) : le serveur dirait alors « Failed to verify username ».
+   */
+  async jetonValide() {
+    if (!this.mc || !this.mc.access_token) return false;
+    try {
+      const r = await fetch('https://api.minecraftservices.com/minecraft/profile', {
+        headers: { Authorization: 'Bearer ' + this.mc.access_token },
+      });
+      if (r.status === 401 || r.status === 403) return false;
+      return true; // autre réponse (Minecraft injoignable…) : on garde le jeton plutôt que de bloquer
+    } catch (e) {
+      return true;
+    }
+  }
+
+  /** Autorisation de jeu : celle gardée si elle est encore bonne (vérifiée auprès de Minecraft), sinon renouvelée. */
   async pourJouer() {
     if (!this.mc && !this.ms) throw new Error('Connecte-toi avec ton compte Microsoft.');
-    if (!this.mc || this.exp - MARGE <= Date.now()) await this.renouveler();
+    if (!this.mc || this.exp - MARGE <= Date.now() || !(await this.jetonValide())) await this.renouveler();
     return Object.assign({}, this.mc);
   }
 
