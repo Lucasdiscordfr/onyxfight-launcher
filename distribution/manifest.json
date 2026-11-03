@@ -12,9 +12,9 @@
     },
     {
       "chemin": "resourcepacks/OnyxFight.zip",
-      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/OnyxFight.zip?v=e6cbae25e314",
-      "sha1": "e6cbae25e3143516e1d40e4994f1b0709cc6bf1a",
-      "taille": 262622
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/OnyxFight.zip?v=f6add116de05",
+      "sha1": "f6add116de055724b46512cf46e4584ae049ea39",
+      "taille": 261820
     },
     {
       "chemin": "config/splash.properties",
