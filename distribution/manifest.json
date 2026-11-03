@@ -18,9 +18,9 @@
     },
     {
       "chemin": "config/splash.properties",
-      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/splash.properties?v=57f192f6d9b2",
-      "sha1": "57f192f6d9b29e7b483a35537db0d2f21916b02c",
-      "taille": 373
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/splash.properties?v=d827b5c4a4fc",
+      "sha1": "d827b5c4a4fc82721b04a4ceb473c9a10b8a77ac",
+      "taille": 377
     },
     {
       "chemin": "onyxfight/chargement-mojang.png",
