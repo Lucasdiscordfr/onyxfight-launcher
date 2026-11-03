@@ -57,6 +57,24 @@ function creerFenetre() {
   });
 }
 
+/** Texte d'erreur lisible (msmc renvoie des objets avec un code « ts », pas des Error). */
+function texteErreur(e) {
+  if (!e) return 'Erreur inconnue.';
+  const code = e.ts || (e.opt && e.opt.ts) || '';
+  if (/^error\.auth|^error\.state|^error\.gui/.test(String(code))) {
+    if (/minecraft\.login|429|rate/i.test(String(code) + JSON.stringify(e.response || e.opt || ''))) {
+      return 'Microsoft refuse pour l\'instant (trop de connexions) : réessaie dans quelques minutes.';
+    }
+    return 'Connexion Microsoft expirée ou refusée (' + code + ') : clique sur « Changer de compte » et reconnecte-toi.';
+  }
+  if (e.message) return e.message;
+  try {
+    return JSON.stringify(e).slice(0, 300);
+  } catch (x) {
+    return String(e);
+  }
+}
+
 // ---------- Fenêtre ----------
 ipcMain.on('fenetre', (e, quoi) => {
   if (!fenetre) return;
@@ -102,9 +120,9 @@ ipcMain.handle('compte:connecter', async () => {
   try {
     return { profil: await compte.connecter() };
   } catch (e) {
-    const msg = String(e && (e.message || e.ts || e) || '');
-    if (/cancel|closed|error\.gui\.closed/i.test(msg)) return { annule: true };
-    return { erreur: msg.includes('Minecraft') ? msg : 'Connexion impossible : ' + msg };
+    const code = String((e && (e.ts || e.message)) || '');
+    if (/cancel|closed|error\.gui\.closed/i.test(code)) return { annule: true };
+    return { erreur: texteErreur(e) };
   }
 });
 ipcMain.handle('compte:deconnecter', async () => compte.deconnecter());
@@ -157,8 +175,13 @@ ipcMain.handle('jouer', async () => {
     return { ok: true };
   } catch (e) {
     enJeu = false;
+    try {
+      flux.write('ERREUR : ' + JSON.stringify(e, Object.getOwnPropertyNames(e || {})) + '\n');
+    } catch (x) {
+      // rien
+    }
     flux.end();
-    return { erreur: String((e && e.message) || e) };
+    return { erreur: texteErreur(e) };
   }
 });
 

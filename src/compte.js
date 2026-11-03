@@ -1,27 +1,31 @@
-// Compte Microsoft (comptes officiels uniquement) : fenêtre de connexion Microsoft, puis le jeton de connexion est gardé
-// chiffré (safeStorage : coffre de Windows) pour ne pas redemander à chaque lancement.
+// Compte Microsoft (comptes officiels uniquement) : fenêtre de connexion Microsoft, puis la connexion est gardée chiffrée
+// (safeStorage : coffre de Windows). Le jeton de jeu Minecraft (valable environ 23 h) est gardé lui aussi : on ne
+// redemande pas à Microsoft à chaque ouverture ou à chaque partie (sinon Minecraft refuse : trop de connexions).
 const fs = require('fs');
 const path = require('path');
 const { safeStorage } = require('electron');
 const { Auth } = require('msmc');
 
+const MARGE = 10 * 60 * 1000; // on renouvelle le jeton 10 min avant qu'il expire
+
 class Compte {
   constructor(dossier) {
     this.fichier = path.join(dossier, 'compte.dat');
-    this.xbox = null;
-    this.minecraft = null;
+    this.ms = null; // jeton Microsoft (pour renouveler)
+    this.mc = null; // autorisation de jeu (format minecraft-launcher-core)
+    this.exp = 0;
   }
 
   /** Infos à afficher (ou null si pas connecté). */
   profil() {
-    if (!this.minecraft || !this.minecraft.profile) return null;
-    return { pseudo: this.minecraft.profile.name, uuid: this.minecraft.profile.id };
+    if (!this.mc) return null;
+    return { pseudo: this.mc.name, uuid: this.mc.uuid };
   }
 
   garder() {
     try {
-      const jeton = this.xbox.save();
-      const data = safeStorage.isEncryptionAvailable() ? safeStorage.encryptString(jeton) : Buffer.from(jeton, 'utf8');
+      const texte = JSON.stringify({ ms: this.ms, mc: this.mc, exp: this.exp });
+      const data = safeStorage.isEncryptionAvailable() ? safeStorage.encryptString(texte) : Buffer.from(texte, 'utf8');
       fs.mkdirSync(path.dirname(this.fichier), { recursive: true });
       fs.writeFileSync(this.fichier, data);
     } catch (e) {
@@ -29,55 +33,71 @@ class Compte {
     }
   }
 
-  /** Reprend la connexion gardée (au démarrage). */
+  /** Après une connexion ou un renouvellement auprès de Microsoft. */
+  async depuisXbox(xbox) {
+    const minecraft = await xbox.getMinecraft();
+    if (!minecraft.profile) throw new Error('Ce compte Microsoft ne possède pas Minecraft Java Edition.');
+    this.ms = xbox.save();
+    this.mc = minecraft.mclc();
+    this.exp = minecraft.exp || Date.now() + 23 * 3600 * 1000;
+    this.garder();
+  }
+
+  /** Reprend la connexion gardée (au démarrage), sans rien demander à Microsoft si le jeton est encore bon. */
   async reprendre() {
     if (!fs.existsSync(this.fichier)) return null;
     try {
       const data = fs.readFileSync(this.fichier);
-      const jeton = safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(data) : data.toString('utf8');
-      this.xbox = await new Auth('select_account').refresh(jeton);
-      this.minecraft = await this.xbox.getMinecraft();
-      this.garder();
+      const texte = safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(data) : data.toString('utf8');
+      let d;
+      try {
+        d = JSON.parse(texte);
+      } catch (e) {
+        d = { ms: texte }; // ancien format : seulement le jeton Microsoft
+      }
+      this.ms = d.ms || null;
+      this.mc = d.mc || null;
+      this.exp = d.exp || 0;
+      if (this.mc && this.exp - MARGE > Date.now()) return this.profil();
+      await this.renouveler();
       return this.profil();
     } catch (e) {
       console.error('Connexion gardée expirée', e);
-      this.deconnecter();
-      return null;
+      // On garde le profil affiché s'il existe : on réessaiera au clic sur Jouer
+      return this.profil();
     }
+  }
+
+  async renouveler() {
+    if (!this.ms) throw new Error('Connecte-toi avec ton compte Microsoft.');
+    const xbox = await new Auth('select_account').refresh(this.ms);
+    await this.depuisXbox(xbox);
   }
 
   /** Ouvre la fenêtre de connexion Microsoft. */
   async connecter() {
-    const auth = new Auth('select_account');
-    this.xbox = await auth.launch('electron', {
+    const xbox = await new Auth('select_account').launch('electron', {
       width: 520,
       height: 650,
       resizable: false,
       title: 'Connexion Microsoft - OnyxFight',
       autoHideMenuBar: true,
     });
-    this.minecraft = await this.xbox.getMinecraft();
-    if (!this.minecraft.profile) {
-      throw new Error("Ce compte Microsoft ne possède pas Minecraft Java Edition.");
-    }
-    this.garder();
+    await this.depuisXbox(xbox);
     return this.profil();
   }
 
-  /** Jeton de jeu frais (au moment de cliquer sur Jouer). */
+  /** Autorisation de jeu : celle gardée si elle est encore bonne, sinon renouvelée. */
   async pourJouer() {
-    if (!this.xbox) throw new Error('Connecte-toi avec ton compte Microsoft.');
-    if (!this.xbox.validate()) {
-      await this.xbox.refresh(true);
-      this.garder();
-    }
-    this.minecraft = await this.xbox.getMinecraft();
-    return this.minecraft.mclc();
+    if (!this.mc && !this.ms) throw new Error('Connecte-toi avec ton compte Microsoft.');
+    if (!this.mc || this.exp - MARGE <= Date.now()) await this.renouveler();
+    return Object.assign({}, this.mc);
   }
 
   deconnecter() {
-    this.xbox = null;
-    this.minecraft = null;
+    this.ms = null;
+    this.mc = null;
+    this.exp = 0;
     fs.rmSync(this.fichier, { force: true });
   }
 }
