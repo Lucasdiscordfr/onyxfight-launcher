@@ -63,8 +63,33 @@ function premiersReglages(racine) {
   fs.writeFileSync(f, lignes.join('\n') + '\n');
 }
 
+/**
+ * Écran du tout début (le logo Mojang, avant l'écran de chargement de Forge) : Minecraft le lit dans ses ressources
+ * avant tout pack. On ajoute notre image dans une copie du .jar de Forge, qui est le premier sur le classpath : elle est
+ * lue à la place de celle de Minecraft. Copie refaite seulement si l'image change.
+ */
+function forgeAvecEcran(racine, forge) {
+  const image = path.join(racine, 'onyxfight', 'chargement-mojang.png');
+  if (!fs.existsSync(image)) return forge;
+  const copie = forge.replace(/\.jar$/, '-onyxfight.jar');
+  const marque = copie + '.version';
+  const empreinte = require('crypto').createHash('sha1').update(fs.readFileSync(image)).digest('hex');
+  try {
+    if (fs.existsSync(copie) && fs.existsSync(marque) && fs.readFileSync(marque, 'utf8') === empreinte) return copie;
+    const AdmZip = require('adm-zip');
+    const zip = new AdmZip(forge);
+    zip.addFile('assets/minecraft/textures/gui/title/mojang.png', fs.readFileSync(image));
+    zip.writeZip(copie);
+    fs.writeFileSync(marque, empreinte);
+    return copie;
+  } catch (e) {
+    return forge; // en cas de souci, l'écran Mojang normal
+  }
+}
+
 /** Réglages lus par le menu du mod (adresse du serveur, site, Discord, saison, version du launcher). */
 function reglagesClient(racine, manifeste, version) {
+  const forgeOnyx = forgeAvecEcran(racine, forge);
   const serveur = manifeste.serveur || cfg.SERVEUR;
   fs.writeFileSync(path.join(racine, 'onyxfight-client.json'), JSON.stringify({
     serveur: { hote: serveur.hote, port: serveur.port || 25565 },
@@ -113,7 +138,7 @@ async function jouer(reglages, autorisation, ev) {
     authorization: autorisation,
     root: racine,
     version: { number: cfg.MINECRAFT, type: 'release' },
-    forge,
+    forge: forgeOnyx,
     javaPath: java,
     memory: { max: `${reglages.ram || 4}G`, min: '1G' },
     window: { width: 1280, height: 720 },

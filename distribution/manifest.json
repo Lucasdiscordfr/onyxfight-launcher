@@ -12,15 +12,21 @@
     },
     {
       "chemin": "resourcepacks/OnyxFight.zip",
-      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/OnyxFight.zip?v=2494a66e8345",
-      "sha1": "2494a66e8345c5e60136d3518af707eb5ebde7d7",
-      "taille": 262626
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/OnyxFight.zip?v=e6cbae25e314",
+      "sha1": "e6cbae25e3143516e1d40e4994f1b0709cc6bf1a",
+      "taille": 262622
     },
     {
       "chemin": "config/splash.properties",
-      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/splash.properties?v=80be0f111bac",
-      "sha1": "80be0f111bac62c112d3e3817d3adb9573948152",
-      "taille": 365
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/splash.properties?v=57f192f6d9b2",
+      "sha1": "57f192f6d9b29e7b483a35537db0d2f21916b02c",
+      "taille": 373
+    },
+    {
+      "chemin": "onyxfight/chargement-mojang.png",
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/chargement-mojang.png?v=6e4f65a74915",
+      "sha1": "6e4f65a74915f4f23f7199036c9363bda9e1339c",
+      "taille": 125744
     }
   ],
   "supprimer": [],
