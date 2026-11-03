@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installation du serveur OnyxFight sur une machine Ubuntu 24.04 neuve (OVH RISE-M).
+# Installation du serveur OnyxFight sur une machine Ubuntu neuve, version LTS (24.04 ou 26.04) (OVH RISE-M).
 #   curl -fsSL https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/serveur/installer.sh | sudo bash
 # Ce qu'il fait :
 #   - Java 8 (Temurin), pare-feu (SSH + Minecraft), mises à jour de sécurité automatiques ;
@@ -32,7 +32,10 @@ etape "Java 8 (Temurin)"
 if ! [ -x /usr/lib/jvm/temurin-8-jdk-amd64/bin/java ]; then
   install -d -m 0755 /etc/apt/keyrings
   wget -qO- https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg
-  echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(. /etc/os-release; echo "$VERSION_CODENAME") main" \
+  NOM=$(. /etc/os-release; echo "$VERSION_CODENAME")
+  # Version d'Ubuntu trop récente pour le dépôt Adoptium : on prend celui de la 24.04 (mêmes paquets Java)
+  curl -fsI "https://packages.adoptium.net/artifactory/deb/dists/$NOM/Release" >/dev/null 2>&1 || NOM=noble
+  echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $NOM main" \
     > /etc/apt/sources.list.d/adoptium.list
   apt-get update -q
   apt-get install -yq temurin-8-jdk
