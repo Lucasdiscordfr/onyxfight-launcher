@@ -94,7 +94,7 @@ EOF
 
 cat > /usr/local/bin/onyx <<EOF
 #!/usr/bin/env bash
-# onyx console | commande "<cmd>" | redemarrer | arreter | demarrer | etat | sauvegarde
+# onyx console | commande "<cmd>" | maj | redemarrer | arreter | demarrer | etat | sauvegarde
 S=onyxfight
 cmd() { sudo -u onyx tmux send-keys -t \$S "\$1" Enter; }
 case "\${1:-etat}" in
@@ -108,7 +108,12 @@ case "\${1:-etat}" in
     cmd "say §c§lRedémarrage…"; sleep 5; systemctl restart onyxfight ;;
   etat) systemctl status onyxfight --no-pager | head -5 ;;
   sauvegarde) $RACINE/sauvegarder.sh ;;
-  *) echo "onyx console | commande \"<cmd>\" | annoncer \"<texte>\" | redemarrer | arreter | demarrer | etat | sauvegarde" ;;
+  maj)
+    # Met le mod à la même version que celle du launcher, puis redémarre
+    URL=\$(curl -fsSL $MANIFESTE | jq -r '.fichiers[] | select(.chemin=="mods/onyxfight.jar") | .url')
+    sudo -u onyx wget -q -O $SERVEUR/mods/onyxfight.jar "\$URL" && echo "Mod mis à jour : \$URL"
+    systemctl restart onyxfight ;;
+  *) echo "onyx console | commande \"<cmd>\" | annoncer \"<texte>\" | redemarrer | arreter | demarrer | etat | sauvegarde | maj" ;;
 esac
 EOF
 chmod +x /usr/local/bin/onyx
