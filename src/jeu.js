@@ -89,7 +89,6 @@ function forgeAvecEcran(racine, forge) {
 
 /** Réglages lus par le menu du mod (adresse du serveur, site, Discord, saison, version du launcher). */
 function reglagesClient(racine, manifeste, version) {
-  const forgeOnyx = forgeAvecEcran(racine, forge);
   const serveur = manifeste.serveur || cfg.SERVEUR;
   fs.writeFileSync(path.join(racine, 'onyxfight-client.json'), JSON.stringify({
     serveur: { hote: serveur.hote, port: serveur.port || 25565 },
