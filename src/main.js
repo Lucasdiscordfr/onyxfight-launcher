@@ -132,6 +132,7 @@ ipcMain.handle('jouer', async () => {
   const journal = path.join(r.dossier, 'launcher-dernier-lancement.log');
   fs.mkdirSync(r.dossier, { recursive: true });
   const flux = fs.createWriteStream(journal);
+  flux.write(`OnyxFight Launcher ${app.getVersion()}\n`);
   try {
     const autorisation = await compte.pourJouer();
     await jouer(r, autorisation, {
