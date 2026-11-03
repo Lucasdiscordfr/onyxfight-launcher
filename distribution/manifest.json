@@ -12,9 +12,9 @@
     },
     {
       "chemin": "resourcepacks/OnyxFight.zip",
-      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/OnyxFight.zip?v=3840501a29c3",
-      "sha1": "3840501a29c3b462a79ac87d3ddb00ff4d972377",
-      "taille": 175685
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/OnyxFight.zip?v=2494a66e8345",
+      "sha1": "2494a66e8345c5e60136d3518af707eb5ebde7d7",
+      "taille": 262626
     },
     {
       "chemin": "config/splash.properties",
@@ -27,5 +27,5 @@
   "site": "https://onyxfight.fr",
   "discord": "https://discord.gg/onyxfight",
   "saison": "Saison 1",
-  "discordApplication": ""
+  "discordApplication": "1566982374439526521"
 }
