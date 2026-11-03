@@ -135,3 +135,14 @@ input[type=checkbox] { accent-color: var(--violet); width: 16px; height: 16px; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: rgba(162, 77, 255, 0.35); border-radius: 3px; }
+
+/* Personnage en armure d'onyx, entre les actualités et le compte */
+.personnage {
+  position: fixed; z-index: 1; pointer-events: none;
+  right: 360px; bottom: 0; height: 86%;
+  filter: drop-shadow(0 0 30px rgba(162, 77, 255, 0.35));
+  animation: respire 6s ease-in-out infinite;
+}
+@keyframes respire { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.actus { max-width: 44%; }
+main { z-index: 2; }
