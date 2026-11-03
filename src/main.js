@@ -14,10 +14,10 @@ const fichierReglages = path.join(cfg.DOSSIER, 'launcher.json');
 
 function reglages() {
   try {
-    return Object.assign({ ram: 4, garderOuvert: false, connexionDirecte: true, dossier: cfg.DOSSIER },
+    return Object.assign({ ram: 4, garderOuvert: false, connexionDirecte: false, dossier: cfg.DOSSIER },
       JSON.parse(fs.readFileSync(fichierReglages, 'utf8')));
   } catch (e) {
-    return { ram: 4, garderOuvert: false, connexionDirecte: true, dossier: cfg.DOSSIER };
+    return { ram: 4, garderOuvert: false, connexionDirecte: false, dossier: cfg.DOSSIER };
   }
 }
 
@@ -114,7 +114,7 @@ ipcMain.handle('reglages:sauver', async (e, r) => {
   const nouveau = Object.assign(actuel, {
     ram: Math.max(1, Math.min(32, parseInt(r.ram, 10) || 4)),
     garderOuvert: !!r.garderOuvert,
-    connexionDirecte: r.connexionDirecte !== false,
+    connexionDirecte: !!r.connexionDirecte,
   });
   sauverReglages(nouveau);
   return nouveau;
@@ -128,7 +128,7 @@ ipcMain.handle('reglages:dossier', async () => {
 ipcMain.handle('jouer', async () => {
   if (enJeu) return { erreur: 'Le jeu est déjà lancé.' };
   enJeu = true;
-  const r = reglages();
+  const r = Object.assign(reglages(), { versionLauncher: app.getVersion() });
   const journal = path.join(r.dossier, 'launcher-dernier-lancement.log');
   fs.mkdirSync(r.dossier, { recursive: true });
   const flux = fs.createWriteStream(journal);

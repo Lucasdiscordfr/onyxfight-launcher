@@ -63,7 +63,7 @@ function ouvrirReglages() {
   $('ram').value = r.ram;
   $('ram-valeur').textContent = r.ram;
   $('garder').checked = !!r.garderOuvert;
-  $('direct').checked = r.connexionDirecte !== false;
+  $('direct').checked = !!r.connexionDirecte;
   $('reglages').classList.remove('cache');
 }
 

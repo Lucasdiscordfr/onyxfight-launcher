@@ -39,13 +39,40 @@ async function synchroniser(racine, etat) {
   return m;
 }
 
-/** options.txt : jeu en français par défaut (le joueur peut changer ensuite). */
+/**
+ * options.txt : jeu en français par défaut, et pack de ressources « OnyxFight » (logo de l'écran de chargement)
+ * toujours activé (le joueur garde ses autres packs).
+ */
 function premiersReglages(racine) {
   const f = path.join(racine, 'options.txt');
-  if (!fs.existsSync(f)) {
-    fs.mkdirSync(racine, { recursive: true });
-    fs.writeFileSync(f, 'lang:fr_FR\nguiScale:2\n');
+  fs.mkdirSync(racine, { recursive: true });
+  let lignes = fs.existsSync(f) ? fs.readFileSync(f, 'utf8').split(/\r?\n/).filter((l) => l.length) : ['lang:fr_FR', 'guiScale:2'];
+  const i = lignes.findIndex((l) => l.startsWith('resourcePacks:'));
+  let packs = [];
+  if (i >= 0) {
+    try {
+      packs = JSON.parse(lignes[i].slice('resourcePacks:'.length));
+    } catch (e) {
+      packs = [];
+    }
   }
+  if (!packs.includes('OnyxFight.zip')) packs.push('OnyxFight.zip');
+  const ligne = 'resourcePacks:' + JSON.stringify(packs);
+  if (i >= 0) lignes[i] = ligne;
+  else lignes.push(ligne);
+  fs.writeFileSync(f, lignes.join('\n') + '\n');
+}
+
+/** Réglages lus par le menu du mod (adresse du serveur, site, Discord, saison, version du launcher). */
+function reglagesClient(racine, manifeste, version) {
+  const serveur = manifeste.serveur || cfg.SERVEUR;
+  fs.writeFileSync(path.join(racine, 'onyxfight-client.json'), JSON.stringify({
+    serveur: { hote: serveur.hote, port: serveur.port || 25565 },
+    site: manifeste.site || cfg.SITE,
+    discord: manifeste.discord || cfg.DISCORD,
+    saison: manifeste.saison || '',
+    version,
+  }, null, 2));
 }
 
 /**
@@ -57,6 +84,7 @@ async function jouer(reglages, autorisation, ev) {
   const java = await assurerJava(racine, ev.etat);
   const manifeste = await synchroniser(racine, ev.etat);
   premiersReglages(racine);
+  reglagesClient(racine, manifeste, reglages.versionLauncher || '');
   const forgeNom = `forge-${cfg.MINECRAFT}-${cfg.FORGE}-${cfg.MINECRAFT}-universal.jar`;
   const forge = path.join(racine, 'forge', forgeNom);
   if (!fs.existsSync(forge)) {
@@ -89,7 +117,7 @@ async function jouer(reglages, autorisation, ev) {
     javaPath: java,
     memory: { max: `${reglages.ram || 4}G`, min: '1G' },
     window: { width: 1280, height: 720 },
-    quickPlay: reglages.connexionDirecte === false ? undefined : { type: 'legacy', identifier: `${serveur.hote}:${serveur.port || 25565}` },
+    quickPlay: !reglages.connexionDirecte ? undefined : { type: 'legacy', identifier: `${serveur.hote}:${serveur.port || 25565}` },
     overrides: {
       detached: false,
       maxSockets: 8,

@@ -9,7 +9,22 @@
       "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod/onyxfight-122.jar",
       "sha1": "6779be1ed9de80cf89b534d2269891d521d0d483",
       "taille": 346312
+    },
+    {
+      "chemin": "resourcepacks/OnyxFight.zip",
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/OnyxFight.zip?v=3840501a29c3",
+      "sha1": "3840501a29c3b462a79ac87d3ddb00ff4d972377",
+      "taille": 175685
+    },
+    {
+      "chemin": "config/splash.properties",
+      "url": "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/fichiers/splash.properties?v=80be0f111bac",
+      "sha1": "80be0f111bac62c112d3e3817d3adb9573948152",
+      "taille": 365
     }
   ],
-  "supprimer": []
+  "supprimer": [],
+  "site": "https://onyxfight.fr",
+  "discord": "https://discord.gg/onyxfight",
+  "saison": "Saison 1"
 }
