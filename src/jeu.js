@@ -115,6 +115,7 @@ async function jouer(reglages, autorisation, ev) {
     const url = `https://maven.minecraftforge.net/net/minecraftforge/forge/${cfg.MINECRAFT}-${cfg.FORGE}-${cfg.MINECRAFT}/${forgeNom}`;
     await telecharger(url, forge, (r, t) => ev.etat('Téléchargement de Forge…', t ? r / t : 0));
   }
+  const forgeOnyx = forgeAvecEcran(racine, forge);
   const serveur = manifeste.serveur || cfg.SERVEUR;
   // Minecraft 1.7.10 plante si « --userProperties » n'a pas de valeur : il lui faut un texte JSON ('{}')
   if (typeof autorisation.user_properties !== 'string') {
