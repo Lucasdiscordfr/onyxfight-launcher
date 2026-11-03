@@ -22,9 +22,9 @@ etape() { printf '\n\033[1;35m== %s\033[0m\n' "$*"; }
 
 etape "Mises à jour et outils"
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -q
-apt-get upgrade -yq
-apt-get install -yq curl wget gnupg tmux unzip jq ufw unattended-upgrades fail2ban apt-transport-https
+apt-get -o DPkg::Lock::Timeout=900 update -q
+apt-get -o DPkg::Lock::Timeout=900 upgrade -yq
+apt-get -o DPkg::Lock::Timeout=900 install -yq curl wget gnupg tmux unzip jq ufw unattended-upgrades fail2ban apt-transport-https
 
 timedatectl set-timezone Europe/Paris || true
 
@@ -37,8 +37,8 @@ if ! [ -x /usr/lib/jvm/temurin-8-jdk-amd64/bin/java ]; then
   curl -fsI "https://packages.adoptium.net/artifactory/deb/dists/$NOM/Release" >/dev/null 2>&1 || NOM=noble
   echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $NOM main" \
     > /etc/apt/sources.list.d/adoptium.list
-  apt-get update -q
-  apt-get install -yq temurin-8-jdk
+  apt-get -o DPkg::Lock::Timeout=900 update -q
+  apt-get -o DPkg::Lock::Timeout=900 install -yq temurin-8-jdk
 fi
 JAVA=/usr/lib/jvm/temurin-8-jdk-amd64/bin/java
 "$JAVA" -version 2>&1 | head -1
