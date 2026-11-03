@@ -67,6 +67,10 @@ function ouvrirReglages() {
   $('reglages').classList.remove('cache');
 }
 
+// Un personnage différent à chaque ouverture (onyx, rubis, émeraude, saphir)
+const PERSONNAGES = ['onyx', 'rubis', 'rubis2', 'emeraude', 'saphir'];
+document.getElementById('personnage').src = '../../assets/personnage-' + PERSONNAGES[Math.floor(Math.random() * PERSONNAGES.length)] + '.png';
+
 async function demarrer() {
   infos = await window.onyx.infos();
   $('version').textContent = 'v' + infos.version;
