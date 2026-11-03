@@ -6,9 +6,9 @@
   "fichiers": [
     {
       "chemin": "mods/onyxfight.jar",
-      "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod/onyxfight-160.jar",
-      "sha1": "4f45d67e99cce945e48eb9ca3b9e50c6ef97e5b4",
-      "taille": 5061364
+      "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod/onyxfight-161.jar",
+      "sha1": "4dfc4235e710dd1f22075c4faa363c98d9d0f361",
+      "taille": 5061378
     },
     {
       "chemin": "resourcepacks/OnyxFight.zip",
