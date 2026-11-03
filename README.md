@@ -17,3 +17,8 @@ Dernière version : onglet **Releases** de ce dépôt (`OnyxFight-Launcher.exe` 
 - Nouvelle version du launcher : augmenter `version` dans `package.json` et pousser ; GitHub Actions construit
   l'installateur Windows et le publie, les launchers déjà installés se mettent à jour seuls.
 - Essai en local : `npm install` puis `npm start`.
+
+## Serveur (OVH)
+Installation sur une machine Ubuntu 24.04 neuve : `curl -fsSL https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/serveur/installer.sh | sudo bash`
+(Java 8, Crucible 1.7.10, mod OnyxFight, service, sauvegardes, redémarrage la nuit, pare-feu, compte de déploiement).
+Commandes : `onyx console`, `onyx redemarrer`, `onyx arreter`, `onyx etat`, `onyx sauvegarde`.
