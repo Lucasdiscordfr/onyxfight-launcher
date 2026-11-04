@@ -86,11 +86,12 @@ for a in "$@"; do
   [ "$a" = "enligne" ] && EN_LIGNE=true && COMPTES=false
   [ "$a" = "comptes" ] && EN_LIGNE=false && COMPTES=true
 done
+rm -f world/serverconfig/onyxfight-comptes.toml world/serverconfig/onyxfight-comptes.new.tmp.toml   # ancienne version (plantait)
 if [ -n "$COMPTES" ]; then
-  mkdir -p world/serverconfig
-  printf '[comptes]\n\tactif = %s\n\tapi = "http://127.0.0.1:8090"\n\tdelai_secondes = 20\n' "$COMPTES" > world/serverconfig/onyxfight-comptes.toml
+  mkdir -p config
+  printf 'actif=%s\napi=http://127.0.0.1:8090\ndelai_secondes=20\n' "$COMPTES" > config/onyxfight-comptes.properties
 fi
-[ -f world/serverconfig/onyxfight-comptes.toml ] && grep -q "actif = true" world/serverconfig/onyxfight-comptes.toml \
+[ -f config/onyxfight-comptes.properties ] && grep -q "actif=true" config/onyxfight-comptes.properties \
   && echo "Comptes OnyxFight vérifiés (pseudo + mot de passe du site)" || echo "Comptes OnyxFight : vérification désactivée"
 
 echo "Comptes : $([ "$EN_LIGNE" = true ] && echo 'Microsoft (online-mode=true)' || echo 'CRACK / hors ligne (online-mode=false)')"
