@@ -42,6 +42,13 @@ echo "eula=true" > eula.txt
 
 echo "=== Mod OnyxFight 1.21.1 ==="
 curl -fsSL -o mods/onyxfight-1.21.1.jar "$MOD"
+
+echo "=== Mods tiers (téléchargés depuis leurs sites officiels) ==="
+# What Are They Up To + CoroUtil (Corosus, avec son accord)
+[ -f mods/coroutil-neoforge-1.21.0-1.3.8.jar ] || curl -fsSL -o mods/coroutil-neoforge-1.21.0-1.3.8.jar \
+  https://cdn.modrinth.com/data/rLLJ1OZM/versions/H2YXCYUY/coroutil-neoforge-1.21.0-1.3.8.jar
+[ -f mods/watut-neoforge-1.21.0-1.2.3.jar ] || curl -fsSL -o mods/watut-neoforge-1.21.0-1.2.3.jar \
+  https://mediafilez.forgecdn.net/files/6315/277/watut-neoforge-1.21.0-1.2.3.jar
 ls -la mods
 
 echo "=== Plugin OnyxFight 1.21.1 ==="
