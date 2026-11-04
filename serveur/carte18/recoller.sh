@@ -10,7 +10,8 @@ CARTE=$RACINE/carte18
 DEPOT=https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/serveur/carte18
 [ "$(id -u)" = 0 ] || { echo "Lance ce script avec sudo."; exit 1; }
 [ -f "$CARTE/plugins/OnyxCarte/TERMINE" ] || { echo "La map 1.8 n'est pas encore finie (carte18.sh)."; exit 1; }
-sudo -u onyx tmux has-session -t carte18 2>/dev/null && { echo "Le serveur de génération tourne encore : attends qu'il s'arrête."; exit 1; }
+pgrep -u onyx -f "paper.jar nogui" >/dev/null && { echo "Le serveur de génération tourne encore : attends qu'il s'arrête."; exit 1; }
+sudo -u onyx tmux kill-session -t carte18 2>/dev/null || true
 
 NIVEAU=$(grep -E '^level-name=' "$ACTUEL/server.properties" | cut -d= -f2- || true)
 NIVEAU=${NIVEAU:-world}
