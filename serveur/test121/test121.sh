@@ -27,7 +27,7 @@ fi
 echo "=== Arrêt du serveur de test (s'il tourne) ==="
 if sudo -u onyx tmux -L test121 has-session -t test121 2>/dev/null; then
   sudo -u onyx tmux -L test121 send-keys -t test121 "stop" Enter
-  for i in $(seq 1 90); do pgrep -u onyx -f "arclight|neoforge-$NEOFORGE" >/dev/null || break; sleep 1; done
+  for i in $(seq 1 90); do pgrep -u onyx -f "^java .*(arclight|neoforge-$NEOFORGE)" >/dev/null || break; sleep 1; done
   sudo -u onyx tmux -L test121 kill-session -t test121 2>/dev/null || true
 fi
 
