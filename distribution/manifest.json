@@ -44,9 +44,9 @@
     "fichiers": [
       {
         "chemin": "mods/onyxfight-1.21.1.jar",
-        "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod121/onyxfight-1.21.1.jar?v=628903d942b5",
-        "sha1": "628903d942b5b4a663a3a30f7ccdfb2554c46aec",
-        "taille": 132156
+        "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod121/onyxfight-1.21.1.jar?v=f62990f0148c",
+        "sha1": "f62990f0148cb5f345a95d284c5152e7124c87b7",
+        "taille": 132256
       }
     ]
   }
