@@ -106,12 +106,13 @@ ipcMain.handle('actualites', async () => {
 ipcMain.handle('statut', async () => {
   try {
     const m = await lireJson(cfg.MANIFESTE);
-    const s = m.serveur || cfg.SERVEUR;
+    const test = reglages().version121 && m.v121;
+    const s = test ? m.v121.serveur : m.serveur || cfg.SERVEUR;
     const util = require('minecraft-server-util');
-    const r = await util.status(s.hote, s.port || 25565, { timeout: 4000, enableSRV: true });
-    return { enLigne: true, joueurs: r.players.online, max: r.players.max, adresse: s.hote };
+    const r = await util.status(s.hote, s.port || 25565, { timeout: 4000, enableSRV: !test });
+    return { enLigne: true, joueurs: r.players.online, max: r.players.max, adresse: s.hote, test: !!test };
   } catch (e) {
-    return { enLigne: false };
+    return { enLigne: false, test: !!reglages().version121 };
   }
 });
 

@@ -55,6 +55,8 @@ async function chargerStatut() {
   const s = await window.onyx.statut();
   $('pastille').className = 'pastille ' + (s.enLigne ? 'ok' : 'ko');
   $('statut').textContent = s.enLigne ? `${s.joueurs} / ${s.max} joueurs en ligne` : 'Serveur hors ligne ou injoignable';
+  const titre = document.querySelector('#statut').parentElement.querySelector('strong');
+  if (titre) titre.textContent = s.test ? 'Serveur de test 1.21.1' : 'Serveur OnyxFight';
 }
 
 function ouvrirReglages() {
@@ -91,6 +93,7 @@ async function demarrer() {
       version121: $('v121').checked,
     });
     $('reglages').classList.add('cache');
+    chargerStatut();
   };
 
   $('connecter').onclick = async () => {
