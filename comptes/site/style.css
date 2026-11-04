@@ -44,3 +44,23 @@ input:focus { outline: 2px solid var(--violet); border-color: transparent; }
 footer { text-align: center; color: var(--gris); font-size: 13px; padding: 20px; }
 .cache { display: none !important; }
 @media (max-width: 800px) { .hero { grid-template-columns: 1fr; text-align: center; } .hero .perso { display: none; } .boutons { justify-content: center; } .hero p.accroche { margin: 0 auto; } }
+select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--bord); background: rgba(0, 0, 0, .35); color: var(--texte); font: inherit; }
+select option { background: #160f22; }
+.compte-page { max-width: 1000px; margin: 3vh auto; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.compte-page .large { grid-column: 1 / -1; }
+.infos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+.info { background: rgba(0, 0, 0, .3); border-radius: 12px; padding: 12px; }
+.info span { display: block; font-size: 12px; color: var(--gris); }
+.info strong { font-size: 18px; font-family: Rajdhani, sans-serif; }
+.apercu { display: flex; gap: 18px; justify-content: center; align-items: flex-end; margin: 10px 0 4px; min-height: 260px;
+  background: radial-gradient(circle at 50% 70%, rgba(162, 77, 255, .25), transparent 70%); border-radius: 14px; }
+.apercu canvas { image-rendering: pixelated; }
+.apercu .legende { font-size: 12px; color: var(--gris); text-align: center; }
+.choix { display: flex; gap: 10px; margin-top: 10px; }
+.choix label { flex: 1; margin: 0; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 10px; background: rgba(0, 0, 0, .3); cursor: pointer; font-weight: 500; }
+.choix input { width: auto; }
+.fichier { margin-top: 10px; }
+.verrou { padding: 14px; border-radius: 12px; background: rgba(0, 0, 0, .3); color: var(--gris); text-align: center; }
+.liste { margin: 8px 0 0; padding-left: 18px; color: var(--gris); line-height: 1.7; }
+.liste code { color: var(--texte); background: rgba(0, 0, 0, .35); padding: 1px 6px; border-radius: 6px; }
+@media (max-width: 800px) { .compte-page { grid-template-columns: 1fr; } }

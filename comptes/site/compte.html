@@ -30,43 +30,191 @@
     <input id="mdp" type="password" autocomplete="current-password" required>
     <button class="bouton" id="valider">Se connecter</button>
     <div class="message" id="msg"></div>
-    <p class="bas">Pas encore de compte ? <a href="/inscription">Crée-le ici</a></p>
+    <p class="bas"><a href="/oubli">Mot de passe oublié ?</a> · <a href="/inscription">Créer un compte</a></p>
   </form>
 
-  <div class="formulaire cache" id="espace">
-    <div class="carte">
+  <div class="compte-page cache" id="espace">
+    <!-- Profil et informations -->
+    <div class="carte large">
       <div class="profil"><img id="tete" alt=""><div><div class="aide">Connecté en tant que</div><strong id="nom"></strong></div></div>
       <div class="message" id="bienvenue"></div>
-      <div class="boutons">
-        <a class="bouton" href="https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/latest/download/OnyxFight-Launcher.exe">Télécharger le launcher</a>
+      <div class="infos">
+        <div class="info"><span>Grade</span><strong id="i-grade">—</strong></div>
+        <div class="info"><span>Argent</span><strong id="i-argent">—</strong></div>
+        <div class="info"><span>Faction</span><strong id="i-faction">—</strong></div>
+        <div class="info"><span>Kills · Morts</span><strong id="i-km">—</strong></div>
+        <div class="info"><span>Dernière partie</span><strong id="i-derniere">—</strong></div>
+        <div class="info"><span>Parties jouées</span><strong id="i-parties">0</strong></div>
+        <div class="info"><span>Compte créé le</span><strong id="i-cree">—</strong></div>
       </div>
-      <p class="aide" style="margin-top:10px">Dans le launcher, connecte-toi avec ce pseudo et ce mot de passe.</p>
+      <p class="aide" id="i-maj" style="margin-top:8px"></p>
     </div>
-    <form class="carte" id="changer" style="margin-top:16px">
+
+    <!-- Skin -->
+    <div class="carte">
+      <h3>Mon skin</h3>
+      <div class="apercu"><div><canvas id="skin-avant" width="16" height="32"></canvas><div class="legende">Devant</div></div>
+        <div><canvas id="skin-dos" width="16" height="32"></canvas><div class="legende">Dos</div></div></div>
+      <div class="choix">
+        <label><input type="radio" name="modele" value="classic" checked> Bras larges</label>
+        <label><input type="radio" name="modele" value="slim"> Bras fins</label>
+      </div>
+      <input class="fichier" type="file" id="skin-fichier" accept="image/png">
+      <div class="aide">Image PNG de 64 × 64 pixels (format des skins Minecraft).</div>
+      <div class="boutons" style="margin-top:12px">
+        <button class="bouton" id="skin-envoyer" type="button">Enregistrer le skin</button>
+        <button class="bouton secondaire" id="skin-retirer" type="button">Retirer</button>
+      </div>
+      <div class="message" id="skin-msg"></div>
+      <div class="aide" style="margin-top:8px">Il apparaît en jeu à ta prochaine connexion au serveur.</div>
+    </div>
+
+    <!-- Cape -->
+    <div class="carte">
+      <h3>Ma cape</h3>
+      <div class="apercu"><div><canvas id="cape-dos" width="16" height="32"></canvas><div class="legende">Dos</div></div></div>
+      <div id="cape-zone">
+        <input class="fichier" type="file" id="cape-fichier" accept="image/png">
+        <div class="aide">Image PNG au format des capes : 64 × 32 pixels (ou 128 × 64… jusqu'à 1024 × 512).</div>
+        <div class="boutons" style="margin-top:12px">
+          <button class="bouton" id="cape-envoyer" type="button">Enregistrer la cape</button>
+          <button class="bouton secondaire" id="cape-retirer" type="button">Retirer</button>
+        </div>
+      </div>
+      <div class="verrou cache" id="cape-verrou">🔒 Importer ta propre cape est réservé au <strong>plus haut grade</strong>.<br>Tu peux porter les capes d'OnyxFight avec <code>/cosmetiques</code>.</div>
+      <div class="message" id="cape-msg"></div>
+    </div>
+
+    <!-- Sécurité -->
+    <form class="carte" id="securite">
+      <h3>Récupération du compte</h3>
+      <p class="aide" id="s-etat"></p>
+      <label for="s-email">Adresse e-mail</label>
+      <input id="s-email" type="email" maxlength="200" required>
+      <label for="s-question">Question secrète</label>
+      <select id="s-question" required><option value="">Choisis une question…</option></select>
+      <label for="s-reponse">Réponse</label>
+      <input id="s-reponse" maxlength="64" autocomplete="off" required>
+      <label for="s-mdp">Ton mot de passe actuel</label>
+      <input id="s-mdp" type="password" autocomplete="current-password" required>
+      <button class="bouton secondaire" style="width:100%;margin-top:16px">Enregistrer</button>
+      <div class="message" id="s-msg"></div>
+    </form>
+
+    <form class="carte" id="changer">
       <h3>Changer de mot de passe</h3>
       <label for="ancien">Mot de passe actuel</label>
       <input id="ancien" type="password" autocomplete="current-password" required>
       <label for="nouveau">Nouveau mot de passe</label>
       <input id="nouveau" type="password" autocomplete="new-password" minlength="8" required>
-      <button class="bouton secondaire" id="valider2" style="width:100%;margin-top:16px">Changer</button>
+      <button class="bouton secondaire" style="width:100%;margin-top:16px">Changer</button>
       <div class="message" id="msg2"></div>
       <div class="aide" style="margin-top:8px">Tes autres connexions (launcher, jeu) seront coupées.</div>
     </form>
-    <p class="bas"><a href="#" id="sortir">Se déconnecter</a></p>
+
+    <!-- Infos pratiques -->
+    <div class="carte large">
+      <h3>Infos pratiques</h3>
+      <ul class="liste">
+        <li>Pour jouer : <a href="https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/latest/download/OnyxFight-Launcher.exe">télécharge le launcher</a>, connecte-toi avec ce pseudo et ce mot de passe, puis clique sur <strong>Jouer</strong>.</li>
+        <li>Le serveur se joue <strong>uniquement avec le launcher OnyxFight</strong> (il installe Java, Minecraft et les mods).</li>
+        <li>Ton pseudo ne peut pas être changé. Ne donne jamais ton mot de passe : l'équipe ne te le demandera jamais.</li>
+        <li>En jeu : <code>/menu</code> (tout le serveur), <code>/kit</code>, <code>/f aide</code> (factions), <code>/cosmetiques</code>, <code>/succes</code>, <code>/classes</code>, <code>/spawn</code>.</li>
+        <li>Un souci ? Viens sur le <a href="https://discord.gg/onyxfight" target="_blank" rel="noopener">Discord</a>.</li>
+      </ul>
+    </div>
+    <p class="bas large"><a href="#" id="sortir">Se déconnecter</a></p>
   </div>
 </main>
 <script>
-function montrer(c) {
+let compte = null, imgSkin = null, imgCape = null;
+
+/** Dessine le devant ou le dos d'un skin 64×64 (et la cape au dos). */
+function dessinerSkin(canvas, img, dos, slim, cape) {
+  const k = 8, g = canvas.getContext('2d');
+  canvas.width = 16 * k; canvas.height = 32 * k;
+  g.imageSmoothingEnabled = false;
+  g.clearRect(0, 0, canvas.width, canvas.height);
+  const b = slim ? 3 : 4;
+  const part = (sx, sy, w, h, dx, dy) => g.drawImage(img, sx, sy, w, h, dx * k, dy * k, w * k, h * k);
+  if (!img) {
+    g.fillStyle = 'rgba(255,255,255,.08)';
+    g.fillRect(4 * k, 0, 8 * k, 8 * k); g.fillRect(4 * k, 8 * k, 8 * k, 12 * k); g.fillRect(4 * k, 20 * k, 8 * k, 12 * k);
+    g.fillRect((4 - b) * k, 8 * k, b * k, 12 * k); g.fillRect(12 * k, 8 * k, b * k, 12 * k);
+  } else if (!dos) {
+    part(8, 8, 8, 8, 4, 0); part(40, 8, 8, 8, 4, 0);          // tête + chapeau
+    part(20, 20, 8, 12, 4, 8); part(20, 36, 8, 12, 4, 8);      // corps + veste
+    part(44, 20, b, 12, 4 - b, 8); part(44, 36, b, 12, 4 - b, 8);   // bras droit
+    part(36, 52, b, 12, 12, 8); part(52, 52, b, 12, 12, 8);    // bras gauche
+    part(4, 20, 4, 12, 4, 20); part(4, 36, 4, 12, 4, 20);      // jambe droite
+    part(20, 52, 4, 12, 8, 20); part(4, 52, 4, 12, 8, 20);     // jambe gauche
+  } else {
+    part(24, 8, 8, 8, 4, 0); part(56, 8, 8, 8, 4, 0);
+    part(32, 20, 8, 12, 4, 8); part(32, 36, 8, 12, 4, 8);
+    part(48 + b, 20, b, 12, 12, 8); part(48 + b, 36, b, 12, 12, 8);        // bras droit (dos)
+    part(40 + b, 52, b, 12, 4 - b, 8); part(56 + b, 52, b, 12, 4 - b, 8);  // bras gauche (dos)
+    part(12, 20, 4, 12, 8, 20); part(12, 36, 4, 12, 8, 20);                // jambe droite (dos)
+    part(28, 52, 4, 12, 4, 20); part(12, 52, 4, 12, 4, 20);                // jambe gauche (dos)
+  }
+  if (cape) {
+    const s = cape.width / 64; // les capes HD sont des multiples de 64×32
+    g.drawImage(cape, 1 * s, 1 * s, 10 * s, 16 * s, 3 * k, 8 * k, 10 * k, 16 * k);
+  }
+}
+function charger(url) {
+  return new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = url; });
+}
+function modele() {
+  return document.querySelector('input[name=modele]:checked').value;
+}
+function dessinerTout() {
+  const slim = modele() === 'slim';
+  dessinerSkin($('skin-avant'), imgSkin, false, slim);
+  dessinerSkin($('skin-dos'), imgSkin, true, slim);
+  dessinerSkin($('cape-dos'), imgSkin, true, slim, imgCape);
+}
+
+async function montrer(c) {
+  compte = c;
   $('connexion').classList.add('cache');
   $('espace').classList.remove('cache');
   $('nom').textContent = c.pseudo;
-  $('tete').src = 'https://mc-heads.net/avatar/' + encodeURIComponent(c.pseudo) + '/72';
+  $('tete').src = c.skin ? '/skins/' + c.uuid + '.png?v=' + c.skin.version : 'https://mc-heads.net/avatar/MHF_Steve/72';
+  if (c.skin) { $('tete').src = ''; teteDepuisSkin(); }
   if (new URLSearchParams(location.search).has('nouveau')) message($('bienvenue'), 'Compte créé, bienvenue sur OnyxFight !', true);
+  const j = c.jeu;
+  $('i-grade').textContent = j ? j.grade : 'Joueur';
+  $('i-argent').textContent = j ? Math.round(j.argent).toLocaleString('fr-FR') : '—';
+  $('i-faction').textContent = j ? (j.faction || 'Aucune') : '—';
+  $('i-km').textContent = j ? j.kills + ' · ' + j.morts : '—';
+  $('i-derniere').textContent = date(c.derniereConnexion);
+  $('i-parties').textContent = c.connexions || 0;
+  $('i-cree').textContent = date(c.cree);
+  $('i-maj').textContent = j ? 'Infos du jeu mises à jour le ' + new Date(j.maj).toLocaleString('fr-FR') : 'Les infos du jeu apparaîtront après ta première partie.';
+  $('s-etat').textContent = c.recuperable ? 'E-mail : ' + c.email + ' · question : « ' + c.question + ' »'
+    : '⚠ Ajoute une adresse e-mail et une question secrète : sans elles, un mot de passe oublié ne pourra pas être récupéré.';
+  $('cape-zone').classList.toggle('cache', !c.capePermise);
+  $('cape-verrou').classList.toggle('cache', !!c.capePermise);
+  document.querySelector('input[name=modele][value=' + (c.skin ? c.skin.modele : 'classic') + ']').checked = true;
+  imgSkin = c.skin ? await charger('/skins/' + c.uuid + '.png?v=' + c.skin.version) : null;
+  imgCape = c.cape ? await charger('/capes/' + c.uuid + '.png?v=' + c.cape.version) : null;
+  dessinerTout();
+  teteDepuisSkin();
 }
+function teteDepuisSkin() {
+  if (!imgSkin) return;
+  const c = document.createElement('canvas'); c.width = c.height = 72;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.drawImage(imgSkin, 8, 8, 8, 8, 0, 0, 72, 72); g.drawImage(imgSkin, 40, 8, 8, 8, 0, 0, 72, 72);
+  $('tete').src = c.toDataURL();
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  remplirQuestions($('s-question'));
+  dessinerTout();
   const s = Session.lire();
   if (s) {
-    const c = await api('session', { session: s });
+    const c = await api('profil', { session: s });
     if (!c.erreur) montrer(c); else Session.ecrire(null);
   }
   $('connexion').onsubmit = async (e) => {
@@ -76,6 +224,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('valider').disabled = false;
     if (r.erreur) return message($('msg'), r.erreur);
     Session.ecrire(r.session);
+    montrer(await api('profil', { session: r.session }));
+  };
+  document.querySelectorAll('input[name=modele]').forEach((x) => (x.onchange = dessinerTout));
+  $('skin-fichier').onchange = async () => {
+    const f = $('skin-fichier').files[0];
+    if (f) { imgSkin = await charger(URL.createObjectURL(f)); dessinerTout(); }
+  };
+  $('cape-fichier').onchange = async () => {
+    const f = $('cape-fichier').files[0];
+    if (f) { imgCape = await charger(URL.createObjectURL(f)); dessinerTout(); }
+  };
+  $('skin-envoyer').onclick = async () => {
+    const f = $('skin-fichier').files[0];
+    if (!f && compte.skin) {
+      const r = await api('skin', { session: Session.lire(), image: await lireFichier(await (await fetch('/skins/' + compte.uuid + '.png?v=' + compte.skin.version)).blob()), modele: modele() });
+      return r.erreur ? message($('skin-msg'), r.erreur) : (message($('skin-msg'), 'Modèle enregistré.', true), montrer(r));
+    }
+    if (!f) return message($('skin-msg'), 'Choisis d\'abord une image.');
+    const r = await api('skin', { session: Session.lire(), image: await lireFichier(f), modele: modele() });
+    if (r.erreur) return message($('skin-msg'), r.erreur);
+    message($('skin-msg'), 'Skin enregistré !', true);
+    montrer(r);
+  };
+  $('skin-retirer').onclick = async () => {
+    const r = await api('skin', { session: Session.lire(), supprimer: true });
+    if (r.erreur) return message($('skin-msg'), r.erreur);
+    $('skin-fichier').value = '';
+    message($('skin-msg'), 'Skin retiré.', true);
+    montrer(r);
+  };
+  $('cape-envoyer').onclick = async () => {
+    const f = $('cape-fichier').files[0];
+    if (!f) return message($('cape-msg'), 'Choisis d\'abord une image.');
+    const r = await api('cape', { session: Session.lire(), image: await lireFichier(f) });
+    if (r.erreur) return message($('cape-msg'), r.erreur);
+    message($('cape-msg'), 'Cape enregistrée !', true);
+    montrer(r);
+  };
+  $('cape-retirer').onclick = async () => {
+    const r = await api('cape', { session: Session.lire(), supprimer: true });
+    if (r.erreur) return message($('cape-msg'), r.erreur);
+    $('cape-fichier').value = '';
+    message($('cape-msg'), 'Cape retirée.', true);
+    montrer(r);
+  };
+  $('securite').onsubmit = async (e) => {
+    e.preventDefault();
+    const r = await api('securite', { session: Session.lire(), email: $('s-email').value.trim(), question: $('s-question').value,
+      reponse: $('s-reponse').value, motdepasse: $('s-mdp').value });
+    if (r.erreur) return message($('s-msg'), r.erreur);
+    $('securite').reset();
+    message($('s-msg'), 'Enregistré.', true);
     montrer(r);
   };
   $('changer').onsubmit = async (e) => {

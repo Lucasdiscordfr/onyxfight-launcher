@@ -13,6 +13,30 @@ async function api(route, corps) {
     return { erreur: 'Serveur injoignable. Réessaie dans un instant.' };
   }
 }
+/** Remplit une liste déroulante avec les questions secrètes. */
+async function remplirQuestions(sel, choisie) {
+  try {
+    const q = await (await fetch('/api/questions')).json();
+    for (const [id, t] of Object.entries(q)) {
+      const o = document.createElement('option');
+      o.value = id;
+      o.textContent = t;
+      if (id === choisie) o.selected = true;
+      sel.appendChild(o);
+    }
+  } catch (e) { /* réessayer plus tard */ }
+}
+function lireFichier(f) {
+  return new Promise((ok, ko) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(',')[1]);
+    r.onerror = ko;
+    r.readAsDataURL(f);
+  });
+}
+function date(t) {
+  return t ? new Date(t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+}
 function message(el, texte, ok) {
   el.textContent = texte || '';
   el.className = 'message ' + (texte ? (ok ? 'ok' : 'erreur') : '');

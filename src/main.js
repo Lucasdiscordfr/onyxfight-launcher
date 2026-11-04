@@ -192,6 +192,7 @@ ipcMain.handle('jouer', async () => {
     if (compte.test && !(await modeTestOuvert())) throw new Error('Le mode test est fermé : connecte-toi avec ton compte OnyxFight.');
     const manifeste = await lireJson(cfg.MANIFESTE);
     Compte.regler(manifeste.comptes);
+    if (manifeste.comptes) r.comptes = manifeste.comptes;
     const autorisation = await compte.pourJouer();
     const v121 = manifeste.v121;
     if (!v121) throw new Error("Le serveur OnyxFight n'est pas disponible pour le moment.");

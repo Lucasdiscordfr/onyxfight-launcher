@@ -170,6 +170,8 @@ async function jouer121(reglages, autorisation, v121, ev) {
     discord: v121.discord || cfg.DISCORD,
     saison: v121.saison || '',
     version: reglages.versionLauncher || '',
+    // Service des comptes : le jeu y prend les skins et capes importés sur le site
+    comptes: reglages.comptes || cfg.COMPTES,
   }, null, 2));
   // Pas de fenêtre de chargement NeoForge : le mod OnyxFight dessine son propre écran de chargement
   const fml = path.join(racine, 'config', 'fml.toml');
