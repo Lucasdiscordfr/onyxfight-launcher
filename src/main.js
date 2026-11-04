@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs');
 const cfg = require('./config');
 const Compte = require('./compte');
-const { jouer } = require('./jeu');
 const { jouer121 } = require('./jeu121');
 const { lireJson } = require('./telechargement');
 const discord = require('./discord');
@@ -106,13 +105,14 @@ ipcMain.handle('actualites', async () => {
 ipcMain.handle('statut', async () => {
   try {
     const m = await lireJson(cfg.MANIFESTE);
-    const test = reglages().version121 && m.v121;
+    // Le serveur 1.21.1 est désormais le serveur OnyxFight (l'ancien 1.7.10 n'est plus proposé)
+    const test = !!m.v121;
     const s = test ? m.v121.serveur : m.serveur || cfg.SERVEUR;
     const util = require('minecraft-server-util');
     const r = await util.status(s.hote, s.port || 25565, { timeout: 4000, enableSRV: !test });
     return { enLigne: true, joueurs: r.players.online, max: r.players.max, adresse: s.hote, test: !!test };
   } catch (e) {
-    return { enLigne: false, test: !!reglages().version121 };
+    return { enLigne: false, test: true };
   }
 });
 
@@ -176,17 +176,14 @@ ipcMain.handle('jouer', async () => {
   try {
     if (compte.test && !(await modeTestOuvert())) throw new Error('Le mode test est fermé : reconnecte-toi avec ton compte Microsoft.');
     const autorisation = await compte.pourJouer();
-    let v121 = null;
-    if (r.version121) {
-      v121 = (await lireJson(cfg.MANIFESTE)).v121;
-      if (!v121) throw new Error("Le serveur de test 1.21.1 n'est pas ouvert pour le moment.");
-    }
-    await (v121 ? (rr, a, e) => jouer121(rr, a, v121, e) : jouer)(r, autorisation, {
+    const v121 = (await lireJson(cfg.MANIFESTE)).v121;
+    if (!v121) throw new Error("Le serveur OnyxFight n'est pas disponible pour le moment.");
+    await jouer121(r, autorisation, v121, {
       etat: (texte, part) => envoyer('etat', { texte, part }),
       journal: (l) => flux.write(l.endsWith('\n') ? l : l + '\n'),
       lance: () => {
         envoyer('etat', { texte: 'Bon jeu sur OnyxFight !', part: 1, lance: true });
-        discord.statut('En jeu sur OnyxFight', 'PvP Faction moddé (1.7.10)', true);
+        discord.statut('En jeu sur OnyxFight', 'PvP Faction moddé', true);
         if (!r.garderOuvert && fenetre) fenetre.hide();
       },
       ferme: (code) => {

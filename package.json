@@ -1,7 +1,7 @@
 {
   "name": "onyxfight-launcher",
   "productName": "OnyxFight Launcher",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Launcher officiel du serveur OnyxFight",
   "main": "src/main.js",
   "author": "OnyxFight",

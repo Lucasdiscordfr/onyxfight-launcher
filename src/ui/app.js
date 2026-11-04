@@ -56,7 +56,7 @@ async function chargerStatut() {
   $('pastille').className = 'pastille ' + (s.enLigne ? 'ok' : 'ko');
   $('statut').textContent = s.enLigne ? `${s.joueurs} / ${s.max} joueurs en ligne` : 'Serveur hors ligne ou injoignable';
   const titre = document.querySelector('#statut').parentElement.querySelector('strong');
-  if (titre) titre.textContent = s.test ? 'Serveur de test 1.21.1' : 'Serveur OnyxFight';
+  if (titre) titre.textContent = 'Serveur OnyxFight';
 }
 
 function ouvrirReglages() {
@@ -66,7 +66,6 @@ function ouvrirReglages() {
   $('ram-valeur').textContent = r.ram;
   $('garder').checked = !!r.garderOuvert;
   $('direct').checked = !!r.connexionDirecte;
-  $('v121').checked = !!r.version121;
   $('reglages').classList.remove('cache');
 }
 
@@ -90,7 +89,6 @@ async function demarrer() {
       ram: $('ram').value,
       garderOuvert: $('garder').checked,
       connexionDirecte: $('direct').checked,
-      version121: $('v121').checked,
     });
     $('reglages').classList.add('cache');
     chargerStatut();
