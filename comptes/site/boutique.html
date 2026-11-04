@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boutique · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
+  <nav id="menu"></nav>
+</header>
+<main>
+  <h1 class="titre-page">Boutique</h1>
+  <p class="sous-titre">Grades, clés et cosmétiques : tout arrive automatiquement sur ton compte en jeu. Paiement sécurisé par Tebex.</p>
+  <div class="message" id="msg"></div>
+  <div id="boutique"><p class="vide">Chargement…</p></div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  if (new URLSearchParams(location.search).has('merci')) message($('msg'), 'Merci pour ton soutien ! Ton achat arrive en jeu dans la minute (connecte-toi si tu ne l\'es pas).', true);
+  let r;
+  try { r = await (await fetch('/api/boutique')).json(); } catch (e) { r = { erreur: 'La boutique ne répond pas.' }; }
+  const zone = $('boutique');
+  if (r.erreur) return zone.replaceChildren(el('p', { class: 'vide' }, r.erreur));
+  if (!r.ouverte) return zone.replaceChildren(el('div', { class: 'carte vide' }, '🛒 La boutique ouvre bientôt. Suis le Discord pour ne rien rater !'));
+  zone.replaceChildren(...r.categories.filter((c) => c.produits.length).map((c) => el('section', {},
+    el('h2', { style: 'font-family:Rajdhani,sans-serif;margin:24px 0 10px' }, c.nom),
+    el('div', { class: 'grille' }, c.produits.map((p) => el('div', { class: 'carte produit' },
+      p.image ? el('img', { src: p.image, alt: '' }) : null,
+      el('h3', {}, p.nom),
+      el('span', { class: 'prix' }, Number(p.prix).toLocaleString('fr-FR', { style: 'currency', currency: p.devise || 'EUR' })),
+      el('button', { class: 'bouton', onclick: async (e) => {
+        if (!Session.lire()) return (location.href = '/compte?retour=boutique');
+        e.target.disabled = true;
+        const x = await api('boutique/panier', { session: Session.lire(), produit: p.id });
+        e.target.disabled = false;
+        if (x.erreur) return message($('msg'), x.erreur);
+        location.href = x.lien;
+      } }, 'Acheter')))))));
+});
+</script>
+<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+</body>
+</html>

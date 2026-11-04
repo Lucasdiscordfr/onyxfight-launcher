@@ -365,6 +365,380 @@ function apparence(qui) {
   }];
 }
 
+
+// =====================================================================================================================
+// Jeu ↔ site : modération (rôles, journal, file d'actions pour le plugin, console), classements, boutique, votes
+// =====================================================================================================================
+const CONFIG = path.join(DONNEES, 'config.json');
+function config() {
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG, 'utf8'));
+  } catch (e) {
+    return {};
+  }
+}
+if (!d.journal) d.journal = [];
+
+/** Rôles : joueur (0), moderateur (1), admin (2), createur (3). */
+const ROLES = { joueur: 0, moderateur: 1, admin: 2, createur: 3 };
+const NOMS_ROLES = { joueur: 'Joueur', moderateur: 'Modérateur', admin: 'Administrateur', createur: 'Créateur' };
+function niveau(c) {
+  return ROLES[c && c.role] || 0;
+}
+/** Compte connecté avec au moins ce niveau, sinon la réponse d'erreur. */
+function equipe(b, min) {
+  const c = session(b.session);
+  if (!c) return [null, [401, { erreur: 'Connexion expirée : reconnecte-toi.' }]];
+  if (niveau(c) < min) return [null, [403, { erreur: 'Tu n\'as pas accès à cette partie.' }]];
+  return [c, null];
+}
+function noter(par, action, details) {
+  d.journal.push({ t: Date.now(), par, action, details: String(details || '').slice(0, 500) });
+  if (d.journal.length > 3000) d.journal.splice(0, d.journal.length - 3000);
+  sauver();
+}
+
+// État envoyé par le plugin (en mémoire : il le renvoie tout seul après un redémarrage)
+const jeu = { enLigne: [], max: 0, tps: -1, majEnLigne: 0, classements: {}, factions: [], casiers: [], majDonnees: 0 };
+const console_ = { lignes: [], seq: 0 };
+const file = []; // actions en attente pour le plugin
+const resultats = new Map(); // id → { ok, message, t }
+
+/** Qui peut faire quoi. */
+function niveauAction(a) {
+  switch (a.type) {
+    case 'sanction':
+      return a.sanction === 'ban' && !(Sanctions_duree(a.duree) > 0 && Sanctions_duree(a.duree) <= 7 * 86400000) ? 2 : 1;
+    case 'lever':
+      return a.sanction === 'ban' ? 2 : 1;
+    case 'annonce':
+    case 'faction':
+    case 'evenement':
+      return 2;
+    case 'argent':
+    case 'giveall':
+    case 'commande':
+      return 3;
+    default:
+      return 99;
+  }
+}
+function Sanctions_duree(t) {
+  const m = /^(\d{1,4})(m|min|h|j|d|s|sem)$/.exec(String(t || '').toLowerCase());
+  if (!m) return 0;
+  const n = parseInt(m[1], 10);
+  return n * ({ m: 60e3, min: 60e3, h: 3600e3, j: 86400e3, d: 86400e3, s: 7 * 86400e3, sem: 7 * 86400e3 }[m[2]]);
+}
+/** Événements lancés depuis le site (commandes connues du serveur, rien d'autre). */
+const EVENEMENTS = {
+  boss: 'gouffre invoquer', largage: 'largage lancer', koth: 'koth lancer',
+  tornade: 'evenement lancer tornade maintenant', meteorites: 'evenement lancer meteorites maintenant',
+  eruption: 'evenement lancer eruption maintenant', seisme: 'evenement lancer seisme maintenant',
+  grele: 'evenement lancer grele maintenant', tempete: 'evenement lancer tempete maintenant',
+  lunedesang: 'evenement lancer lunedesang maintenant', arreter: 'evenement arreter', retirerboss: 'gouffre retirer',
+};
+const PSEUDO_JEU = /^[A-Za-z0-9_]{1,16}$/;
+/** Vérifie et nettoie une action venue du site. */
+function nettoyer(a) {
+  const x = { type: String(a.type || '') };
+  const t = (k, max) => String(a[k] == null ? '' : a[k]).slice(0, max);
+  switch (x.type) {
+    case 'sanction':
+      x.sanction = t('sanction', 8);
+      if (!['ban', 'mute', 'warn', 'kick'].includes(x.sanction)) return null;
+      x.pseudo = t('pseudo', 16);
+      x.duree = t('duree', 8);
+      x.raison = t('raison', 200);
+      if (x.duree && !Sanctions_duree(x.duree)) return null;
+      break;
+    case 'lever':
+      x.sanction = t('sanction', 8);
+      if (!['ban', 'mute'].includes(x.sanction)) return null;
+      x.pseudo = t('pseudo', 16);
+      break;
+    case 'annonce':
+      x.texte = t('texte', 300).replace(/§/g, '');
+      if (!x.texte.trim()) return null;
+      break;
+    case 'giveall':
+      x.objet = t('objet', 64);
+      x.quantite = Math.max(1, Math.min(2304, parseInt(a.quantite, 10) || 1));
+      if (!/^[a-z0-9_:]+$/i.test(x.objet)) return null;
+      break;
+    case 'argent':
+      x.pseudo = t('pseudo', 16);
+      x.mode = ['donner', 'retirer', 'definir'].includes(a.mode) ? a.mode : null;
+      x.montant = Number(a.montant);
+      if (!x.mode || !isFinite(x.montant) || x.montant < 0 || x.montant > 1e12) return null;
+      break;
+    case 'faction':
+      x.action = ['dissoudre', 'renommer', 'expulser', 'banque'].includes(a.action) ? a.action : null;
+      x.id = t('id', 64);
+      x.valeur = t('valeur', 32);
+      if (!x.action) return null;
+      break;
+    case 'evenement':
+      if (!EVENEMENTS[a.nom]) return null;
+      return { type: 'commande', commande: EVENEMENTS[a.nom], nomEvenement: a.nom };
+    case 'commande':
+      x.commande = t('commande', 300).replace(/^\//, '');
+      if (!x.commande.trim()) return null;
+      break;
+    default:
+      return null;
+  }
+  if (x.pseudo !== undefined && !PSEUDO_JEU.test(x.pseudo)) return null;
+  return x;
+}
+
+Object.assign(ROUTES, {
+  // ---------- Public ----------
+  'GET /api/statut': () => [200, { enLigne: Date.now() - jeu.majEnLigne < 30000, joueurs: jeu.enLigne.length, max: jeu.max }],
+  'GET /api/classements': () => [200, { classements: jeu.classements, maj: jeu.majDonnees }],
+  'GET /api/votes': () => [200, { sites: Array.isArray(config().votes) ? config().votes : [] }],
+
+  'GET /api/boutique': async () => {
+    const token = config().tebex;
+    if (!token) return [200, { ouverte: false }];
+    if (cacheBoutique && Date.now() - cacheBoutique.t < 300000) return [200, cacheBoutique.r];
+    try {
+      const r = await fetch(`https://headless.tebex.io/api/accounts/${encodeURIComponent(token)}/categories?includePackages=1`,
+        { signal: AbortSignal.timeout(8000) });
+      const j = await r.json();
+      const categories = (j.data || []).map((c) => ({
+        nom: c.name, description: c.description || '',
+        produits: (c.packages || []).map((p) => ({ id: p.id, nom: p.name, description: p.description || '', prix: p.total_price ?? p.base_price,
+          devise: p.currency, image: p.image || null })),
+      }));
+      cacheBoutique = { t: Date.now(), r: { ouverte: true, categories } };
+      return [200, cacheBoutique.r];
+    } catch (e) {
+      return [502, { erreur: 'La boutique ne répond pas pour le moment.' }];
+    }
+  },
+
+  /** Panier Tebex au nom du joueur connecté, puis lien de paiement. */
+  'POST /api/boutique/panier': async (b) => {
+    const c = session(b.session);
+    if (!c) return [401, { erreur: 'Connecte-toi pour acheter (l\'achat arrive sur ton compte en jeu).' }];
+    const token = config().tebex;
+    if (!token) return [400, { erreur: 'La boutique n\'est pas encore ouverte.' }];
+    const id = parseInt(b.produit, 10);
+    if (!id) return [400, { erreur: 'Produit inconnu.' }];
+    const site = String(config().adresse || 'https://play.onyxfight.fr').replace(/\/+$/, '');
+    try {
+      const r1 = await fetch(`https://headless.tebex.io/api/accounts/${encodeURIComponent(token)}/baskets`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(8000),
+        body: JSON.stringify({ complete_url: site + '/boutique?merci=1', cancel_url: site + '/boutique', complete_auto_redirect: true,
+          username: c.pseudo, custom: { pseudo: c.pseudo, uuid: c.uuid } }),
+      });
+      const p1 = await r1.json();
+      const ident = p1.data && p1.data.ident;
+      if (!ident) return [502, { erreur: (p1 && (p1.detail || p1.message)) || 'Tebex refuse le panier.' }];
+      const r2 = await fetch(`https://headless.tebex.io/api/baskets/${ident}/packages`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(8000),
+        body: JSON.stringify({ package_id: id, quantity: 1 }),
+      });
+      const p2 = await r2.json();
+      const lien = (p2.data && p2.data.links && p2.data.links.checkout) || (p1.data.links && p1.data.links.checkout);
+      if (!lien) return [502, { erreur: (p2 && (p2.detail || p2.message)) || 'Tebex refuse ce produit.' }];
+      return [200, { lien }];
+    } catch (e) {
+      return [502, { erreur: 'La boutique ne répond pas pour le moment.' }];
+    }
+  },
+
+  // ---------- Équipe ----------
+  'POST /api/mod/moi': (b) => {
+    const c = session(b.session);
+    if (!c) return [401, { erreur: 'Connexion expirée : reconnecte-toi.' }];
+    return [200, { pseudo: c.pseudo, role: c.role || 'joueur', nomRole: NOMS_ROLES[c.role || 'joueur'], niveau: niveau(c) }];
+  },
+
+  'POST /api/mod/etat': (b) => {
+    const [, err] = equipe(b, 1);
+    if (err) return err;
+    return [200, { enLigne: jeu.enLigne, max: jeu.max, tps: jeu.tps, connecte: Date.now() - jeu.majEnLigne < 30000,
+      comptes: Object.keys(d.comptes).length, inscriptions: inscriptionsOuvertes() }];
+  },
+
+  /** Fiche d'un joueur : compte du site, infos de jeu, casier, position s'il est connecté. */
+  'POST /api/mod/joueur': (b) => {
+    const [, err] = equipe(b, 1);
+    if (err) return err;
+    const p = String(b.pseudo || '').trim().toLowerCase();
+    if (!p) return [400, { erreur: 'Donne un pseudo.' }];
+    const c = d.comptes[p];
+    const cas = jeu.casiers.find((x) => x.pseudo.toLowerCase() === p);
+    const ligne = jeu.enLigne.find((x) => x.pseudo.toLowerCase() === p);
+    if (!c && !cas && !ligne) return [404, { erreur: 'Joueur inconnu.' }];
+    return [200, {
+      pseudo: (c && c.pseudo) || (ligne && ligne.pseudo) || (cas && cas.pseudo),
+      compte: c ? { cree: c.cree, role: NOMS_ROLES[c.role || 'joueur'], email: masquerEmail(c.email), derniereConnexion: c.derniereConnexion || null,
+        connexions: c.connexions || 0, jeu: c.jeu || null, skin: !!c.skin } : null,
+      enLigne: ligne || null,
+      casier: cas ? cas.sanctions : [],
+    }];
+  },
+
+  'POST /api/mod/joueurs': (b) => {
+    const [, err] = equipe(b, 1);
+    if (err) return err;
+    const q = String(b.recherche || '').toLowerCase();
+    const noms = new Map();
+    for (const c of Object.values(d.comptes)) noms.set(c.pseudo.toLowerCase(), c.pseudo);
+    for (const c of jeu.casiers) noms.set(c.pseudo.toLowerCase(), c.pseudo);
+    const liste = [...noms.values()].filter((n) => n.toLowerCase().includes(q)).sort().slice(0, 50).map((n) => {
+      const cas = jeu.casiers.find((x) => x.pseudo.toLowerCase() === n.toLowerCase());
+      return { pseudo: n, enLigne: jeu.enLigne.some((x) => x.pseudo === n), sanctions: cas ? cas.sanctions.length : 0 };
+    });
+    return [200, { joueurs: liste }];
+  },
+
+  'POST /api/mod/factions': (b) => {
+    const [, err] = equipe(b, 2);
+    if (err) return err;
+    return [200, { factions: jeu.factions, maj: jeu.majDonnees }];
+  },
+
+  'POST /api/mod/console': (b) => {
+    const [, err] = equipe(b, 2);
+    if (err) return err;
+    const depuis = parseInt(b.depuis, 10) || 0;
+    const debut = console_.seq - console_.lignes.length;
+    const de = Math.max(0, depuis - debut);
+    return [200, { seq: console_.seq, lignes: console_.lignes.slice(de) }];
+  },
+
+  /** Une action pour le serveur (mise en file ; le plugin la fait dans la seconde). */
+  'POST /api/mod/action': (b) => {
+    const c = session(b.session);
+    if (!c) return [401, { erreur: 'Connexion expirée : reconnecte-toi.' }];
+    const a = nettoyer(b.action || {});
+    if (!a) return [400, { erreur: 'Action incomplète ou invalide.' }];
+    const min = a.nomEvenement ? 2 : niveauAction(a);
+    if (niveau(c) < min) return [403, { erreur: 'Ton rôle ne permet pas cette action.' }];
+    if (Date.now() - jeu.majEnLigne > 30000) return [503, { erreur: 'Le serveur de jeu ne répond pas (éteint ou en redémarrage).' }];
+    a.id = jeton().slice(0, 16);
+    a.par = c.pseudo;
+    a.cree = Date.now();
+    delete a.nomEvenement;
+    file.push(a);
+    const { id, par, cree, ...details } = a;
+    noter(c.pseudo, a.type, JSON.stringify(details));
+    return [200, { id: a.id }];
+  },
+
+  'POST /api/mod/resultat': (b) => {
+    const [, err] = equipe(b, 1);
+    if (err) return err;
+    const r = resultats.get(String(b.id || ''));
+    if (r) return [200, r];
+    const attente = file.find((x) => x.id === b.id);
+    return [200, { attente: true, perdu: !attente && !r }];
+  },
+
+  'POST /api/mod/journal': (b) => {
+    const [, err] = equipe(b, 2);
+    if (err) return err;
+    return [200, { journal: d.journal.slice(-300).reverse() }];
+  },
+
+  'POST /api/mod/roles': (b) => {
+    const [c, err] = equipe(b, 3);
+    if (err) return err;
+    if (b.pseudo) {
+      const cible = d.comptes[String(b.pseudo).toLowerCase()];
+      if (!cible) return [404, { erreur: 'Pas de compte à ce nom sur le site.' }];
+      if (!(b.role in ROLES)) return [400, { erreur: 'Rôle inconnu.' }];
+      if (cible === c && b.role !== 'createur') return [400, { erreur: 'Tu ne peux pas retirer ton propre rôle de créateur.' }];
+      cible.role = b.role === 'joueur' ? undefined : b.role;
+      noter(c.pseudo, 'role', `${cible.pseudo} → ${NOMS_ROLES[b.role]}`);
+    }
+    const equipeListe = Object.values(d.comptes).filter((x) => niveau(x) > 0).map((x) => ({ pseudo: x.pseudo, role: x.role, nomRole: NOMS_ROLES[x.role] }));
+    return [200, { equipe: equipeListe }];
+  },
+
+  /** Réglages du site (Créateur) : boutique Tebex (clé publique de la boutique), sites de vote. */
+  'POST /api/mod/config': (b) => {
+    const [c, err] = equipe(b, 3);
+    if (err) return err;
+    const cfg = config();
+    if (b.config) {
+      const n = b.config;
+      if (typeof n.tebex === 'string') cfg.tebex = n.tebex.trim().slice(0, 80);
+      if (Array.isArray(n.votes)) {
+        cfg.votes = n.votes.slice(0, 10).map((v) => ({ nom: String(v.nom || '').slice(0, 40), url: String(v.url || '').slice(0, 300) }))
+          .filter((v) => v.nom && /^https:\/\//.test(v.url));
+      }
+      fs.writeFileSync(CONFIG, JSON.stringify(cfg, null, 2), { mode: 0o600 });
+      cacheBoutique = null;
+      noter(c.pseudo, 'reglages', 'boutique / votes');
+    }
+    return [200, { tebex: cfg.tebex || '', votes: cfg.votes || [], inscriptions: inscriptionsOuvertes() }];
+  },
+
+  'POST /api/mod/inscriptions': (b) => {
+    const [c, err] = equipe(b, 3);
+    if (err) return err;
+    const f = path.join(DONNEES, 'inscriptions-fermees');
+    if (b.ouvrir) fs.rmSync(f, { force: true });
+    else fs.writeFileSync(f, '');
+    noter(c.pseudo, 'inscriptions', b.ouvrir ? 'ouvertes' : 'fermées');
+    return [200, { inscriptions: inscriptionsOuvertes() }];
+  },
+});
+let cacheBoutique = null;
+
+/** Requêtes du plugin (seulement depuis la machine). */
+const LOCAL = {
+  '/api/serveur/actions': () => {
+    const l = file.splice(0, 50);
+    for (const a of l) resultats.set(a.id, { attente: true, prise: Date.now() });
+    return [200, { actions: l }];
+  },
+  '/api/serveur/resultats': (b) => {
+    for (const r of Array.isArray(b.resultats) ? b.resultats : []) {
+      resultats.set(String(r.id), { ok: !!r.ok, message: String(r.message || '').slice(0, 500), t: Date.now() });
+    }
+    while (resultats.size > 500) resultats.delete(resultats.keys().next().value);
+    return [200, { ok: true }];
+  },
+  '/api/serveur/console': (b) => {
+    for (const l of Array.isArray(b.lignes) ? b.lignes : []) {
+      console_.lignes.push(String(l).slice(0, 2000));
+      console_.seq++;
+    }
+    if (console_.lignes.length > 3000) console_.lignes.splice(0, console_.lignes.length - 3000);
+    return [200, { ok: true }];
+  },
+  '/api/serveur/enligne': (b) => {
+    jeu.enLigne = Array.isArray(b.joueurs) ? b.joueurs.slice(0, 500) : [];
+    jeu.max = b.max || 0;
+    jeu.tps = b.tps;
+    jeu.majEnLigne = Date.now();
+    return [200, { ok: true }];
+  },
+  '/api/serveur/donnees': (b) => {
+    if (b.classements) jeu.classements = b.classements;
+    if (Array.isArray(b.factions)) jeu.factions = b.factions;
+    jeu.majDonnees = Date.now();
+    return [200, { ok: true }];
+  },
+  '/api/serveur/casiers': (b) => {
+    if (Array.isArray(b.casiers)) jeu.casiers = b.casiers;
+    return [200, { ok: true }];
+  },
+  /** Premier créateur (depuis la machine) : curl -X POST 127.0.0.1:8090/api/serveur/role -d '{"pseudo":"…","role":"createur"}' */
+  '/api/serveur/role': (b) => {
+    const c = d.comptes[String(b.pseudo || '').toLowerCase()];
+    if (!c || !(b.role in ROLES)) return [400, { erreur: 'Pseudo ou rôle inconnu.' }];
+    c.role = b.role === 'joueur' ? undefined : b.role;
+    noter('Console', 'role', `${c.pseudo} → ${NOMS_ROLES[b.role]}`);
+    return [200, { ok: true, pseudo: c.pseudo, role: b.role }];
+  },
+};
+
 // ---------- Site ----------
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp' };
@@ -414,13 +788,10 @@ function lireCorps(req, res, max, traiter) {
     } catch (e) {
       return envoyer(res, 400, { erreur: 'Requête illisible' });
     }
-    try {
-      const [c, r] = traiter(b);
-      envoyer(res, c, r);
-    } catch (e) {
+    Promise.resolve().then(() => traiter(b)).then(([c, r]) => envoyer(res, c, r), (e) => {
       console.error(e);
       envoyer(res, 500, { erreur: 'Erreur du serveur, réessaie.' });
-    }
+    });
   });
 }
 
@@ -435,14 +806,21 @@ http.createServer((req, res) => {
     const [c, r] = verifier(url.searchParams);
     return envoyer(res, c, r);
   }
-  if (url.pathname === '/api/serveur/profils') {
+  if (url.pathname === '/api/serveur/profils' || LOCAL[url.pathname]) {
     if (!local || req.headers['x-forwarded-for'] || req.method !== 'POST') return envoyer(res, 403, { erreur: 'Interdit' });
-    return lireCorps(req, res, 2 * 1024 * 1024, (b) => profilsJeu(b));
+    return lireCorps(req, res, 2 * 1024 * 1024, (b) => (LOCAL[url.pathname] || profilsJeu)(b));
   }
   let m = url.pathname.match(/^\/api\/apparence\/([A-Za-z0-9_-]{3,36})$/);
   if (m) {
     const [c, r] = apparence(m[1]);
     return envoyer(res, c, r);
+  }
+  m = url.pathname.match(/^\/api\/tete\/([A-Za-z0-9_]{1,16})$/);
+  if (m) {
+    const c = d.comptes[m[1].toLowerCase()];
+    if (!c || !c.skin) return envoyer(res, 404, 'Pas de skin');
+    res.writeHead(302, { Location: `/skins/${c.uuid}.png?v=${c.skin.version}`, 'Cache-Control': 'public, max-age=300' });
+    return res.end();
   }
   m = url.pathname.match(/^\/(skins|capes)\/([0-9a-f-]{36})\.png$/);
   if (m) {
@@ -453,8 +831,7 @@ http.createServer((req, res) => {
   }
   const route = ROUTES[req.method + ' ' + url.pathname];
   if (route && req.method === 'GET') {
-    const [c, r] = route({}, ip);
-    return envoyer(res, c, r);
+    return Promise.resolve(route({}, ip)).then(([c, r]) => envoyer(res, c, r), () => envoyer(res, 500, { erreur: 'Erreur du serveur.' }));
   }
   if (!route) {
     if (url.pathname.startsWith('/api/')) return envoyer(res, 404, { erreur: 'Inconnu' });

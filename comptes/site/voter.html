@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voter · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
+  <nav id="menu"></nav>
+</header>
+<main>
+  <h1 class="titre-page">Voter pour OnyxFight</h1>
+  <p class="sous-titre">Chaque vote fait connaître le serveur. Merci ! Tu peux voter sur chaque site toutes les 24 heures (ou selon le site).</p>
+  <div class="grille" id="sites"><p class="vide">Chargement…</p></div>
+  <div class="carte" style="margin-top:18px">
+    <h3>Comment ça marche ?</h3>
+    <ul class="liste">
+      <li>Clique sur un site ci-dessus et vote avec <strong>ton pseudo exact</strong> du jeu.</li>
+      <li>Les récompenses en jeu et le classement des voteurs arrivent bientôt.</li>
+    </ul>
+  </div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  let r = { sites: [] };
+  try { r = await (await fetch('/api/votes')).json(); } catch (e) { /* hors ligne */ }
+  if (!r.sites.length) return $('sites').replaceChildren(el('div', { class: 'carte vide', style: 'grid-column:1/-1' }, '🗳 Les sites de vote arrivent bientôt.'));
+  $('sites').replaceChildren(...r.sites.map((s) => el('a', { class: 'carte', href: s.url, target: '_blank', rel: 'noopener', style: 'text-decoration:none;color:inherit' },
+    el('h3', {}, s.nom), el('p', {}, 'Voter sur ' + new URL(s.url).hostname + ' →'))));
+});
+</script>
+<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+</body>
+</html>

@@ -13,12 +13,7 @@
 <body>
 <header>
   <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
-  <nav>
-    <a href="/">Accueil</a>
-    <a href="/inscription">Créer un compte</a>
-    <a href="/compte" data-compte>Connexion</a>
-    <a href="https://discord.gg/onyxfight" target="_blank" rel="noopener">Discord</a>
-  </nav>
+  <nav id="menu"></nav>
 </header>
 <main>
   <form class="carte formulaire" id="connexion">
@@ -224,6 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('valider').disabled = false;
     if (r.erreur) return message($('msg'), r.erreur);
     Session.ecrire(r.session);
+    if (new URLSearchParams(location.search).get('retour') === 'boutique') return (location.href = '/boutique');
     montrer(await api('profil', { session: r.session }));
   };
   document.querySelectorAll('input[name=modele]').forEach((x) => (x.onchange = dessinerTout));

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classement · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
+  <nav id="menu"></nav>
+</header>
+<main>
+  <h1 class="titre-page">Classement</h1>
+  <p class="sous-titre">Les meilleurs joueurs et factions d'OnyxFight. <span id="maj"></span></p>
+  <div class="onglets" id="onglets"></div>
+  <div class="carte"><table><thead id="tete"></thead><tbody id="corps"><tr><td class="vide">Chargement…</td></tr></tbody></table></div>
+</main>
+<script>
+const ONGLETS = [
+  ['kills', 'Joueurs · Kills', ['Joueur', 'Faction', 'Kills', 'Morts']],
+  ['ratio', 'Joueurs · Ratio', ['Joueur', 'Faction', 'Ratio K/M', 'Kills']],
+  ['serie', 'Joueurs · Série', ['Joueur', 'Faction', 'Meilleure série']],
+  ['puissance', 'Factions · Puissance', ['Faction', 'Puissance', 'Membres', 'Territoires']],
+  ['fkills', 'Factions · Kills', ['Faction', 'Kills', 'Membres']],
+  ['argent', 'Argent', ['Joueur', 'Argent']],
+];
+let donnees = {};
+function montrer(id) {
+  const o = ONGLETS.find((x) => x[0] === id);
+  document.querySelectorAll('#onglets button').forEach((b) => b.classList.toggle('actif', b.dataset.id === id));
+  $('tete').replaceChildren(el('tr', {}, el('th', {}, '#'), o[2].map((t) => el('th', {}, t))));
+  const l = donnees[id] || [];
+  if (!l.length) return $('corps').replaceChildren(el('tr', {}, el('td', { colspan: 5, class: 'vide' }, 'Pas encore de classement.')));
+  $('corps').replaceChildren(...l.map((x, i) => {
+    const joueur = (n) => el('td', {}, teteMini(n), n);
+    let cellules;
+    if (id === 'kills') cellules = [joueur(x.nom), el('td', {}, x.faction || '—'), el('td', {}, nombre(x.kills)), el('td', {}, nombre(x.morts))];
+    else if (id === 'ratio') cellules = [joueur(x.nom), el('td', {}, x.faction || '—'), el('td', {}, x.valeur.toFixed(2)), el('td', {}, nombre(x.kills))];
+    else if (id === 'serie') cellules = [joueur(x.nom), el('td', {}, x.faction || '—'), el('td', {}, nombre(x.valeur) + ' kills d\'affilée')];
+    else if (id === 'puissance') cellules = [el('td', {}, x.nom), el('td', {}, nombre(x.valeur)), el('td', {}, x.membres), el('td', {}, x.territoires)];
+    else if (id === 'fkills') cellules = [el('td', {}, x.nom), el('td', {}, nombre(x.valeur)), el('td', {}, x.membres)];
+    else cellules = [joueur(x.nom), el('td', {}, nombre(x.valeur))];
+    return el('tr', { class: ['or', 'argent', 'bronze'][i] || '' }, el('td', { class: 'rang' }, i + 1), cellules);
+  }));
+}
+document.addEventListener('DOMContentLoaded', async () => {
+  $('onglets').replaceChildren(...ONGLETS.map(([id, t]) => el('button', { 'data-id': id, onclick: () => montrer(id) }, t)));
+  try {
+    const r = await (await fetch('/api/classements')).json();
+    donnees = r.classements || {};
+    if (r.maj) $('maj').textContent = 'Mis à jour le ' + new Date(r.maj).toLocaleString('fr-FR') + '.';
+  } catch (e) { /* hors ligne */ }
+  montrer('kills');
+});
+</script>
+<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+</body>
+</html>

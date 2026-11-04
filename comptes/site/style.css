@@ -64,3 +64,40 @@ select option { background: #160f22; }
 .liste { margin: 8px 0 0; padding-left: 18px; color: var(--gris); line-height: 1.7; }
 .liste code { color: var(--texte); background: rgba(0, 0, 0, .35); padding: 1px 6px; border-radius: 6px; }
 @media (max-width: 800px) { .compte-page { grid-template-columns: 1fr; } }
+.titre-page { font-family: Rajdhani, sans-serif; font-size: 38px; margin: 18px 0 4px; }
+.sous-titre { color: var(--gris); margin: 0 0 18px; }
+.onglets { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 14px; }
+.onglets button { border: 1px solid var(--bord); background: rgba(0, 0, 0, .3); color: var(--texte); padding: 9px 16px; border-radius: 10px; cursor: pointer; font: 600 14px Inter, sans-serif; }
+.onglets button.actif { background: linear-gradient(90deg, var(--violet), var(--violet2)); border-color: transparent; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+th { color: var(--gris); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+tr:hover td { background: rgba(162, 77, 255, .06); }
+td.rang { width: 44px; font-family: Rajdhani, sans-serif; font-size: 18px; font-weight: 700; color: var(--gris); }
+tr.or td.rang { color: #ffd24a; } tr.argent td.rang { color: #d8d8e8; } tr.bronze td.rang { color: #e09a5a; }
+td img.mini { width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; border-radius: 4px; image-rendering: pixelated; }
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.produit { display: flex; flex-direction: column; gap: 8px; }
+.produit img { width: 100%; height: 140px; object-fit: contain; }
+.produit .prix { font: 700 22px Rajdhani, sans-serif; color: var(--violet2); }
+.produit .bouton { margin-top: auto; text-align: center; }
+.vide { color: var(--gris); text-align: center; padding: 30px; }
+.panneau { display: grid; grid-template-columns: 220px 1fr; gap: 16px; margin-top: 10px; }
+.panneau .cote { display: flex; flex-direction: column; gap: 6px; }
+.panneau .cote button { text-align: left; border: 0; background: rgba(0, 0, 0, .3); color: var(--texte); padding: 11px 14px; border-radius: 10px; cursor: pointer; font: 500 14px Inter, sans-serif; }
+.panneau .cote button.actif { background: rgba(162, 77, 255, .3); }
+.panneau .cote button:disabled { opacity: .35; cursor: not-allowed; }
+.console { background: #07050b; border: 1px solid var(--bord); border-radius: 12px; height: 460px; overflow: auto; padding: 10px; font: 12px/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-all; }
+.console .warn { color: #ffd24a; } .console .err { color: var(--rouge); }
+.ligne-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; margin-top: 10px; }
+.ligne-form > * { flex: 1; min-width: 120px; }
+.ligne-form .bouton { flex: 0 0 auto; padding: 12px 18px; font-size: 14px; }
+.etiquette { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: rgba(255, 255, 255, .08); }
+.etiquette.ban { background: rgba(255, 84, 104, .2); color: var(--rouge); } .etiquette.mute { background: rgba(255, 210, 74, .15); color: #ffd24a; }
+.etiquette.warn { background: rgba(255, 160, 60, .15); color: #ffa03c; } .etiquette.ok { background: rgba(85, 224, 138, .15); color: var(--vert); }
+.boutons-petits { display: flex; gap: 6px; flex-wrap: wrap; }
+.boutons-petits button { border: 1px solid var(--bord); background: rgba(0, 0, 0, .3); color: var(--texte); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+.boutons-petits button:hover { background: rgba(162, 77, 255, .25); }
+.boutons-petits button.danger:hover { background: rgba(255, 84, 104, .3); }
+@media (max-width: 800px) { .panneau { grid-template-columns: 1fr; } .panneau .cote { flex-direction: row; flex-wrap: wrap; } }
+.tete-mini { display: inline-block; vertical-align: middle; margin-right: 8px; border-radius: 4px; image-rendering: pixelated; background-color: #3a2357; background-repeat: no-repeat; }
