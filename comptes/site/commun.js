@@ -41,7 +41,7 @@ function message(el, texte, ok) {
   el.textContent = texte || '';
   el.className = 'message ' + (texte ? (ok ? 'ok' : 'erreur') : '');
 }
-// Menu commun à toutes les pages (« Modération » pour l'équipe)
+// Menu commun à toutes les pages
 document.addEventListener('DOMContentLoaded', async () => {
   const nav = document.getElementById('menu');
   if (!nav) return;
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ['/compte', Session.lire() ? 'Mon compte' : 'Connexion']];
   const dessiner = (equipe) => {
     nav.innerHTML = '';
-    for (const [h, t] of liens.concat(equipe ? [['/moderation', 'Modération']] : [])) {
+    for (const [h, t] of liens) {
       const a = document.createElement('a');
       a.href = h;
       a.textContent = t;
@@ -65,10 +65,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     nav.appendChild(dc);
   };
   dessiner(false);
-  if (Session.lire()) {
-    const m = await api('mod/moi', { session: Session.lire() });
-    if (m.niveau > 0) dessiner(true);
-  }
 });
 function el(tag, attrs, ...enfants) {
   const e = document.createElement(tag);

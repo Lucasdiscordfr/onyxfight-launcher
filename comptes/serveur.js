@@ -14,6 +14,9 @@ const crypto = require('crypto');
 const PORT = parseInt(process.env.ONYX_PORT || '8090', 10);
 const DONNEES = process.env.ONYX_DONNEES || path.join(__dirname, 'donnees');
 const SITE = process.env.ONYX_SITE || path.join(__dirname, 'site');
+// Panneau de l'équipe, servi seulement à l'adresse moderation.… (pas sur le site public)
+const SITE_MOD = process.env.ONYX_SITE_MOD || path.join(__dirname, 'site-moderation');
+const HOTE_MOD = /^moderation\./i;
 const FICHIER = path.join(DONNEES, 'comptes.json');
 const IMAGES = path.join(DONNEES, 'images'); // skins et capes importés (nommés par UUID)
 const JOUR = 24 * 3600 * 1000;
@@ -865,19 +868,21 @@ const LOCAL = {
 // ---------- Site ----------
 const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp' };
-function fichierSite(url, res) {
+function fichierSite(url, res, mod) {
+  const racine = mod ? SITE_MOD : SITE;
   let p = decodeURIComponent(url.pathname);
   if (p === '/') p = '/index.html';
   if (!path.extname(p)) p += '.html';
-  const f = path.normalize(path.join(SITE, p));
-  if (!f.startsWith(SITE + path.sep)) return envoyer(res, 404, 'Introuvable');
+  const f = path.normalize(path.join(racine, p));
+  if (!f.startsWith(racine + path.sep)) return envoyer(res, 404, 'Introuvable');
   fs.readFile(f, (e, data) => {
+    if (e && mod) return envoyer(res, 302, '', 'text/plain', { Location: '/' });
     if (e) return fs.readFile(path.join(SITE, '404.html'), (e2, d2) => envoyer(res, 404, e2 ? 'Page introuvable' : d2, 'text/html; charset=utf-8'));
     envoyer(res, 200, data, TYPES[path.extname(f)] || 'application/octet-stream');
   });
 }
 
-function envoyer(res, code, corps, type) {
+function envoyer(res, code, corps, type, entetes) {
   const json = type === undefined && typeof corps === 'object' && !Buffer.isBuffer(corps);
   const data = json ? JSON.stringify(corps) : corps;
   res.writeHead(code, {
@@ -885,6 +890,7 @@ function envoyer(res, code, corps, type) {
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'same-origin',
     'X-Frame-Options': 'DENY',
+    ...(entetes || {}),
     'Cache-Control': json ? 'no-store' : 'public, max-age=300',
   });
   res.end(data);
@@ -952,6 +958,9 @@ http.createServer((req, res) => {
       envoyer(res, 200, data, 'image/png');
     });
   }
+  const mod = HOTE_MOD.test(String(req.headers.host || ''));
+  // Les routes de l'équipe ne répondent qu'à l'adresse de la modération
+  if (url.pathname.startsWith('/api/mod/') && !mod) return envoyer(res, 404, { erreur: 'Inconnu' });
   const route = ROUTES[req.method + ' ' + url.pathname];
   if (route && req.method === 'GET') {
     return Promise.resolve(route({}, ip)).then(([c, r]) => envoyer(res, c, r), () => envoyer(res, 500, { erreur: 'Erreur du serveur.' }));
@@ -959,7 +968,7 @@ http.createServer((req, res) => {
   if (!route) {
     if (url.pathname.startsWith('/api/')) return envoyer(res, 404, { erreur: 'Inconnu' });
     if (req.method !== 'GET' && req.method !== 'HEAD') return envoyer(res, 405, 'Méthode non permise');
-    return fichierSite(url, res);
+    return fichierSite(url, res, mod);
   }
   const max = url.pathname === '/api/skin' || url.pathname === '/api/cape' ? 600 * 1024 : 8192;
   lireCorps(req, res, max, (b) => route(b, ip));

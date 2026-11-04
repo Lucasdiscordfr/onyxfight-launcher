@@ -26,7 +26,7 @@ fi
 # Hors de /opt/onyxfight : ce dossier est fermé aux autres utilisateurs, le service des comptes ne pouvait pas y lire
 DOSSIER=/opt/onyxfight-comptes
 DEPOT=https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/comptes
-FICHIERS="serveur.js site/index.html site/inscription.html site/compte.html site/oubli.html site/classement.html site/boutique.html site/voter.html site/moderation.html site/joueur.html site/404.html site/style.css site/commun.js site/logo.png site/fond.jpg site/personnage.png site/icone.png"
+FICHIERS="site-moderation/index.html site-moderation/joueur.html site-moderation/mod.css site-moderation/mod.js site-moderation/icone.png serveur.js site/index.html site/inscription.html site/compte.html site/oubli.html site/classement.html site/boutique.html site/voter.html site/404.html site/style.css site/commun.js site/logo.png site/fond.jpg site/personnage.png site/icone.png"
 
 echo "=== Node.js ==="
 if ! command -v node >/dev/null || [ "$(node -p 'process.versions.node.split(".")[0]')" -lt 18 ]; then
@@ -51,7 +51,8 @@ done
 
 echo "=== Fichiers du site et du service ==="
 id comptes >/dev/null 2>&1 || useradd --system --home "$DOSSIER" --shell /usr/sbin/nologin comptes
-install -d -o comptes -g comptes -m 755 "$DOSSIER" "$DOSSIER/site"
+install -d -o comptes -g comptes -m 755 "$DOSSIER" "$DOSSIER/site" "$DOSSIER/site-moderation"
+rm -f "$DOSSIER/site/moderation.html" "$DOSSIER/site/joueur.html"   # anciennes pages (la modération a son adresse)
 # Ancien emplacement (première version du script) : on reprend ses comptes s'il y en a
 if [ -f /opt/onyxfight/comptes/donnees/comptes.json ] && [ ! -f "$DOSSIER/donnees/comptes.json" ]; then
   install -d -o comptes -g comptes -m 700 "$DOSSIER/donnees"
@@ -77,6 +78,7 @@ User=comptes
 Environment=ONYX_PORT=8090
 Environment=ONYX_DONNEES=$DOSSIER/donnees
 Environment=ONYX_SITE=$DOSSIER/site
+Environment=ONYX_SITE_MOD=$DOSSIER/site-moderation
 ExecStart=$(command -v node) $DOSSIER/serveur.js
 Restart=always
 RestartSec=3
@@ -94,8 +96,15 @@ systemctl enable onyxfight-comptes >/dev/null
 systemctl restart onyxfight-comptes
 
 echo "=== Caddy : $ADRESSES ==="
+MOD=${MODERATION:-moderation.onyxfight.fr}
 cat > /etc/caddy/Caddyfile <<EOF
 $(echo $ADRESSES | sed 's/ /, /g') {
+	encode gzip
+	reverse_proxy 127.0.0.1:8090
+}
+
+# Panneau de l'équipe (il faut l'enregistrement DNS « moderation » vers ce serveur)
+$MOD {
 	encode gzip
 	reverse_proxy 127.0.0.1:8090
 }

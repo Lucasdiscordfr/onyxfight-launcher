@@ -3,19 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Joueur · OnyxFight</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Joueur · Modération OnyxFight</title>
 <link rel="icon" href="icone.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="style.css">
-<script src="commun.js" defer></script>
+<link rel="stylesheet" href="mod.css">
+<script src="mod.js" defer></script>
 </head>
 <body>
-<header>
-  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
-  <nav id="menu"></nav>
-</header>
+<div class="barre-mod">
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight <small>Modération</small></a>
+  <div class="qui" id="qui-barre"></div>
+</div>
 <main style="max-width:1280px">
+  <p style="margin:14px 0 0"><a href="/" style="color:var(--gris);text-decoration:none">← Retour au panneau</a></p>
   <div class="profil-entete">
     <h1 id="titre">Joueur</h1>
     <input id="chercher" placeholder="🔍 Rechercher un joueur…" list="suggestions" autocomplete="off">
@@ -263,9 +264,8 @@ async function charger() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!S()) return (location.href = '/compte');
-  moi = await api('mod/moi', { session: S() });
-  if (moi.erreur || !moi.niveau) { $('etat').textContent = 'Cette page est réservée à l\'équipe.'; return; }
+  moi = await entreeEquipe();
+  if (!moi) return (location.href = '/');
   $('onglets').replaceChildren(...ONGLETS.map(([id, t]) => el('button', { 'data-id': id, onclick: () => montrerOnglet(id) }, t)));
   const ch = $('chercher');
   ch.addEventListener('input', async () => {
@@ -278,6 +278,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   setInterval(() => f && f.enLigne && onglet !== 'inventaire' && charger(), 15000);
 });
 </script>
-<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
 </body>
 </html>

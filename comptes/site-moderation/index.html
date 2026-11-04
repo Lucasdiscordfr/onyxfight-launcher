@@ -3,21 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Modération · OnyxFight</title>
 <link rel="icon" href="icone.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="style.css">
-<script src="commun.js" defer></script>
+<link rel="stylesheet" href="mod.css">
+<script src="mod.js" defer></script>
 </head>
 <body>
-<header>
-  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
-  <nav id="menu"></nav>
-</header>
+<div class="barre-mod">
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight <small>Modération</small></a>
+  <div class="qui" id="qui-barre"></div>
+</div>
 <main>
-  <h1 class="titre-page">Modération</h1>
-  <p class="sous-titre" id="qui">Chargement…</p>
+  <form class="carte connexion-mod cache" id="connexion">
+    <h1>Espace équipe</h1>
+    <p class="sous" style="color:var(--gris);margin:0 0 14px">Connecte-toi avec ton compte OnyxFight.</p>
+    <label for="c-pseudo">Pseudo</label>
+    <input id="c-pseudo" autocomplete="username" maxlength="16" required>
+    <label for="c-mdp">Mot de passe</label>
+    <input id="c-mdp" type="password" autocomplete="current-password" required>
+    <button class="bouton" id="c-valider" style="width:100%;margin-top:18px">Se connecter</button>
+    <div class="message" id="c-msg"></div>
+  </form>
+  <h1 class="titre-page cache" id="titre-panneau">Modération</h1>
+  <p class="sous-titre" id="qui"></p>
   <div class="panneau cache" id="panneau">
     <div class="cote" id="cote"></div>
     <div id="zone"></div>
@@ -259,19 +269,34 @@ function ouvrir(id, arg) {
   if (id === 'tableau') minuterie = setInterval(() => ongletActif === 'tableau' && VUES.tableau(z), 10000);
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  if (!S()) return (location.href = '/compte');
-  moi = await api('mod/moi', { session: S() });
-  if (moi.erreur || !moi.niveau) {
-    $('qui').textContent = moi.erreur || 'Cette partie est réservée à l\'équipe.';
-    return;
-  }
-  $('qui').textContent = `Connecté en tant que ${moi.pseudo} · ${moi.nomRole}`;
+async function demarrerPanneau() {
+  moi = await entreeEquipe();
+  if (!moi) return $('connexion').classList.remove('cache');
+  $('connexion').classList.add('cache');
+  $('titre-panneau').classList.remove('cache');
   $('cote').replaceChildren(...SECTIONS.map(([id, t, min]) => el('button', { 'data-id': id, disabled: moi.niveau < min, onclick: () => ouvrir(id) }, t)));
   $('panneau').classList.remove('cache');
   ouvrir('tableau');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('connexion').onsubmit = async (e) => {
+    e.preventDefault();
+    $('c-valider').disabled = true;
+    const r = await api('connexion', { pseudo: $('c-pseudo').value.trim(), motdepasse: $('c-mdp').value });
+    $('c-valider').disabled = false;
+    if (r.erreur) return message($('c-msg'), r.erreur);
+    const m = await api('mod/moi', { session: r.session });
+    if (!m.niveau) {
+      api('deconnexion', { session: r.session });
+      $('c-mdp').value = '';
+      return message($('c-msg'), 'Ce compte n\'a pas accès à la modération.');
+    }
+    Session.ecrire(r.session);
+    demarrerPanneau();
+  };
+  demarrerPanneau();
 });
 </script>
-<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
 </body>
 </html>
