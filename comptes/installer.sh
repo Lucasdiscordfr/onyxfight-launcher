@@ -5,11 +5,12 @@
 #   Avec d'autres adresses (quand onyxfight.fr pointera vers le VPS) :
 #   ... | sudo bash -s -- play.onyxfight.fr onyxfight.fr www.onyxfight.fr
 #
-# Relancer la commande met le site et le service à jour (les comptes sont gardés dans /opt/onyxfight/comptes/donnees).
+# Relancer la commande met le site et le service à jour (les comptes sont gardés dans /opt/onyxfight-comptes/donnees).
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Lance ce script avec sudo."; exit 1; }
 ADRESSES="${*:-play.onyxfight.fr}"
-DOSSIER=/opt/onyxfight/comptes
+# Hors de /opt/onyxfight : ce dossier est fermé aux autres utilisateurs, le service des comptes ne pouvait pas y lire
+DOSSIER=/opt/onyxfight-comptes
 DEPOT=https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/comptes
 FICHIERS="serveur.js site/index.html site/inscription.html site/compte.html site/404.html site/style.css site/commun.js site/logo.png site/fond.jpg site/personnage.png site/icone.png"
 
@@ -37,12 +38,18 @@ done
 echo "=== Fichiers du site et du service ==="
 id comptes >/dev/null 2>&1 || useradd --system --home "$DOSSIER" --shell /usr/sbin/nologin comptes
 install -d -o comptes -g comptes -m 755 "$DOSSIER" "$DOSSIER/site"
+# Ancien emplacement (première version du script) : on reprend ses comptes s'il y en a
+if [ -f /opt/onyxfight/comptes/donnees/comptes.json ] && [ ! -f "$DOSSIER/donnees/comptes.json" ]; then
+  install -d -o comptes -g comptes -m 700 "$DOSSIER/donnees"
+  cp /opt/onyxfight/comptes/donnees/comptes.json "$DOSSIER/donnees/"
+fi
 install -d -o comptes -g comptes -m 700 "$DOSSIER/donnees"
 for f in $FICHIERS; do
   curl -fsSL -o "$DOSSIER/$f.nouveau" "$DEPOT/$f?$(date +%s)"
   mv "$DOSSIER/$f.nouveau" "$DOSSIER/$f"
 done
 chown -R comptes:comptes "$DOSSIER"
+sudo -u comptes test -r "$DOSSIER/serveur.js" || { echo "Le service ne peut pas lire $DOSSIER/serveur.js"; exit 1; }
 
 cat > /etc/systemd/system/onyxfight-comptes.service <<EOF
 [Unit]
