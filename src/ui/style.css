@@ -59,7 +59,7 @@ main {
 }
 
 .gauche { display: flex; flex-direction: column; min-height: 0; }
-.logo { width: 340px; max-width: 70%; filter: drop-shadow(0 6px 24px rgba(162, 77, 255, 0.45)); }
+.logo { width: 220px; max-width: 45%; filter: drop-shadow(0 6px 24px rgba(162, 77, 255, 0.45)); }
 .actus { margin-top: auto; min-height: 0; display: flex; flex-direction: column; max-height: 52%; }
 .actus h2, .boite h2 {
   font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 1px; text-transform: uppercase;

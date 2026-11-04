@@ -171,6 +171,13 @@ async function jouer121(reglages, autorisation, v121, ev) {
     saison: v121.saison || '',
     version: reglages.versionLauncher || '',
   }, null, 2));
+  // Pas de fenêtre de chargement NeoForge : le mod OnyxFight dessine son propre écran de chargement
+  const fml = path.join(racine, 'config', 'fml.toml');
+  fs.mkdirSync(path.dirname(fml), { recursive: true });
+  let texteFml = fs.existsSync(fml) ? fs.readFileSync(fml, 'utf8') : '';
+  if (/^\s*earlyWindowControl\s*=/m.test(texteFml)) texteFml = texteFml.replace(/^(\s*earlyWindowControl\s*=\s*).*$/m, '$1false');
+  else texteFml += (texteFml && !texteFml.endsWith('\n') ? '\n' : '') + 'earlyWindowControl = false\n';
+  fs.writeFileSync(fml, texteFml);
   const base = await vanilla(racine, ev.etat);
   const neo = await neoforge(racine, java, v121.neoforge || '21.1.192', ev.etat);
   const chemins = await bibliotheques(racine, [neo, base], ev.etat);
