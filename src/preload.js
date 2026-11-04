@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('onyx', {
   reprendre: () => ipcRenderer.invoke('compte:reprendre'),
   connecter: (pseudo, motdepasse) => ipcRenderer.invoke('compte:connecter', pseudo, motdepasse),
   inscription: () => ipcRenderer.invoke('compte:inscription'),
+  skin: (pseudo) => ipcRenderer.invoke('compte:skin', pseudo),
   deconnecter: () => ipcRenderer.invoke('compte:deconnecter'),
   modeTest: () => ipcRenderer.invoke('compte:modeTest'),
   connecterTest: (pseudo) => ipcRenderer.invoke('compte:test', pseudo),

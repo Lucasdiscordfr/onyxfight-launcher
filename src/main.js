@@ -138,6 +138,22 @@ ipcMain.handle('compte:connecter', async (e, pseudo, motdepasse) => {
     return { erreur: texteErreur(x) };
   }
 });
+/** Skin importé sur le site (PNG en base64), pour afficher la tête dans le launcher ; null si aucun. */
+ipcMain.handle('compte:skin', async (e, pseudo) => {
+  try {
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(String(pseudo))) return null;
+    const m = await reglerComptes();
+    const base = ((m && m.comptes) || cfg.COMPTES).replace(/\/+$/, '');
+    const a = await (await fetch(`${base}/api/apparence/${pseudo}`, { signal: AbortSignal.timeout(6000) })).json();
+    if (!a.skin || !/^\//.test(a.skin.url)) return null;
+    const r = await fetch(base + a.skin.url, { signal: AbortSignal.timeout(6000) });
+    if (!r.ok) return null;
+    const b = Buffer.from(await r.arrayBuffer());
+    return b.length <= 65536 ? b.toString('base64') : null;
+  } catch (x) {
+    return null;
+  }
+});
 ipcMain.handle('compte:inscription', async () => {
   const m = await reglerComptes();
   shell.openExternal(((m && m.comptes) || cfg.COMPTES).replace(/\/+$/, '') + '/inscription');

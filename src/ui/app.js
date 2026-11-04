@@ -22,9 +22,48 @@ function afficherCompte(p) {
   $('avec-compte').classList.toggle('cache', !p);
   if (p) {
     $('pseudo').textContent = p.pseudo;
-    $('tete').src = `https://mc-heads.net/avatar/${encodeURIComponent(p.pseudo)}/84`;
+    $('tete').src = teteParDefaut();
+    // Tête du skin importé sur le site (sinon Steve)
+    window.onyx.skin(p.pseudo).then((b64) => {
+      if (!b64 || !profil || profil.pseudo !== p.pseudo) return;
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = c.height = 84;
+        const g = c.getContext('2d');
+        g.imageSmoothingEnabled = false;
+        g.drawImage(img, 8, 8, 8, 8, 0, 0, 84, 84);
+        g.drawImage(img, 40, 8, 8, 8, 0, 0, 84, 84);
+        $('tete').src = c.toDataURL();
+      };
+      img.src = 'data:image/png;base64,' + b64;
+    });
   }
   $('jouer').disabled = !p || enCours;
+}
+
+/** Tête de Steve dessinée (pas de site extérieur). */
+function teteParDefaut() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 8;
+  const g = c.getContext('2d');
+  const px = ['3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d', '3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d3b2a1d',
+    '3b2a1db58d6ab58d6ab58d6ab58d6ab58d6ab58d6a3b2a1d', 'b58d6ab58d6ab58d6ab58d6ab58d6ab58d6ab58d6ab58d6a',
+    'b58d6affffff4a3b8cb58d6ab58d6a4a3b8cffffffb58d6a', 'b58d6ab58d6ab58d6a6a4535 6a4535b58d6ab58d6ab58d6a',
+    'b58d6ab58d6a6a45356a45356a45356a4535b58d6ab58d6a', 'b58d6ab58d6a6a4535b58d6ab58d6a6a4535b58d6ab58d6a'];
+  px.forEach((l, y) => {
+    l = l.replace(/ /g, '');
+    for (let x = 0; x < 8; x++) {
+      g.fillStyle = '#' + l.substr(x * 6, 6);
+      g.fillRect(x, y, 1, 1);
+    }
+  });
+  const grand = document.createElement('canvas');
+  grand.width = grand.height = 84;
+  const gg = grand.getContext('2d');
+  gg.imageSmoothingEnabled = false;
+  gg.drawImage(c, 0, 0, 84, 84);
+  return grand.toDataURL();
 }
 
 function echapper(t) {
