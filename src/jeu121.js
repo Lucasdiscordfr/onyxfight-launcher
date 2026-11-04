@@ -162,6 +162,15 @@ async function jouer121(reglages, autorisation, v121, ev) {
   fs.mkdirSync(racine, { recursive: true });
   const java = await assurerJava(reglages.dossier || cfg.DOSSIER, ev.etat, 21);
   await synchroniser(racine, v121, ev.etat);
+  // Réglages lus par le mod (menu principal, TAB) : serveur, site, Discord, saison, version du launcher
+  const srv = v121.serveur || cfg.SERVEUR;
+  fs.writeFileSync(path.join(racine, 'onyxfight-client.json'), JSON.stringify({
+    serveur: { hote: srv.hote, port: srv.port || 25565 },
+    site: v121.site || cfg.SITE,
+    discord: v121.discord || cfg.DISCORD,
+    saison: v121.saison || '',
+    version: reglages.versionLauncher || '',
+  }, null, 2));
   const base = await vanilla(racine, ev.etat);
   const neo = await neoforge(racine, java, v121.neoforge || '21.1.192', ev.etat);
   const chemins = await bibliotheques(racine, [neo, base], ev.etat);
