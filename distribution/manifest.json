@@ -44,9 +44,9 @@
     "fichiers": [
       {
         "chemin": "mods/onyxfight-1.21.1.jar",
-        "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod121/onyxfight-1.21.1.jar?v=e999f20bf58b",
-        "sha1": "e999f20bf58b5dd742986afeae52f74e66be6e7b",
-        "taille": 5569563
+        "url": "https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod121/onyxfight-1.21.1.jar?v=47dcdc8dac42",
+        "sha1": "47dcdc8dac42abca9b79da45d7e8ba0c28699963",
+        "taille": 5577794
       },
       {
         "chemin": "mods/coroutil-neoforge-1.21.0-1.3.8.jar",
