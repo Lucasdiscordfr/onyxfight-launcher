@@ -150,3 +150,7 @@ main { z-index: 2; }
 #zone-test { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
 #zone-test.cache { display: none; }
 #pseudo-test { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--texte); border-radius: 6px; padding: 6px 8px; font-size: 13px; }
+.connexion { display: flex; flex-direction: column; gap: 8px; }
+.connexion input { background: rgba(0,0,0,0.35); border: 1px solid rgba(162,77,255,0.35); color: var(--texte); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 14px; }
+.connexion input:focus { outline: 2px solid var(--violet); border-color: transparent; }
+.connexion .petit .lien { padding: 0; font-size: inherit; }

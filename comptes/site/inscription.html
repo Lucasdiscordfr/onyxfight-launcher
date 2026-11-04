@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Créer un compte · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
+  <nav>
+    <a href="/">Accueil</a>
+    <a href="/inscription">Créer un compte</a>
+    <a href="/compte" data-compte>Connexion</a>
+    <a href="https://discord.gg/onyxfight" target="_blank" rel="noopener">Discord</a>
+  </nav>
+</header>
+<main>
+  <form class="carte formulaire" id="form">
+    <h1>Créer un compte</h1>
+    <p class="sous">Ce pseudo sera ton nom en jeu. Il ne pourra pas être changé.</p>
+    <label for="pseudo">Pseudo</label>
+    <input id="pseudo" autocomplete="username" maxlength="16" required pattern="[A-Za-z0-9_]{3,16}">
+    <div class="aide">3 à 16 lettres, chiffres ou _ (sans espace ni accent).</div>
+    <label for="mdp">Mot de passe</label>
+    <input id="mdp" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+    <div class="aide">8 caractères au minimum. N'utilise pas le mot de passe d'un autre site.</div>
+    <label for="mdp2">Confirme le mot de passe</label>
+    <input id="mdp2" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+    <button class="bouton" id="valider">Créer mon compte</button>
+    <div class="message" id="msg"></div>
+    <p class="bas">Déjà un compte ? <a href="/compte">Connecte-toi</a></p>
+  </form>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  $('form').onsubmit = async (e) => {
+    e.preventDefault();
+    if ($('mdp').value !== $('mdp2').value) return message($('msg'), 'Les deux mots de passe ne sont pas les mêmes.');
+    $('valider').disabled = true;
+    const r = await api('inscription', { pseudo: $('pseudo').value.trim(), motdepasse: $('mdp').value });
+    $('valider').disabled = false;
+    if (r.erreur) return message($('msg'), r.erreur);
+    Session.ecrire(r.session);
+    location.href = '/compte?nouveau=1';
+  };
+});
+</script>
+<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+</body>
+</html>

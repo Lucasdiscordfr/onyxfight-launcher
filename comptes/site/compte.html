@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon compte · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
+  <nav>
+    <a href="/">Accueil</a>
+    <a href="/inscription">Créer un compte</a>
+    <a href="/compte" data-compte>Connexion</a>
+    <a href="https://discord.gg/onyxfight" target="_blank" rel="noopener">Discord</a>
+  </nav>
+</header>
+<main>
+  <form class="carte formulaire" id="connexion">
+    <h1>Connexion</h1>
+    <p class="sous">Avec le pseudo et le mot de passe de ton compte OnyxFight.</p>
+    <label for="pseudo">Pseudo</label>
+    <input id="pseudo" autocomplete="username" maxlength="16" required>
+    <label for="mdp">Mot de passe</label>
+    <input id="mdp" type="password" autocomplete="current-password" required>
+    <button class="bouton" id="valider">Se connecter</button>
+    <div class="message" id="msg"></div>
+    <p class="bas">Pas encore de compte ? <a href="/inscription">Crée-le ici</a></p>
+  </form>
+
+  <div class="formulaire cache" id="espace">
+    <div class="carte">
+      <div class="profil"><img id="tete" alt=""><div><div class="aide">Connecté en tant que</div><strong id="nom"></strong></div></div>
+      <div class="message" id="bienvenue"></div>
+      <div class="boutons">
+        <a class="bouton" href="https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/latest/download/OnyxFight-Launcher.exe">Télécharger le launcher</a>
+      </div>
+      <p class="aide" style="margin-top:10px">Dans le launcher, connecte-toi avec ce pseudo et ce mot de passe.</p>
+    </div>
+    <form class="carte" id="changer" style="margin-top:16px">
+      <h3>Changer de mot de passe</h3>
+      <label for="ancien">Mot de passe actuel</label>
+      <input id="ancien" type="password" autocomplete="current-password" required>
+      <label for="nouveau">Nouveau mot de passe</label>
+      <input id="nouveau" type="password" autocomplete="new-password" minlength="8" required>
+      <button class="bouton secondaire" id="valider2" style="width:100%;margin-top:16px">Changer</button>
+      <div class="message" id="msg2"></div>
+      <div class="aide" style="margin-top:8px">Tes autres connexions (launcher, jeu) seront coupées.</div>
+    </form>
+    <p class="bas"><a href="#" id="sortir">Se déconnecter</a></p>
+  </div>
+</main>
+<script>
+function montrer(c) {
+  $('connexion').classList.add('cache');
+  $('espace').classList.remove('cache');
+  $('nom').textContent = c.pseudo;
+  $('tete').src = 'https://mc-heads.net/avatar/' + encodeURIComponent(c.pseudo) + '/72';
+  if (new URLSearchParams(location.search).has('nouveau')) message($('bienvenue'), 'Compte créé, bienvenue sur OnyxFight !', true);
+}
+document.addEventListener('DOMContentLoaded', async () => {
+  const s = Session.lire();
+  if (s) {
+    const c = await api('session', { session: s });
+    if (!c.erreur) montrer(c); else Session.ecrire(null);
+  }
+  $('connexion').onsubmit = async (e) => {
+    e.preventDefault();
+    $('valider').disabled = true;
+    const r = await api('connexion', { pseudo: $('pseudo').value.trim(), motdepasse: $('mdp').value });
+    $('valider').disabled = false;
+    if (r.erreur) return message($('msg'), r.erreur);
+    Session.ecrire(r.session);
+    montrer(r);
+  };
+  $('changer').onsubmit = async (e) => {
+    e.preventDefault();
+    const r = await api('motdepasse', { session: Session.lire(), ancien: $('ancien').value, nouveau: $('nouveau').value });
+    message($('msg2'), r.erreur || 'Mot de passe changé.', !r.erreur);
+    if (!r.erreur) $('changer').reset();
+  };
+  $('sortir').onclick = async (e) => {
+    e.preventDefault();
+    await api('deconnexion', { session: Session.lire() });
+    Session.ecrire(null);
+    location.href = '/';
+  };
+});
+</script>
+<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+</body>
+</html>

@@ -30,7 +30,7 @@
     }
   ],
   "supprimer": [],
-  "site": "https://onyxfight.fr",
+  "site": "https://play.onyxfight.fr",
   "discord": "https://discord.gg/onyxfight",
   "saison": "Saison 1",
   "discordApplication": "1566982374439526521",
@@ -79,5 +79,6 @@
         "taille": 1163890
       }
     ]
-  }
+  },
+  "comptes": "https://play.onyxfight.fr"
 }

@@ -22,6 +22,8 @@ module.exports = {
   // Adresse par défaut (remplacée par celle du manifeste)
   SERVEUR: { hote: 'play.onyxfight.fr', port: 25565 },
   DOSSIER: dossierDonnees(),
-  SITE: 'https://onyxfight.fr',
+  // Service des comptes et site (remplacé par « comptes » du manifeste)
+  COMPTES: 'https://play.onyxfight.fr',
+  SITE: 'https://play.onyxfight.fr',
   DISCORD: 'https://discord.gg/onyxfight',
 };

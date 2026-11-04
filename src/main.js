@@ -117,15 +117,30 @@ ipcMain.handle('statut', async () => {
 });
 
 // ---------- Compte ----------
-ipcMain.handle('compte:reprendre', async () => compte.reprendre());
-ipcMain.handle('compte:connecter', async () => {
+/** Adresse du service des comptes et du site, d'après le manifeste. */
+async function reglerComptes() {
   try {
-    return { profil: await compte.connecter() };
+    const m = await lireJson(cfg.MANIFESTE);
+    Compte.regler(m.comptes);
+    return m;
   } catch (e) {
-    const code = String((e && (e.ts || e.message)) || '');
-    if (/cancel|closed|error\.gui\.closed/i.test(code)) return { annule: true };
-    return { erreur: texteErreur(e) };
+    return null;
   }
+}
+ipcMain.handle('compte:reprendre', async () => {
+  await reglerComptes();
+  return compte.reprendre();
+});
+ipcMain.handle('compte:connecter', async (e, pseudo, motdepasse) => {
+  try {
+    return { profil: await compte.connecter(pseudo, motdepasse) };
+  } catch (x) {
+    return { erreur: texteErreur(x) };
+  }
+});
+ipcMain.handle('compte:inscription', async () => {
+  const m = await reglerComptes();
+  shell.openExternal(((m && m.comptes) || cfg.COMPTES).replace(/\/+$/, '') + '/inscription');
 });
 ipcMain.handle('compte:deconnecter', async () => compte.deconnecter());
 
@@ -174,9 +189,11 @@ ipcMain.handle('jouer', async () => {
   const flux = fs.createWriteStream(journal);
   flux.write(`OnyxFight Launcher ${app.getVersion()}\n`);
   try {
-    if (compte.test && !(await modeTestOuvert())) throw new Error('Le mode test est fermé : reconnecte-toi avec ton compte Microsoft.');
+    if (compte.test && !(await modeTestOuvert())) throw new Error('Le mode test est fermé : connecte-toi avec ton compte OnyxFight.');
+    const manifeste = await lireJson(cfg.MANIFESTE);
+    Compte.regler(manifeste.comptes);
     const autorisation = await compte.pourJouer();
-    const v121 = (await lireJson(cfg.MANIFESTE)).v121;
+    const v121 = manifeste.v121;
     if (!v121) throw new Error("Le serveur OnyxFight n'est pas disponible pour le moment.");
     await jouer121(r, autorisation, v121, {
       etat: (texte, part) => envoyer('etat', { texte, part }),

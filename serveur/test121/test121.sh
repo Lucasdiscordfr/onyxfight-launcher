@@ -8,6 +8,8 @@
 # Mode crack (comptes hors ligne du launcher, pour un 2e compte de test) : ... | sudo bash -s -- crack
 #   (pas de whitelist ; attention, en mode crack n importe qui peut prendre un pseudo, op compris)
 # Retour aux comptes Microsoft : ... | sudo bash -s -- enligne
+# Comptes OnyxFight (pseudo + mot de passe du site, vérifiés par le serveur) : ... | sudo bash -s -- comptes
+#   (il faut le service des comptes : comptes/installer.sh)
 # Console : sudo -u onyx tmux -L test121 attach -t test121   (Ctrl+B puis D pour sortir)
 set -euo pipefail
 RACINE=/opt/onyxfight
@@ -78,10 +80,19 @@ if [ "${1:-}" = "neuf" ] || [ ! -d world ]; then
 fi
 EN_LIGNE=true
 [ -f server.properties ] && grep -q "^online-mode=false" server.properties && EN_LIGNE=false
+COMPTES=
 for a in "$@"; do
   [ "$a" = "crack" ] && EN_LIGNE=false
-  [ "$a" = "enligne" ] && EN_LIGNE=true
+  [ "$a" = "enligne" ] && EN_LIGNE=true && COMPTES=false
+  [ "$a" = "comptes" ] && EN_LIGNE=false && COMPTES=true
 done
+if [ -n "$COMPTES" ]; then
+  mkdir -p world/serverconfig
+  printf '[comptes]\n\tactif = %s\n\tapi = "http://127.0.0.1:8090"\n\tdelai_secondes = 20\n' "$COMPTES" > world/serverconfig/onyxfight-comptes.toml
+fi
+[ -f world/serverconfig/onyxfight-comptes.toml ] && grep -q "actif = true" world/serverconfig/onyxfight-comptes.toml \
+  && echo "Comptes OnyxFight vérifiés (pseudo + mot de passe du site)" || echo "Comptes OnyxFight : vérification désactivée"
+
 echo "Comptes : $([ "$EN_LIGNE" = true ] && echo 'Microsoft (online-mode=true)' || echo 'CRACK / hors ligne (online-mode=false)')"
 cat > server.properties <<EOF
 level-name=world

@@ -22,7 +22,7 @@ function afficherCompte(p) {
   $('avec-compte').classList.toggle('cache', !p);
   if (p) {
     $('pseudo').textContent = p.pseudo;
-    $('tete').src = `https://mc-heads.net/avatar/${p.test ? encodeURIComponent(p.pseudo) : p.uuid}/84`;
+    $('tete').src = `https://mc-heads.net/avatar/${encodeURIComponent(p.pseudo)}/84`;
   }
   $('jouer').disabled = !p || enCours;
 }
@@ -94,16 +94,21 @@ async function demarrer() {
     chargerStatut();
   };
 
-  $('connecter').onclick = async () => {
+  $('inscription').onclick = () => window.onyx.inscription();
+  $('form-connexion').onsubmit = async (e) => {
+    e.preventDefault();
+    const pseudo = $('pseudo-site').value.trim(), mdp = $('mdp-site').value;
+    if (!pseudo || !mdp) return etat('Entre ton pseudo et ton mot de passe.', null, true);
     $('connecter').disabled = true;
-    etat('Connexion à Microsoft…');
-    const r = await window.onyx.connecter();
+    etat('Connexion…');
+    const r = await window.onyx.connecter(pseudo, mdp);
     $('connecter').disabled = false;
     if (r.profil) {
+      $('mdp-site').value = '';
       afficherCompte(r.profil);
       etat('');
     } else {
-      etat(r.annule ? '' : r.erreur, null, !r.annule);
+      etat(r.erreur, null, true);
     }
   };
   // Mode test (comptes hors ligne), seulement quand le serveur l'ouvre
