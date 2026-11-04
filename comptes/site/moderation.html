@@ -75,7 +75,7 @@ const VUES = {
           el('td', {}, teteMini(j.pseudo), j.pseudo, j.op ? ' ⭐' : ''), el('td', {}, j.grade), el('td', {}, j.faction || '—'),
           el('td', {}, `${j.monde} ${j.x} ${j.y} ${j.z}`), el('td', {}, j.vie + ' ❤'), el('td', {}, j.ping + ' ms'),
           el('td', {}, el('div', { class: 'boutons-petits' },
-            el('button', { onclick: () => ouvrirJoueur(j.pseudo) }, 'Fiche'),
+            el('button', { onclick: () => (location.href = '/joueur?p=' + encodeURIComponent(j.pseudo)) }, 'Profil'),
             el('button', { onclick: async () => { const r = prompt('Raison de l\'expulsion ?'); if (r !== null) action({ type: 'sanction', sanction: 'kick', pseudo: j.pseudo, raison: r }, msg); } }, 'Kick')))))))
         : el('p', { class: 'vide' }, 'Personne en ligne.')));
   },
@@ -86,7 +86,7 @@ const VUES = {
     const fiche = el('div');
     const chercher = async () => {
       const r = await api('mod/joueurs', { session: S(), recherche: recherche.value });
-      liste.replaceChildren(...(r.joueurs || []).map((j) => el('button', { onclick: () => montrerFiche(j.pseudo) },
+      liste.replaceChildren(...(r.joueurs || []).map((j) => el('button', { onclick: () => (location.href = '/joueur?p=' + encodeURIComponent(j.pseudo)) },
         (j.enLigne ? '🟢 ' : '') + j.pseudo + (j.sanctions ? ` (${j.sanctions})` : ''))));
     };
     async function montrerFiche(p) {

@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Joueur · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
+  <nav id="menu"></nav>
+</header>
+<main style="max-width:1280px">
+  <div class="profil-entete">
+    <h1 id="titre">Joueur</h1>
+    <input id="chercher" placeholder="🔍 Rechercher un joueur…" list="suggestions" autocomplete="off">
+    <datalist id="suggestions"></datalist>
+  </div>
+  <p class="sous-titre" id="etat"></p>
+  <div id="contenu" class="cache">
+    <div class="onglets soulignes" id="onglets"></div>
+    <div class="profil-grille" style="margin-top:14px">
+      <div id="gauche"></div>
+      <div id="droite"></div>
+    </div>
+  </div>
+</main>
+<script>
+let f = null, moi = null, onglet = 'infos', modeTemps = 'reel';
+const S = () => Session.lire();
+const NOMS_SANCTIONS = { ban: 'Bannissement', mute: 'Mute', warn: 'Avertissement', kick: 'Expulsion' };
+const dh = (t) => t ? new Date(t).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+const dj = (t) => t ? new Date(t).toLocaleDateString('fr-FR') : '—';
+function duree(s) {
+  s = Math.round(s || 0);
+  const j = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
+  return j ? `${j}j ${h}h` : h ? `${h}h${String(m).padStart(2, '0')}` : `${m} min`;
+}
+function carte(titre, ...c) { return el('div', { class: 'carte', style: 'margin-bottom:16px' }, titre ? el('h3', { style: 'margin-top:0' }, titre) : null, ...c); }
+async function action(a, msg) {
+  const r = await api('mod/action', { session: S(), action: Object.assign({ pseudo: f.pseudo }, a) });
+  if (r.erreur) { message(msg, r.erreur); return null; }
+  message(msg, 'Envoyé au serveur…', true);
+  for (let i = 0; i < 20; i++) {
+    await new Promise((ok) => setTimeout(ok, 700));
+    const x = await api('mod/resultat', { session: S(), id: r.id });
+    if (x.message !== undefined) { message(msg, x.donnees ? '' : x.message, x.ok); return x; }
+  }
+  message(msg, 'Pas de réponse du serveur pour le moment.');
+  return null;
+}
+
+/** Rendu du skin (devant) sur un canvas, comme sur la page « Mon compte ». */
+function dessinerSkin(canvas, img, slim) {
+  const k = 5, g = canvas.getContext('2d');
+  canvas.width = 16 * k; canvas.height = 32 * k;
+  g.imageSmoothingEnabled = false;
+  const b = slim ? 3 : 4;
+  const p = (sx, sy, w, h, dx, dy) => g.drawImage(img, sx, sy, w, h, dx * k, dy * k, w * k, h * k);
+  if (!img) {
+    g.fillStyle = 'rgba(255,255,255,.12)';
+    [[4, 0, 8, 8], [4, 8, 8, 12], [4, 20, 8, 12], [4 - b, 8, b, 12], [12, 8, b, 12]].forEach(([x, y, w, h]) => g.fillRect(x * k, y * k, w * k, h * k));
+    return;
+  }
+  p(8, 8, 8, 8, 4, 0); p(40, 8, 8, 8, 4, 0); p(20, 20, 8, 12, 4, 8); p(20, 36, 8, 12, 4, 8);
+  p(44, 20, b, 12, 4 - b, 8); p(44, 36, b, 12, 4 - b, 8); p(36, 52, b, 12, 12, 8); p(52, 52, b, 12, 12, 8);
+  p(4, 20, 4, 12, 4, 20); p(4, 36, 4, 12, 4, 20); p(20, 52, 4, 12, 8, 20); p(4, 52, 4, 12, 8, 20);
+}
+
+// ---------- Onglets ----------
+const ONGLETS = [['infos', 'Informations'], ['casier', 'Casier'], ['inventaire', 'Inventaire'], ['identifiants', 'Identifiants'], ['logs', 'Logs']];
+const VUES = {
+  infos(z) {
+    const c = f.compte, j = c && c.jeu, l = f.enLigne;
+    const grade = (l && l.grade) || (j && j.grade) || 'Joueur', faction = (l && l.faction) || (j && j.faction);
+    const ligne = (k, v) => [el('div', { class: 'cle' }, k), el('div', {}, v)];
+    const canvas = el('canvas');
+    const classes = l && l.classes ? Object.entries(l.classes).map(([n, v]) => el('span', { class: 'puce' }, n + ' · niv. ' + v)) : ['—'];
+    z.replaceChildren(
+      carte(null, el('div', { class: 'fiche' },
+        el('div', { class: 'lignes-fiche' },
+          el('div', { class: 'titre-groupe', style: 'margin-top:0;border:0;padding-top:0' }, 'Identité'),
+          ...ligne('Identifiant', el('code', {}, f.uuid)),
+          ...ligne('Pseudo', el('strong', {}, f.pseudo)),
+          ...ligne('Rôle sur le site', c ? el('span', { class: 'puce' }, c.nomRole) : 'Pas de compte'),
+          ...ligne('Grade', el('span', { class: 'puce' }, grade)),
+          ...ligne('Faction', faction ? [el('span', { class: 'puce' }, faction), l && l.rang ? el('span', { class: 'puce' }, l.rang) : null] : 'Aucune'),
+          ...ligne('Classes', classes),
+          el('div', { class: 'titre-groupe' }, 'Argent & combat'),
+          ...ligne('Argent', el('strong', {}, nombre(l ? l.argent : j ? j.argent : 0) + ' $')),
+          ...ligne('Kills · Morts', j ? `${j.kills} · ${j.morts} (ratio ${(j.morts ? j.kills / j.morts : j.kills).toFixed(2)})` : '—'),
+          ...ligne('Puissance', j ? j.puissance + ' / 10' : '—'),
+          ...ligne('Casier', f.casier.length ? f.casier.length + ' sanction(s)' : 'Vierge')),
+        el('div', {}, el('div', { class: 'carte-id' },
+          el('div', { class: 'haut' }, el('span', {}, '◆ OnyxFight'), el('span', {}, 'Carte de joueur')),
+          el('div', { class: 'corps' }, canvas, el('div', {},
+            el('div', { class: 'nom' }, f.pseudo),
+            el('div', { class: 'champ-id' }, 'Grade'), el('div', { class: 'val-id' }, grade),
+            el('div', { class: 'champ-id' }, 'Faction'), el('div', { class: 'val-id' }, faction || '—'),
+            el('div', { class: 'champ-id' }, 'Arrivé le'), el('div', { class: 'val-id' }, dj(f.premiere)),
+            el('div', { class: 'champ-id' }, 'Statut'), el('div', { class: 'val-id' }, l ? '🟢 En ligne' : '⚫ Hors ligne'))))))),
+      tempsCarte());
+    if (c && c.skin) {
+      const img = new Image();
+      img.onload = () => dessinerSkin(canvas, img, c.skin.modele === 'slim');
+      img.src = '/skins/' + f.uuid + '.png?v=' + c.skin.version;
+    } else dessinerSkin(canvas, null);
+  },
+
+  casier(z) {
+    const msg = el('div', { class: 'message' });
+    const champ = (id, t, attrs) => {
+      const { liste, ...autres } = attrs || {};
+      return el('div', {}, el('label', { for: id }, t), el(liste ? 'select' : 'input', Object.assign({ id }, autres), ...(liste || []).map(([v, x]) => el('option', { value: v }, x))));
+    };
+    const v = (id) => document.getElementById(id).value.trim();
+    z.replaceChildren(
+      carte('Sanctionner', el('div', { class: 'ligne-form' },
+        champ('s-type', 'Sanction', { liste: [['warn', 'Avertissement'], ['mute', 'Mute'], ['kick', 'Expulsion'], ['ban', 'Bannissement']] }),
+        champ('s-duree', 'Durée (vide = définitif)', { placeholder: '30m, 2h, 7j, 2sem' }),
+        champ('s-raison', 'Raison', { placeholder: 'Visible par le joueur' }),
+        el('button', { class: 'bouton', onclick: async () => {
+          if (!v('s-raison')) return message(msg, 'Donne une raison.');
+          if (v('s-type') === 'ban' && !confirm(`Bannir ${f.pseudo} ${v('s-duree') ? 'pour ' + v('s-duree') : 'définitivement'} ?`)) return;
+          await action({ type: 'sanction', sanction: v('s-type'), duree: ['ban', 'mute'].includes(v('s-type')) ? v('s-duree') : '', raison: v('s-raison') }, msg);
+          setTimeout(charger, 2500);
+        } }, 'Appliquer')),
+        el('div', { class: 'boutons-petits', style: 'margin-top:10px' },
+          el('button', { onclick: async () => { await action({ type: 'lever', sanction: 'mute' }, msg); setTimeout(charger, 2500); } }, 'Lever le mute'),
+          el('button', { onclick: async () => { await action({ type: 'lever', sanction: 'ban' }, msg); setTimeout(charger, 2500); } }, 'Lever le bannissement')), msg),
+      carte(`Casier (${f.casier.length})`, f.casier.length ? el('table', {}, el('thead', {}, el('tr', {}, ['Date', 'Sanction', 'Raison', 'Par', 'Fin'].map((t) => el('th', {}, t)))),
+        el('tbody', {}, f.casier.map((s) => el('tr', {}, el('td', {}, dh(s.debut)),
+          el('td', {}, el('span', { class: 'etiquette ' + s.type }, NOMS_SANCTIONS[s.type] || s.type), s.leve ? el('span', { class: 'etiquette ok', style: 'margin-left:6px' }, 'levé par ' + (s.levePar || '?')) : null),
+          el('td', {}, s.raison), el('td', {}, s.par), el('td', {}, ['ban', 'mute'].includes(s.type) ? (s.fin > 0 ? dh(s.fin) : 'Définitif') : '—'))))) : el('p', { class: 'vide' }, 'Casier vierge.')));
+  },
+
+  async inventaire(z) {
+    const msg = el('div', { class: 'message' });
+    if (!f.enLigne) return z.replaceChildren(carte('Inventaire', el('p', { class: 'vide' }, 'Le joueur doit être connecté pour voir son inventaire.')));
+    z.replaceChildren(carte('Inventaire', el('p', { class: 'vide' }, 'Demande au serveur…'), msg));
+    const r = await action({ type: 'inventaire' }, msg);
+    if (!r || !r.donnees) return;
+    const grille = (objets, n, ordre) => el('div', { class: 'inv' }, Array.from({ length: n }, (_, i) => {
+      const idx = ordre ? ordre[i] : i;
+      const o = objets.find((x) => x.case === idx);
+      if (!o) return el('div', { class: 'case' });
+      const nom = o.nom || o.id.replace(/^minecraft:/, '').replace(/^onyxfight:/, '◆ ').replace(/_/g, ' ');
+      const info = [o.nom ? o.nom + ' (' + o.id + ')' : o.id, o.enchantements ? 'Enchantements : ' + o.enchantements.join(', ') : '', o.usure ? 'Usure : ' + o.usure : ''].filter(Boolean).join('\n');
+      return el('div', { class: 'case pleine' + (o.enchantements ? ' ench' : ''), title: info }, nom, o.nombre > 1 ? el('span', { class: 'n' }, o.nombre) : null);
+    }));
+    const d = r.donnees;
+    // Barre d'objets (0-8) en bas, comme en jeu
+    const ordre = [...Array(27).keys()].map((i) => i + 9).concat([...Array(9).keys()]);
+    z.replaceChildren(
+      carte('Armure', grille(d.armure, 4, [3, 2, 1, 0])),
+      carte('Inventaire', grille(d.inventaire, 36, ordre), el('p', { class: 'aide' }, 'La dernière ligne est la barre d\'objets. Survole un objet pour ses détails.')),
+      carte('Coffre de l\'Ender', grille(d.coffreEnder, 27)));
+  },
+
+  identifiants(z) {
+    const c = f.compte;
+    const l = (k, v) => [el('div', { class: 'cle' }, k), el('div', {}, v)];
+    z.replaceChildren(
+      carte('Identifiants', el('div', { class: 'lignes-fiche' },
+        ...l('UUID', el('code', {}, f.uuid)), ...l('Pseudo', f.pseudo),
+        ...l('Compte du site', c ? 'Oui, créé le ' + dh(c.cree) : 'Non'),
+        ...l('E-mail', c && c.email ? c.email : '—'),
+        ...l('Récupération', c ? (c.recuperable ? '✔ e-mail + question secrète' : '⚠ rien d\'enregistré') : '—'),
+        ...l('Parties (launcher)', c ? c.connexions : '—'),
+        ...l('Skin importé', c && c.skin ? 'Oui (' + (c.skin.modele === 'slim' ? 'bras fins' : 'bras larges') + ')' : 'Non'))),
+      carte('Adresses IP', f.ips === null ? el('p', { class: 'aide' }, 'Visible par les administrateurs.') : f.ips.length ? el('table', {}, el('tbody', {}, f.ips.map((x) => el('tr', {}, el('td', {}, el('code', {}, x.ip)), el('td', {}, 'vue le ' + dh(x.t))))))
+        : el('p', { class: 'vide' }, 'Aucune adresse enregistrée.')),
+      carte('Comptes liés (même adresse IP)', f.ips === null ? el('p', { class: 'aide' }, 'Visible par les administrateurs.') : f.lies.length
+        ? el('div', {}, f.lies.map((p) => el('a', { class: 'puce', href: '/joueur?p=' + encodeURIComponent(p) }, p))) : el('p', { class: 'vide' }, 'Aucun.')));
+  },
+
+  logs(z) {
+    z.replaceChildren(
+      carte('Connexions', f.evenements.length ? el('table', {}, el('tbody', {}, f.evenements.map((e) => el('tr', {}, el('td', {}, dh(e.t)),
+        el('td', {}, e.type === 'connexion' ? el('span', { class: 'etiquette ok' }, 'Connexion') : el('span', { class: 'etiquette' }, 'Départ'))))))
+        : el('p', { class: 'vide' }, 'Rien pour le moment.')),
+      carte('Actions de l\'équipe sur ce joueur', f.journal.length ? el('table', {}, el('tbody', {}, f.journal.map((j) => el('tr', {}, el('td', {}, dh(j.t)), el('td', {}, j.par), el('td', {}, j.action),
+        el('td', { style: 'font-size:12px;color:var(--gris)' }, j.details))))) : el('p', { class: 'vide' }, 'Aucune.')));
+  },
+};
+
+function tempsCarte() {
+  const t = f.temps, afk = modeTemps === 'total';
+  const val = (s, a) => afk ? s : s - a;
+  const max = Math.max(3600, ...t.mois.map((m) => m.s));
+  const bouton = (id, txt) => el('button', { class: modeTemps === id ? 'actif' : '', onclick: () => { modeTemps = id; VUES.infos($('gauche')); } }, txt);
+  return carte(null,
+    el('div', { style: 'display:flex;justify-content:space-between;align-items:center' }, el('h3', { style: 'margin:0' }, '📈 Temps de jeu des 6 derniers mois'),
+      el('div', { class: 'onglets', style: 'margin:0' }, bouton('reel', 'Réel'), bouton('total', 'Total (dont AFK)'))),
+    el('div', { class: 'tuiles' },
+      el('div', { class: 'tuile bleue' }, el('span', {}, 'Temps total'), el('strong', {}, duree(val(t.total, t.totalAfk)))),
+      el('div', { class: 'tuile violette' }, el('span', {}, 'Première connexion'), el('strong', {}, dj(f.premiere))),
+      el('div', { class: 'tuile violette' }, el('span', {}, 'Dernière activité'), el('strong', {}, f.enLigne ? 'En ligne' : dj(f.derniere))),
+      el('div', { class: 'tuile' }, el('span', {}, 'Moyenne / semaine'), el('strong', {}, duree(val(t.moyenneSemaine, 0)))),
+      el('div', { class: 'tuile verte' }, el('span', {}, '30 derniers jours'), el('strong', {}, duree(val(t.j30, t.j30Afk))), el('small', {}, 'dont AFK ' + duree(t.j30Afk))),
+      el('div', { class: 'tuile orange' }, el('span', {}, '7 derniers jours'), el('strong', {}, duree(val(t.j7, t.j7Afk))), el('small', {}, 'dont AFK ' + duree(t.j7Afk)))),
+    el('div', { class: 'barres' }, t.mois.map((m) => {
+      const v = val(m.s, m.afk);
+      return el('div', { class: 'col' }, el('span', { class: 'val' }, v ? duree(v) : ''),
+        el('div', { class: 'barre', style: `height:${(v / max) * 100}%` }, afk && m.s ? el('div', { class: 'afk', style: `height:${(m.afk / m.s) * 100}%` }) : null));
+    })),
+    el('div', { class: 'axe' }, t.mois.map((m) => el('span', {}, new Date(m.mois + '-15').toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })))),
+    afk ? el('p', { class: 'aide' }, 'En rouge : temps AFK (5 minutes sans bouger).') : null);
+}
+
+function droite() {
+  const z = $('droite'), l = f.enLigne, msg = el('div', { class: 'message' });
+  const jauge = (nom, v, max, couleur, texte) => el('div', { class: 'statut-ligne' }, el('div', { class: 'tete-ligne' }, el('span', {}, nom), el('strong', {}, texte || `${v} / ${max}`)),
+    el('div', { class: 'jauge' }, el('div', { style: `width:${Math.max(0, Math.min(100, (v / max) * 100))}%;background:${couleur}` })));
+  const demander = (t) => prompt(t);
+  z.replaceChildren(
+    carte('⚡ Actions rapides', el('div', { class: 'actions-rapides' },
+      el('button', { onclick: () => { const t = demander('Message privé à ' + f.pseudo + ' ?'); if (t) action({ type: 'joueur', action: 'message', valeur: t }, msg); } }, '💬 Message'),
+      el('button', { onclick: () => action({ type: 'joueur', action: 'soigner' }, msg) }, '✚ Soigner'),
+      el('button', { onclick: () => action({ type: 'joueur', action: 'spawn' }, msg) }, '🏠 Au spawn'),
+      el('button', { onclick: () => { const r = demander('Raison de l\'avertissement ?'); if (r) action({ type: 'sanction', sanction: 'warn', raison: r }, msg).then(() => setTimeout(charger, 2000)); } }, '⚠ Avertir'),
+      el('button', { onclick: () => { const d = demander('Durée du mute (30m, 2h, 7j… vide = définitif) ?'); if (d === null) return; const r = demander('Raison ?'); if (r) action({ type: 'sanction', sanction: 'mute', duree: d, raison: r }, msg).then(() => setTimeout(charger, 2000)); } }, '🔇 Mute'),
+      el('button', { onclick: () => { const r = demander('Raison de l\'expulsion ?'); if (r) action({ type: 'sanction', sanction: 'kick', raison: r }, msg); } }, '👢 Kick'),
+      el('button', { class: 'danger', onclick: () => { const d = demander('Durée du bannissement (30m, 2h, 7j… vide = définitif) ?'); if (d === null) return; const r = demander('Raison ?'); if (r && confirm('Bannir ' + f.pseudo + ' ?')) action({ type: 'sanction', sanction: 'ban', duree: d, raison: r }, msg).then(() => setTimeout(charger, 2000)); } }, '⛔ Bannir'),
+      el('button', { class: 'danger', disabled: moi.niveau < 2, onclick: () => confirm('Vider tout l\'inventaire de ' + f.pseudo + ' ?') && action({ type: 'joueur', action: 'vider' }, msg) }, '🗑 Vider l\'inventaire')), msg),
+    carte('❤ Statut', l ? el('div', {},
+      jauge('Vie', l.vie, l.vieMax || 20, '#ff5468'),
+      jauge('Armure', l.armure || 0, 20, '#9fb3c8'),
+      jauge('Faim', l.faim, 20, '#d8913a'),
+      jauge('Saturation', l.saturation || 0, 20, '#ffd24a'),
+      jauge('Niveau d\'XP', Math.min(l.niveauXp || 0, 100), 100, '#55e08a', 'niv. ' + (l.niveauXp || 0)),
+      el('div', { class: 'aide', style: 'margin-top:8px' }, (l.mode || '') + ' · ' + l.ping + ' ms' + (l.afk ? ' · 💤 AFK' : '') + (l.op ? ' · ⭐ op' : '')),
+      l.effets && l.effets.length ? el('div', { style: 'margin-top:8px' }, l.effets.map((e) => el('span', { class: 'puce' }, e))) : null)
+      : el('p', { class: 'vide' }, '⚫ Hors ligne')),
+    carte('📍 Position', l ? el('div', {}, el('div', {}, el('span', { class: 'puce' }, l.monde), el('span', { class: 'puce' }, l.zone || 'Nature')),
+      el('div', { class: 'position' }, el('div', {}, el('small', {}, 'X'), l.x), el('div', {}, el('small', {}, 'Y'), l.y), el('div', {}, el('small', {}, 'Z'), l.z)))
+      : el('p', { class: 'vide' }, 'Hors ligne')));
+}
+
+function montrerOnglet(id) {
+  onglet = id;
+  document.querySelectorAll('#onglets button').forEach((b) => b.classList.toggle('actif', b.dataset.id === id));
+  VUES[id]($('gauche'));
+}
+
+async function charger() {
+  const p = new URLSearchParams(location.search).get('p');
+  if (!p) { $('etat').textContent = 'Cherche un joueur ci-dessus.'; return; }
+  const r = await api('mod/fiche', { session: S(), pseudo: p });
+  if (r.erreur) { $('etat').textContent = r.erreur; $('contenu').classList.add('cache'); return; }
+  f = r;
+  document.title = 'Joueur - ' + f.pseudo + ' · OnyxFight';
+  $('titre').replaceChildren(teteMini(f.pseudo, 32), 'Joueur - ' + f.pseudo);
+  $('etat').textContent = f.enLigne ? '🟢 En ligne maintenant' : '⚫ Hors ligne · dernière activité ' + dh(f.derniere);
+  $('contenu').classList.remove('cache');
+  if (onglet !== 'inventaire') montrerOnglet(onglet);
+  droite();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!S()) return (location.href = '/compte');
+  moi = await api('mod/moi', { session: S() });
+  if (moi.erreur || !moi.niveau) { $('etat').textContent = 'Cette page est réservée à l\'équipe.'; return; }
+  $('onglets').replaceChildren(...ONGLETS.map(([id, t]) => el('button', { 'data-id': id, onclick: () => montrerOnglet(id) }, t)));
+  const ch = $('chercher');
+  ch.addEventListener('input', async () => {
+    const r = await api('mod/joueurs', { session: S(), recherche: ch.value });
+    $('suggestions').replaceChildren(...(r.joueurs || []).map((j) => el('option', { value: j.pseudo })));
+  });
+  ch.addEventListener('change', () => ch.value && (location.href = '/joueur?p=' + encodeURIComponent(ch.value)));
+  ch.addEventListener('keydown', (e) => e.key === 'Enter' && ch.value && (location.href = '/joueur?p=' + encodeURIComponent(ch.value)));
+  await charger();
+  setInterval(() => f && f.enLigne && onglet !== 'inventaire' && charger(), 15000);
+});
+</script>
+<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+</body>
+</html>

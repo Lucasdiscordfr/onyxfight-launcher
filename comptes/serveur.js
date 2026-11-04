@@ -411,6 +411,10 @@ function niveauAction(a) {
       return a.sanction === 'ban' && !(Sanctions_duree(a.duree) > 0 && Sanctions_duree(a.duree) <= 7 * 86400000) ? 2 : 1;
     case 'lever':
       return a.sanction === 'ban' ? 2 : 1;
+    case 'inventaire':
+      return 1;
+    case 'joueur':
+      return a.action === 'vider' ? 2 : 1;
     case 'annonce':
     case 'faction':
     case 'evenement':
@@ -475,6 +479,15 @@ function nettoyer(a) {
       x.action = ['dissoudre', 'renommer', 'expulser', 'banque'].includes(a.action) ? a.action : null;
       x.id = t('id', 64);
       x.valeur = t('valeur', 32);
+      if (!x.action) return null;
+      break;
+    case 'inventaire':
+      x.pseudo = t('pseudo', 16);
+      break;
+    case 'joueur':
+      x.pseudo = t('pseudo', 16);
+      x.action = ['soigner', 'spawn', 'vider', 'message'].includes(a.action) ? a.action : null;
+      x.valeur = t('valeur', 200).replace(/§/g, '');
       if (!x.action) return null;
       break;
     case 'evenement':
@@ -690,6 +703,113 @@ Object.assign(ROUTES, {
 });
 let cacheBoutique = null;
 
+// ---------- Activité des joueurs (temps de jeu par jour, connexions, adresses) ----------
+if (!d.activite) d.activite = {};
+function jourDe(t) {
+  const x = new Date(t + 3600e3); // heure de Paris (approchée : UTC+1)
+  return x.toISOString().slice(0, 10);
+}
+function activite(cle) {
+  if (!d.activite[cle]) d.activite[cle] = { jours: {}, evenements: [], ips: [] };
+  return d.activite[cle];
+}
+function evenementJoueur(a, type, t) {
+  a.evenements.push({ t, type });
+  if (a.evenements.length > 300) a.evenements.splice(0, a.evenements.length - 300);
+}
+function suivreActivite(avant, maintenant, ecart) {
+  const t = Date.now(), jour = jourDe(t);
+  const pas = ecart > 0 && ecart < 20000 ? ecart / 1000 : 5; // secondes depuis le dernier envoi
+  const ici = new Set();
+  for (const j of maintenant) {
+    const cle = j.pseudo.toLowerCase();
+    ici.add(cle);
+    const a = activite(cle);
+    a.pseudo = j.pseudo;
+    if (!a.premiere) a.premiere = t;
+    a.derniere = t;
+    const jj = a.jours[jour] || (a.jours[jour] = { s: 0, afk: 0 });
+    jj.s += pas;
+    if (j.afk) jj.afk += pas;
+    if (!avant.has(cle)) evenementJoueur(a, 'connexion', t);
+    if (j.ip && (!a.ips.length || a.ips[a.ips.length - 1].ip !== j.ip)) {
+      a.ips = a.ips.filter((x) => x.ip !== j.ip);
+      a.ips.push({ ip: j.ip, t });
+      if (a.ips.length > 10) a.ips.shift();
+    }
+    if (j.ip && a.ips.length) a.ips[a.ips.length - 1].t = t;
+  }
+  for (const cle of avant) if (!ici.has(cle)) evenementJoueur(activite(cle), 'depart', t);
+  sauver();
+}
+// Jours de plus de 7 mois : effacés (une fois par jour)
+setInterval(() => {
+  const limite = jourDe(Date.now() - 214 * 86400e3);
+  for (const a of Object.values(d.activite)) for (const j of Object.keys(a.jours)) if (j < limite) delete a.jours[j];
+}, 86400e3).unref();
+
+/** Statistiques de temps de jeu (secondes) : total, 30 et 7 derniers jours, moyenne par semaine, 6 derniers mois. */
+function tempsDeJeu(a) {
+  const r = { total: 0, totalAfk: 0, j30: 0, j30Afk: 0, j7: 0, j7Afk: 0, mois: [] };
+  if (!a) return r;
+  const j30 = jourDe(Date.now() - 30 * 86400e3), j7 = jourDe(Date.now() - 7 * 86400e3);
+  const parMois = {};
+  for (const [j, v] of Object.entries(a.jours)) {
+    r.total += v.s;
+    r.totalAfk += v.afk;
+    if (j > j30) { r.j30 += v.s; r.j30Afk += v.afk; }
+    if (j > j7) { r.j7 += v.s; r.j7Afk += v.afk; }
+    const m = j.slice(0, 7);
+    parMois[m] = parMois[m] || { s: 0, afk: 0 };
+    parMois[m].s += v.s;
+    parMois[m].afk += v.afk;
+  }
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const x = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const m = `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}`;
+    r.mois.push({ mois: m, s: (parMois[m] || {}).s || 0, afk: (parMois[m] || {}).afk || 0 });
+  }
+  const semaines = Math.max(1, Math.min(26, (Date.now() - (a.premiere || Date.now())) / (7 * 86400e3)));
+  r.moyenneSemaine = r.total / semaines;
+  return r;
+}
+
+Object.assign(ROUTES, {
+  /** Profil complet d'un joueur pour l'équipe. */
+  'POST /api/mod/fiche': (b) => {
+    const [moi, err] = equipe(b, 1);
+    if (err) return err;
+    const cle = String(b.pseudo || '').trim().toLowerCase();
+    const c = d.comptes[cle], a = d.activite[cle];
+    const cas = jeu.casiers.find((x) => x.pseudo.toLowerCase() === cle);
+    const ligne = jeu.enLigne.find((x) => x.pseudo.toLowerCase() === cle);
+    if (!c && !a && !cas && !ligne) return [404, { erreur: 'Joueur inconnu.' }];
+    const pseudo = (c && c.pseudo) || (ligne && ligne.pseudo) || (a && a.pseudo) || (cas && cas.pseudo);
+    const admin = niveau(moi) >= 2;
+    // Autres pseudos vus avec les mêmes adresses (doubles comptes)
+    const ips = a ? a.ips.map((x) => x.ip) : [];
+    const lies = !admin ? [] : Object.values(d.activite).filter((x) => x !== a && x.ips.some((y) => ips.includes(y.ip))).map((x) => x.pseudo);
+    const enLigneSansIp = ligne ? Object.assign({}, ligne, { ip: admin ? ligne.ip : undefined }) : null;
+    return [200, {
+      pseudo,
+      uuid: (c && c.uuid) || (ligne && ligne.uuid) || uuidHorsLigne(pseudo),
+      compte: c ? { cree: c.cree, role: c.role || 'joueur', nomRole: NOMS_ROLES[c.role || 'joueur'], email: masquerEmail(c.email),
+        recuperable: !!(c.email && c.reponseHash), connexions: c.connexions || 0, derniereConnexion: c.derniereConnexion || null,
+        skin: c.skin ? { version: c.skin.version, modele: c.skin.modele } : null, jeu: c.jeu || null } : null,
+      enLigne: enLigneSansIp,
+      casier: cas ? cas.sanctions : [],
+      temps: tempsDeJeu(a),
+      premiere: (a && a.premiere) || (c && c.cree) || null,
+      derniere: ligne ? Date.now() : (a && a.derniere) || (c && c.derniereConnexion) || null,
+      evenements: a ? a.evenements.slice(-100).reverse() : [],
+      ips: admin && a ? a.ips.slice().reverse() : null,
+      lies,
+      journal: d.journal.filter((j) => j.details.toLowerCase().includes('"pseudo":"' + cle) || j.details.toLowerCase().includes(cle + ' →')).slice(-100).reverse(),
+    }];
+  },
+});
+
 /** Requêtes du plugin (seulement depuis la machine). */
 const LOCAL = {
   '/api/serveur/actions': () => {
@@ -699,7 +819,7 @@ const LOCAL = {
   },
   '/api/serveur/resultats': (b) => {
     for (const r of Array.isArray(b.resultats) ? b.resultats : []) {
-      resultats.set(String(r.id), { ok: !!r.ok, message: String(r.message || '').slice(0, 500), t: Date.now() });
+      resultats.set(String(r.id), { ok: !!r.ok, message: String(r.message || '').slice(0, 500), donnees: r.donnees || null, t: Date.now() });
     }
     while (resultats.size > 500) resultats.delete(resultats.keys().next().value);
     return [200, { ok: true }];
@@ -713,7 +833,10 @@ const LOCAL = {
     return [200, { ok: true }];
   },
   '/api/serveur/enligne': (b) => {
-    jeu.enLigne = Array.isArray(b.joueurs) ? b.joueurs.slice(0, 500) : [];
+    const avant = new Set(jeu.enLigne.map((j) => j.pseudo.toLowerCase()));
+    const maintenant = Array.isArray(b.joueurs) ? b.joueurs.slice(0, 500) : [];
+    suivreActivite(avant, maintenant, Date.now() - jeu.majEnLigne);
+    jeu.enLigne = maintenant;
     jeu.max = b.max || 0;
     jeu.tps = b.tps;
     jeu.majEnLigne = Date.now();
