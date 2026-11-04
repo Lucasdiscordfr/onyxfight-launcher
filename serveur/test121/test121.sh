@@ -5,6 +5,9 @@
 #
 # Relancer la commande met le mod et le plugin à jour et redémarre le serveur de test (la map de test est gardée).
 # Remettre la map de test à zéro (depuis la conversion) : ... | sudo bash -s -- neuf
+# Mode crack (comptes hors ligne du launcher, pour un 2e compte de test) : ... | sudo bash -s -- crack
+#   puis dans la console : whitelist add <pseudo> pour chaque compte (les UUID changent en mode crack).
+# Retour aux comptes Microsoft : ... | sudo bash -s -- enligne
 # Console : sudo -u onyx tmux -L test121 attach -t test121   (Ctrl+B puis D pour sortir)
 set -euo pipefail
 RACINE=/opt/onyxfight
@@ -75,6 +78,11 @@ if [ "${1:-}" = "neuf" ] || [ ! -d world ]; then
 fi
 EN_LIGNE=true
 [ -f server.properties ] && grep -q "^online-mode=false" server.properties && EN_LIGNE=false
+for a in "$@"; do
+  [ "$a" = "crack" ] && EN_LIGNE=false
+  [ "$a" = "enligne" ] && EN_LIGNE=true
+done
+echo "Comptes : $([ "$EN_LIGNE" = true ] && echo 'Microsoft (online-mode=true)' || echo 'CRACK / hors ligne (online-mode=false)')"
 cat > server.properties <<EOF
 level-name=world
 server-port=$PORT
