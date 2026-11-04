@@ -6,7 +6,7 @@
 # Relancer la commande met le mod et le plugin à jour et redémarre le serveur de test (la map de test est gardée).
 # Remettre la map de test à zéro (depuis la conversion) : ... | sudo bash -s -- neuf
 # Mode crack (comptes hors ligne du launcher, pour un 2e compte de test) : ... | sudo bash -s -- crack
-#   puis dans la console : whitelist add <pseudo> pour chaque compte (les UUID changent en mode crack).
+#   (pas de whitelist : seul le launcher OnyxFight a le mod qui permet de jouer)
 # Retour aux comptes Microsoft : ... | sudo bash -s -- enligne
 # Console : sudo -u onyx tmux -L test121 attach -t test121   (Ctrl+B puis D pour sortir)
 set -euo pipefail
@@ -87,8 +87,8 @@ cat > server.properties <<EOF
 level-name=world
 server-port=$PORT
 online-mode=$EN_LIGNE
-white-list=true
-enforce-whitelist=true
+white-list=false
+enforce-whitelist=false
 allow-nether=false
 spawn-protection=0
 max-players=20
