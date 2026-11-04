@@ -146,3 +146,7 @@ input[type=checkbox] { accent-color: var(--violet); width: 16px; height: 16px; }
 @keyframes respire { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 .actus { max-width: 44%; }
 main { z-index: 2; }
+
+#zone-test { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+#zone-test.cache { display: none; }
+#pseudo-test { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--texte); border-radius: 6px; padding: 6px 8px; font-size: 13px; }

@@ -6,7 +6,18 @@ const path = require('path');
 const { safeStorage } = require('electron');
 const { Auth } = require('msmc');
 
-const MARGE = 10 * 60 * 1000; // on renouvelle le jeton 10 min avant qu'il expire
+const crypto = require('crypto');
+
+const MARGE = 10 * 60 * 1000;
+
+/** UUID « hors ligne » de Minecraft pour un pseudo (le même que celui du serveur en mode hors ligne). */
+function uuidHorsLigne(pseudo) {
+  const h = crypto.createHash('md5').update('OfflinePlayer:' + pseudo, 'utf8').digest();
+  h[6] = (h[6] & 0x0f) | 0x30;
+  h[8] = (h[8] & 0x3f) | 0x80;
+  const x = h.toString('hex');
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
+} // on renouvelle le jeton 10 min avant qu'il expire
 
 class Compte {
   constructor(dossier) {
@@ -14,17 +25,18 @@ class Compte {
     this.ms = null; // jeton Microsoft (pour renouveler)
     this.mc = null; // autorisation de jeu (format minecraft-launcher-core)
     this.exp = 0;
+    this.test = false; // compte de test hors ligne (seulement quand le serveur l'autorise)
   }
 
   /** Infos à afficher (ou null si pas connecté). */
   profil() {
     if (!this.mc) return null;
-    return { pseudo: this.mc.name, uuid: this.mc.uuid };
+    return { pseudo: this.mc.name, uuid: this.mc.uuid, test: this.test };
   }
 
   garder() {
     try {
-      const texte = JSON.stringify({ ms: this.ms, mc: this.mc, exp: this.exp });
+      const texte = JSON.stringify({ ms: this.ms, mc: this.mc, exp: this.exp, test: this.test });
       const data = safeStorage.isEncryptionAvailable() ? safeStorage.encryptString(texte) : Buffer.from(texte, 'utf8');
       fs.mkdirSync(path.dirname(this.fichier), { recursive: true });
       fs.writeFileSync(this.fichier, data);
@@ -58,6 +70,8 @@ class Compte {
       this.ms = d.ms || null;
       this.mc = d.mc || null;
       this.exp = d.exp || 0;
+      this.test = !!d.test;
+      if (this.test) return this.profil();
       if (this.mc && this.exp - MARGE > Date.now()) return this.profil();
       await this.renouveler();
       return this.profil();
@@ -87,6 +101,25 @@ class Compte {
     return this.profil();
   }
 
+  /** Compte de test hors ligne : un simple pseudo (le serveur doit être ouvert aux comptes hors ligne). */
+  connecterTest(pseudo) {
+    pseudo = String(pseudo || '').trim();
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(pseudo)) throw new Error('Pseudo de test : 3 à 16 lettres, chiffres ou _.');
+    this.ms = null;
+    this.test = true;
+    this.mc = {
+      access_token: crypto.randomBytes(16).toString('hex'),
+      client_token: crypto.randomBytes(16).toString('hex'),
+      uuid: uuidHorsLigne(pseudo),
+      name: pseudo,
+      user_properties: '{}',
+      meta: { type: 'mojang', demo: false },
+    };
+    this.exp = Date.now() + 365 * 24 * 3600 * 1000;
+    this.garder();
+    return this.profil();
+  }
+
   /**
    * Le jeton de jeu est-il encore accepté par Minecraft ? Il peut être annulé avant l'heure (connexion sur un autre
    * ordinateur, changement de mot de passe) : le serveur dirait alors « Failed to verify username ».
@@ -106,6 +139,7 @@ class Compte {
 
   /** Autorisation de jeu : celle gardée si elle est encore bonne (vérifiée auprès de Minecraft), sinon renouvelée. */
   async pourJouer() {
+    if (this.test && this.mc) return Object.assign({}, this.mc);
     if (!this.mc && !this.ms) throw new Error('Connecte-toi avec ton compte Microsoft.');
     if (!this.mc || this.exp - MARGE <= Date.now() || !(await this.jetonValide())) await this.renouveler();
     return Object.assign({}, this.mc);
@@ -115,6 +149,7 @@ class Compte {
     this.ms = null;
     this.mc = null;
     this.exp = 0;
+    this.test = false;
     fs.rmSync(this.fichier, { force: true });
   }
 }

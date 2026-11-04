@@ -127,6 +127,24 @@ ipcMain.handle('compte:connecter', async () => {
 });
 ipcMain.handle('compte:deconnecter', async () => compte.deconnecter());
 
+/** Mode test (comptes hors ligne) : ouvert seulement si le manifeste le dit (« modeTest »: true). */
+async function modeTestOuvert() {
+  try {
+    return (await lireJson(cfg.MANIFESTE)).modeTest === true;
+  } catch (e) {
+    return false;
+  }
+}
+ipcMain.handle('compte:modeTest', async () => modeTestOuvert());
+ipcMain.handle('compte:test', async (e, pseudo) => {
+  if (!(await modeTestOuvert())) return { erreur: 'Le mode test n\'est pas ouvert en ce moment.' };
+  try {
+    return { profil: compte.connecterTest(pseudo) };
+  } catch (x) {
+    return { erreur: texteErreur(x) };
+  }
+});
+
 // ---------- Réglages ----------
 ipcMain.handle('reglages:sauver', async (e, r) => {
   const actuel = reglages();
@@ -153,6 +171,7 @@ ipcMain.handle('jouer', async () => {
   const flux = fs.createWriteStream(journal);
   flux.write(`OnyxFight Launcher ${app.getVersion()}\n`);
   try {
+    if (compte.test && !(await modeTestOuvert())) throw new Error('Le mode test est fermé : reconnecte-toi avec ton compte Microsoft.');
     const autorisation = await compte.pourJouer();
     await jouer(r, autorisation, {
       etat: (texte, part) => envoyer('etat', { texte, part }),

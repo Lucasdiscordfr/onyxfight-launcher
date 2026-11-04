@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld('onyx', {
   reprendre: () => ipcRenderer.invoke('compte:reprendre'),
   connecter: () => ipcRenderer.invoke('compte:connecter'),
   deconnecter: () => ipcRenderer.invoke('compte:deconnecter'),
+  modeTest: () => ipcRenderer.invoke('compte:modeTest'),
+  connecterTest: (pseudo) => ipcRenderer.invoke('compte:test', pseudo),
   sauverReglages: (r) => ipcRenderer.invoke('reglages:sauver', r),
   ouvrirDossier: () => ipcRenderer.invoke('reglages:dossier'),
   jouer: () => ipcRenderer.invoke('jouer'),

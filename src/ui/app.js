@@ -22,7 +22,7 @@ function afficherCompte(p) {
   $('avec-compte').classList.toggle('cache', !p);
   if (p) {
     $('pseudo').textContent = p.pseudo;
-    $('tete').src = `https://mc-heads.net/avatar/${p.uuid}/84`;
+    $('tete').src = `https://mc-heads.net/avatar/${p.test ? encodeURIComponent(p.pseudo) : p.uuid}/84`;
   }
   $('jouer').disabled = !p || enCours;
 }
@@ -101,6 +101,17 @@ async function demarrer() {
       etat('');
     } else {
       etat(r.annule ? '' : r.erreur, null, !r.annule);
+    }
+  };
+  // Mode test (comptes hors ligne), seulement quand le serveur l'ouvre
+  window.onyx.modeTest().then((ouvert) => $('zone-test').classList.toggle('cache', !ouvert));
+  $('connecter-test').onclick = async () => {
+    const r = await window.onyx.connecterTest($('pseudo-test').value);
+    if (r.profil) {
+      afficherCompte(r.profil);
+      etat('Compte de test : ' + r.profil.pseudo);
+    } else {
+      etat(r.erreur, null, true);
     }
   };
   $('deconnecter').onclick = async () => {
