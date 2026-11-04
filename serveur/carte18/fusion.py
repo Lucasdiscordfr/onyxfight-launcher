@@ -235,7 +235,18 @@ def traiter_chunk(donnees, blocs_mod, objets_mod, sortie):
                 ajout[i >> 1] &= 0x0F if i & 1 else 0xF0
             dat[i >> 1] &= 0x0F if i & 1 else 0xF0
             retires += 1
-    # Blocs spéciaux du mod (coffres…) et créatures du mod
+    # Fond de bedrock : la couche 0 de la map recollée (une map de spawn n'en a pas toujours)
+    for section in niveau.get('Sections', (LISTE, (COMPOSE, [])))[1][1]:
+        if section['Y'][1] == 0:
+            b = section['Blocks'][1]
+            ajout = section.get('Add', (OCTETS, None))[1]
+            dat = section['Data'][1]
+            for i in range(256):
+                b[i] = 7
+                if ajout:
+                    ajout[i >> 1] &= 0x0F if i & 1 else 0xF0
+                dat[i >> 1] &= 0x0F if i & 1 else 0xF0
+        # Blocs spéciaux du mod (coffres…) et créatures du mod
     for cle in ('TileEntities', 'Entities'):
         if cle in niveau:
             st, l = niveau[cle][1]
