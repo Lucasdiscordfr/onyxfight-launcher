@@ -34,7 +34,7 @@
   "discord": "https://discord.gg/onyxfight",
   "saison": "Saison 1",
   "discordApplication": "1566982374439526521",
-  "modeTest": true,
+  "modeTest": false,
   "v121": {
     "neoforge": "21.1.192",
     "serveur": {

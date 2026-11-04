@@ -48,6 +48,12 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   remplirQuestions($('question'));
+  fetch('/api/etat').then((r) => r.json()).then((e) => {
+    if (e.inscriptions) return;
+    $('form').innerHTML = '<h1>Inscriptions fermées</h1><p class="sous">Les inscriptions sont fermées pour le moment. '
+      + 'Suis le <a href="https://discord.gg/onyxfight" target="_blank" rel="noopener">Discord</a> pour savoir quand elles ouvriront.</p>'
+      + '<a class="bouton" href="/compte">Se connecter</a>';
+  }).catch(() => {});
   $('form').onsubmit = async (e) => {
     e.preventDefault();
     if ($('mdp').value !== $('mdp2').value) return message($('msg'), 'Les deux mots de passe ne sont pas les mêmes.');

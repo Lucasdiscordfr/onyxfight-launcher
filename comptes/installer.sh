@@ -8,7 +8,21 @@
 # Relancer la commande met le site et le service à jour (les comptes sont gardés dans /opt/onyxfight-comptes/donnees).
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "Lance ce script avec sudo."; exit 1; }
-ADRESSES="${*:-play.onyxfight.fr}"
+#   Fermer / rouvrir les inscriptions : ... | sudo bash -s -- fermer-inscriptions   (ou ouvrir-inscriptions)
+INSCRIPTIONS=
+ADRESSES=
+for a in "$@"; do
+  case "$a" in
+    fermer-inscriptions) INSCRIPTIONS=fermer ;;
+    ouvrir-inscriptions) INSCRIPTIONS=ouvrir ;;
+    *) ADRESSES="$ADRESSES $a" ;;
+  esac
+done
+ADRESSES=$(echo ${ADRESSES:-play.onyxfight.fr})
+# Garde les adresses déjà réglées si on n'en donne pas
+if [ -z "$(echo "$*" | tr ' ' '\n' | grep -v inscriptions)" ] && [ -f /etc/caddy/Caddyfile ] && grep -q reverse_proxy /etc/caddy/Caddyfile; then
+  ADRESSES=$(head -1 /etc/caddy/Caddyfile | sed 's/[{,]/ /g' | xargs)
+fi
 # Hors de /opt/onyxfight : ce dossier est fermé aux autres utilisateurs, le service des comptes ne pouvait pas y lire
 DOSSIER=/opt/onyxfight-comptes
 DEPOT=https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/comptes
@@ -48,6 +62,8 @@ for f in $FICHIERS; do
   curl -fsSL -o "$DOSSIER/$f.nouveau" "$DEPOT/$f?$(date +%s)"
   mv "$DOSSIER/$f.nouveau" "$DOSSIER/$f"
 done
+[ "$INSCRIPTIONS" = fermer ] && touch "$DOSSIER/donnees/inscriptions-fermees" && echo "Inscriptions fermées."
+[ "$INSCRIPTIONS" = ouvrir ] && rm -f "$DOSSIER/donnees/inscriptions-fermees" && echo "Inscriptions ouvertes."
 chown -R comptes:comptes "$DOSSIER"
 sudo -u comptes test -r "$DOSSIER/serveur.js" || { echo "Le service ne peut pas lire $DOSSIER/serveur.js"; exit 1; }
 

@@ -111,17 +111,6 @@ async function demarrer() {
       etat(r.erreur, null, true);
     }
   };
-  // Mode test (comptes hors ligne), seulement quand le serveur l'ouvre
-  window.onyx.modeTest().then((ouvert) => $('zone-test').classList.toggle('cache', !ouvert));
-  $('connecter-test').onclick = async () => {
-    const r = await window.onyx.connecterTest($('pseudo-test').value);
-    if (r.profil) {
-      afficherCompte(r.profil);
-      etat('Compte de test : ' + r.profil.pseudo);
-    } else {
-      etat(r.erreur, null, true);
-    }
-  };
   $('deconnecter').onclick = async () => {
     await window.onyx.deconnecter();
     afficherCompte(null);

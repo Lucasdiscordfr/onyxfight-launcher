@@ -77,7 +77,8 @@ class Compte {
     try {
       const data = fs.readFileSync(this.fichier);
       const d = JSON.parse(safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(data) : data.toString('utf8'));
-      if (d.type !== 'site' && !d.test) {
+      // Anciennes connexions Microsoft et comptes de test (le mode test est fermé) : oubliés
+      if (d.type !== 'site' || d.test) {
         this.deconnecter();
         return null;
       }

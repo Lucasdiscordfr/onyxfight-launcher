@@ -131,9 +131,17 @@ function ficheComplete(c) {
   };
 }
 
+/** Inscriptions fermées tant que le fichier « inscriptions-fermees » existe dans le dossier des données. */
+function inscriptionsOuvertes() {
+  return !fs.existsSync(path.join(DONNEES, 'inscriptions-fermees'));
+}
+
 // ---------- API ----------
 const ROUTES = {
+  'GET /api/etat': () => [200, { inscriptions: inscriptionsOuvertes() }],
+
   'POST /api/inscription': (b, ip) => {
+    if (!inscriptionsOuvertes()) return [403, { erreur: 'Les inscriptions sont fermées pour le moment. Suis le Discord pour leur ouverture !' }];
     if (trop(ip, 'inscription', 5, 60)) return [429, { erreur: 'Trop de comptes créés depuis ta connexion. Réessaie plus tard.' }];
     const pseudo = String(b.pseudo || '').trim(), mdp = String(b.motdepasse || '');
     if (!PSEUDO.test(pseudo)) return [400, { erreur: 'Pseudo : 3 à 16 lettres, chiffres ou _ (sans espace ni accent).' }];
