@@ -6,7 +6,7 @@
 # Relancer la commande met le mod et le plugin à jour et redémarre le serveur de test (la map de test est gardée).
 # Remettre la map de test à zéro (depuis la conversion) : ... | sudo bash -s -- neuf
 # Mode crack (comptes hors ligne du launcher, pour un 2e compte de test) : ... | sudo bash -s -- crack
-#   (pas de whitelist : seul le launcher OnyxFight a le mod qui permet de jouer)
+#   (pas de whitelist ; attention, en mode crack n importe qui peut prendre un pseudo, op compris)
 # Retour aux comptes Microsoft : ... | sudo bash -s -- enligne
 # Console : sudo -u onyx tmux -L test121 attach -t test121   (Ctrl+B puis D pour sortir)
 set -euo pipefail
@@ -101,7 +101,6 @@ ufw allow $PORT/tcp >/dev/null 2>&1 || true
 
 echo "=== Démarrage ==="
 sudo -u onyx tmux -L test121 new-session -d -s test121 "cd $DOSSIER && JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 PATH=/usr/lib/jvm/temurin-21-jdk-amd64/bin:\$PATH java @user_jvm_args.txt -jar arclight.jar nogui; echo; echo 'Serveur de test arrêté. Entrée pour fermer.'; read"
-echo "Serveur de test lancé sur le port $PORT (whitelist active)."
-echo "Ajouter un joueur : sudo -u onyx tmux -L test121 send-keys -t test121 'whitelist add Pseudo' Enter"
+echo "Serveur de test lancé sur le port $PORT (sans whitelist)."
 echo "Donner l'équipe : sudo -u onyx tmux -L test121 send-keys -t test121 'op Pseudo' Enter"
 echo "Console : sudo -u onyx tmux -L test121 attach -t test121   (Ctrl+B puis D pour sortir)"
