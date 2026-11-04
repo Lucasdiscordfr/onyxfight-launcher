@@ -49,6 +49,13 @@ echo "=== Mods tiers (téléchargés depuis leurs sites officiels) ==="
   https://cdn.modrinth.com/data/rLLJ1OZM/versions/H2YXCYUY/coroutil-neoforge-1.21.0-1.3.8.jar
 [ -f mods/watut-neoforge-1.21.0-1.2.3.jar ] || curl -fsSL -o mods/watut-neoforge-1.21.0-1.2.3.jar \
   https://mediafilez.forgecdn.net/files/6315/277/watut-neoforge-1.21.0-1.2.3.jar
+# Custom Player Animations (RazorPlay01) + Player Animation Library + Cloth Config
+[ -f "mods/cpa-5.9.10-neoforge+1.21.1.jar" ] || curl -fsSL -o "mods/cpa-5.9.10-neoforge+1.21.1.jar" \
+  "https://cdn.modrinth.com/data/EhthJpjM/versions/YvEolJOg/cpa-5.9.10-neoforge%2B1.21.1.jar"
+[ -f "mods/PlayerAnimationLibNeoforge-1.1.6+mc.1.21.1.jar" ] || curl -fsSL -o "mods/PlayerAnimationLibNeoforge-1.1.6+mc.1.21.1.jar" \
+  "https://cdn.modrinth.com/data/ha1mEyJS/versions/yjxtkvnD/PlayerAnimationLibNeoforge-1.1.6%2Bmc.1.21.1.jar"
+[ -f mods/cloth-config-15.0.140-neoforge.jar ] || curl -fsSL -o mods/cloth-config-15.0.140-neoforge.jar \
+  https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar
 ls -la mods
 
 echo "=== Plugin OnyxFight 1.21.1 ==="

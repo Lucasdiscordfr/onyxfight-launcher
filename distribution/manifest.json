@@ -59,6 +59,24 @@
         "url": "https://mediafilez.forgecdn.net/files/6315/277/watut-neoforge-1.21.0-1.2.3.jar",
         "sha1": "9b3c00a93632adf61730f6036e8747a6021294ed",
         "taille": 431061
+      },
+      {
+        "chemin": "mods/cpa-5.9.10-neoforge+1.21.1.jar",
+        "url": "https://cdn.modrinth.com/data/EhthJpjM/versions/YvEolJOg/cpa-5.9.10-neoforge%2B1.21.1.jar",
+        "sha1": "955d4e5a7f4b255f4b90a1fd3905b0d33087e559",
+        "taille": 345260
+      },
+      {
+        "chemin": "mods/PlayerAnimationLibNeoforge-1.1.6+mc.1.21.1.jar",
+        "url": "https://cdn.modrinth.com/data/ha1mEyJS/versions/yjxtkvnD/PlayerAnimationLibNeoforge-1.1.6%2Bmc.1.21.1.jar",
+        "sha1": "856b2e281b405dab7ca1584a7e9d053e76cc268b",
+        "taille": 1156673
+      },
+      {
+        "chemin": "mods/cloth-config-15.0.140-neoforge.jar",
+        "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar",
+        "sha1": "c3e5733ba4503b102589a026000fd5ce0212f6f2",
+        "taille": 1163890
       }
     ]
   }
