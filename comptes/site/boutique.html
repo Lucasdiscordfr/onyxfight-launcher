@@ -11,40 +11,68 @@
 <script src="commun.js" defer></script>
 </head>
 <body>
-<header>
-  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
-  <nav id="menu"></nav>
-</header>
+<header class="entete" id="entete"></header>
 <main>
-  <h1 class="titre-page">Boutique</h1>
-  <p class="sous-titre">Grades, clés et cosmétiques : tout arrive automatiquement sur ton compte en jeu. Paiement sécurisé par Tebex.</p>
-  <div class="message" id="msg"></div>
-  <div id="boutique"><p class="vide">Chargement…</p></div>
+  <div class="titre-centre"><h1>Boutique</h1><p>Grades, clés et cosmétiques : tout arrive automatiquement sur ton compte en jeu.</p></div>
+  <div class="message" id="msg" style="max-width:700px;margin:0 auto 20px"></div>
+  <div class="boutique2">
+    <div class="cote">
+      <div class="carte bonjour"><h3 id="bonjour">Bonjour Invité,</h3><p id="bonjour-sous">Connecte-toi pour acheter.</p><a class="bouton" id="bonjour-bouton" href="/compte?retour=boutique" style="width:100%;text-align:center">Connexion</a></div>
+      <div class="carte panier"><h3>🛒 Mon panier <span class="nb" id="nb">0</span></h3><div id="panier"></div>
+        <button class="bouton" id="payer" style="width:100%;margin-top:14px">Payer</button></div>
+      <div class="carte categories" id="categories"></div>
+    </div>
+    <div><div class="produits" id="produits"><p class="vide">Chargement…</p></div></div>
+  </div>
 </main>
 <script>
+let boutique = null, categorie = 0, panier = [];
+try { panier = JSON.parse(localStorage.getItem('onyx-panier') || '[]'); } catch (e) { panier = []; }
+const garder = () => { try { localStorage.setItem('onyx-panier', JSON.stringify(panier)); } catch (e) { /* rien */ } };
+const prix = (p) => Number(p.prix).toLocaleString('fr-FR', { style: 'currency', currency: p.devise || 'EUR' });
+function dessinerPanier() {
+  $('nb').textContent = panier.length;
+  $('payer').disabled = !panier.length;
+  $('panier').replaceChildren(...(panier.length ? panier.map((p, i) => el('div', { class: 'ligne' }, el('span', {}, p.nom), el('span', {}, prix(p), ' ', el('button', { title: 'Retirer', onclick: () => { panier.splice(i, 1); garder(); dessinerPanier(); } }, '✕'))))
+    : [el('p', { class: 'vide' }, '🛒', el('br'), 'Ton panier est vide')]));
+}
+function dessiner() {
+  const cats = boutique.categories.filter((c) => c.produits.length);
+  $('categories').replaceChildren(...cats.map((c, i) => el('button', { class: i === categorie ? 'actif' : '', onclick: () => { categorie = i; dessiner(); } }, c.nom)));
+  const c = cats[categorie] || { produits: [] };
+  $('produits').replaceChildren(...c.produits.map((p) => el('div', { class: 'produit2', title: p.nom, onclick: () => { panier.push(p); garder(); dessinerPanier(); message($('msg'), p.nom + ' ajouté au panier.', true); } },
+    el('div', { class: 'nom' }, p.nom), p.image ? el('img', { src: p.image, alt: '' }) : el('div', { class: 'sans-image' }, '◆'),
+    el('div', { class: 'prix' }, el('small', {}, 'DÈS'), prix(p)), el('span', { class: 'ajout' }, '+ Panier'))));
+}
 document.addEventListener('DOMContentLoaded', async () => {
-  if (new URLSearchParams(location.search).has('merci')) message($('msg'), 'Merci pour ton soutien ! Ton achat arrive en jeu dans la minute (connecte-toi si tu ne l\'es pas).', true);
-  let r;
-  try { r = await (await fetch('/api/boutique')).json(); } catch (e) { r = { erreur: 'La boutique ne répond pas.' }; }
-  const zone = $('boutique');
-  if (r.erreur) return zone.replaceChildren(el('p', { class: 'vide' }, r.erreur));
-  if (!r.ouverte) return zone.replaceChildren(el('div', { class: 'carte vide' }, '🛒 La boutique ouvre bientôt. Suis le Discord pour ne rien rater !'));
-  zone.replaceChildren(...r.categories.filter((c) => c.produits.length).map((c) => el('section', {},
-    el('h2', { style: 'font-family:Rajdhani,sans-serif;margin:24px 0 10px' }, c.nom),
-    el('div', { class: 'grille' }, c.produits.map((p) => el('div', { class: 'carte produit' },
-      p.image ? el('img', { src: p.image, alt: '' }) : null,
-      el('h3', {}, p.nom),
-      el('span', { class: 'prix' }, Number(p.prix).toLocaleString('fr-FR', { style: 'currency', currency: p.devise || 'EUR' })),
-      el('button', { class: 'bouton', onclick: async (e) => {
-        if (!Session.lire()) return (location.href = '/compte?retour=boutique');
-        e.target.disabled = true;
-        const x = await api('boutique/panier', { session: Session.lire(), produit: p.id });
-        e.target.disabled = false;
-        if (x.erreur) return message($('msg'), x.erreur);
-        location.href = x.lien;
-      } }, 'Acheter')))))));
+  if (new URLSearchParams(location.search).has('merci')) { panier = []; garder(); message($('msg'), 'Merci pour ton soutien ! Ton achat arrive en jeu dans la minute.', true); }
+  dessinerPanier();
+  if (Session.lire()) {
+    const c = await api('session', { session: Session.lire() });
+    if (!c.erreur) {
+      $('bonjour').textContent = 'Bonjour ' + c.pseudo + ',';
+      $('bonjour-sous').textContent = 'Tes achats arrivent sur ce compte.';
+      $('bonjour-bouton').textContent = 'Mon compte';
+      $('bonjour-bouton').href = '/compte';
+    }
+  }
+  $('payer').onclick = async () => {
+    if (!Session.lire()) return (location.href = '/compte?retour=boutique');
+    $('payer').disabled = true;
+    const r = await api('boutique/panier', { session: Session.lire(), produits: panier.map((p) => p.id) });
+    $('payer').disabled = false;
+    if (r.erreur) return message($('msg'), r.erreur);
+    location.href = r.lien;
+  };
+  try { boutique = await (await fetch('/api/boutique')).json(); } catch (e) { boutique = { erreur: 'La boutique ne répond pas.' }; }
+  if (boutique.erreur) return $('produits').replaceChildren(el('p', { class: 'vide' }, boutique.erreur));
+  if (!boutique.ouverte) {
+    $('categories').replaceChildren(...['Grades', 'Clés', 'Cosmétiques', 'Divers'].map((n, i) => el('button', { class: i === 0 ? 'actif' : '' }, n)));
+    return $('produits').replaceChildren(el('div', { class: 'carte vide', style: 'grid-column:1/-1' }, '🛒 La boutique ouvre bientôt. Suis le Discord pour ne rien rater !'));
+  }
+  dessiner();
 });
 </script>
-<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+<footer class="pied2" id="pied"></footer>
 </body>
 </html>

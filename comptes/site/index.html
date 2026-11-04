@@ -11,29 +11,39 @@
 <script src="commun.js" defer></script>
 </head>
 <body>
-<header>
-  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
-  <nav id="menu"></nav>
-</header>
+<header class="entete" id="entete"></header>
 <main>
-  <section class="hero">
-    <div>
-      <img class="logo" src="logo.png" alt="OnyxFight">
-      <p class="accroche">Serveur <strong>PvP Faction moddé</strong> au combat de la 1.8 : factions, KOTH, largages, catastrophes en warzone, Boss du Gouffre, runes légendaires, compagnons et cosmétiques en 3D.</p>
-      <div class="boutons">
-        <a class="bouton" href="https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/latest/download/OnyxFight-Launcher.exe">Télécharger le launcher</a>
-        <a class="bouton secondaire" href="/inscription">Créer mon compte</a>
-      </div>
-      <p class="aide" style="margin-top:12px">Windows · le launcher installe Java, Minecraft et les mods tout seul.</p>
+  <section class="hero2">
+    <h1>PvP Faction moddé</h1>
+    <p>Le combat de la <strong>1.8</strong>, des <strong>factions</strong>, des <strong>KOTH</strong>, des catastrophes en warzone, le <strong>Boss du Gouffre</strong>, des runes légendaires, des compagnons et des cosmétiques en 3D.</p>
+    <div class="boutons" style="justify-content:center">
+      <a class="bouton" href="/jouer">▶ Jouer maintenant</a>
+      <a class="bouton secondaire" href="/inscription">Créer mon compte</a>
     </div>
-    <img class="perso" src="personnage.png" alt="">
+    <div class="ip" id="ip" title="Le serveur se joue avec le launcher OnyxFight"><code>play.onyxfight.fr</code><span id="statut">Serveur…</span></div>
   </section>
-  <section class="atouts">
-    <div class="carte"><h3>1. Crée ton compte</h3><p>Un pseudo et un mot de passe, c'est tout. Pas besoin de compte Microsoft.</p></div>
-    <div class="carte"><h3>2. Installe le launcher</h3><p>Il prépare le jeu, les mods et se met à jour automatiquement.</p></div>
-    <div class="carte"><h3>3. Joue</h3><p>Connecte-toi dans le launcher avec ton pseudo et ton mot de passe, puis clique sur Jouer.</p></div>
+  <section class="atouts2">
+    <div class="carte"><div class="ic">⚔</div><h3>Combat 1.8</h3><p>Pas de temps de recharge, blocage à l'épée, le PvP que tu connais.</p></div>
+    <div class="carte"><div class="ic">⚑</div><h3>Factions</h3><p>Territoires, alliés, ennemis, banque, KOTH et classements chaque saison.</p></div>
+    <div class="carte"><div class="ic">🌪</div><h3>Événements</h3><p>Tornades, météorites, éruptions, Boss du Gouffre et largages en warzone.</p></div>
   </section>
+  <h2 class="section-titre">Dernières actualités</h2>
+  <div class="actus2" id="actus"><p class="vide">Chargement…</p></div>
 </main>
-<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const s = await (await fetch('/api/statut')).json();
+    $('statut').textContent = s.enLigne ? '● ' + s.joueurs + ' joueur' + (s.joueurs > 1 ? 's' : '') + ' en ligne' : 'Serveur fermé pour le moment';
+    $('statut').style.color = s.enLigne ? '#4ade80' : '';
+  } catch (e) { $('statut').textContent = ''; }
+  try {
+    const l = await (await fetch('https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/actualites.json')).json();
+    $('actus').replaceChildren(...(l.length ? l.slice(0, 6).map((a) => el('div', { class: 'carte' }, el('span', { class: 'date' }, a.date), el('h4', {}, a.titre), el('p', {}, a.texte)))
+      : [el('p', { class: 'vide' }, 'Aucune actualité pour le moment.')]));
+  } catch (e) { $('actus').replaceChildren(el('p', { class: 'vide' }, 'Aucune actualité pour le moment.')); }
+});
+</script>
+<footer class="pied2" id="pied"></footer>
 </body>
 </html>

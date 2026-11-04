@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jouer · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header class="entete" id="entete"></header>
+<main>
+  <div class="titre-centre"><h1>Jouer</h1><p>Crée ton compte, télécharge le launcher, il s'occupe de tout le reste (Java, Minecraft, les mods).</p></div>
+  <div class="telecharger">
+    <a href="https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/latest/download/OnyxFight-Launcher.exe"><svg viewBox="0 0 88 88"><path fill="#8a3be8" d="M0 12.4 35.7 7.5v34.4H0zm40-5.6L87.6 0v41.8H40zM0 45.7h35.7v34.5L0 75.3zm40 .5h47.6V88L40 81.3z"/></svg><strong>Télécharger pour Windows</strong><small>Clique pour démarrer le téléchargement</small></a>
+    <a class="indispo" href="#"><svg viewBox="0 0 814 1000"><path fill="#9a9a9a" d="M788 341c-6 4-108 62-108 190 0 148 130 200 134 202-1 3-21 72-69 141-43 62-88 124-157 124s-87-40-166-40c-78 0-105 41-168 41s-108-58-159-129C36 787 0 662 0 543c0-191 124-292 246-292 65 0 119 43 160 43 39 0 100-45 174-45 28 0 129 3 196 99zM555 168c31-37 53-88 53-139 0-7-1-14-2-20-50 2-110 34-146 76-28 32-55 83-55 135 0 8 1 16 2 18 3 1 9 2 14 2 45 0 102-30 134-72z"/></svg><strong>Télécharger pour Mac</strong><small>Bientôt disponible</small></a>
+  </div>
+  <h2 class="section-titre" style="text-align:center">Un problème pour te connecter ?</h2>
+  <div class="accordeon">
+    <details><summary><span class="num">1</span>Le launcher ne se lance pas</summary><div class="corps">
+      <p>Vérifie que ton antivirus ne l'a pas mis en quarantaine, puis relance-le. S'il reste bloqué, supprime le dossier <code>%appdata%\.onyxfight\launcher</code> et relance-le : il se répare tout seul.</p></div></details>
+    <details><summary><span class="num">2</span>Windows bloque le téléchargement</summary><div class="corps">
+      <p>Windows affiche « Windows a protégé votre ordinateur » pour les programmes récents : clique sur <strong>Informations complémentaires</strong> puis <strong>Exécuter quand même</strong>. Le launcher est celui du site officiel.</p></div></details>
+    <details><summary><span class="num">3</span>Erreur de connexion au serveur</summary><div class="corps">
+      <p>Le serveur se joue <strong>uniquement avec le launcher OnyxFight</strong> et ton compte du site. Vérifie ton pseudo et ton mot de passe dans le launcher, puis réessaie. Si le serveur redémarre, attends une minute.</p></div></details>
+    <details><summary><span class="num">4</span>Le jeu plante ou lag</summary><div class="corps">
+      <p>Dans les <strong>Réglages</strong> du launcher, donne 4 Go de mémoire au jeu (pas plus de la moitié de celle de ton ordinateur). Baisse la distance d'affichage et les particules dans les options du jeu.</p></div></details>
+    <details><summary><span class="num">5</span>J'ai oublié mon mot de passe</summary><div class="corps">
+      <p>Sur la page <a href="/oubli">Mot de passe oublié</a>, avec ton e-mail et la réponse à ta question secrète.</p></div></details>
+  </div>
+  <div class="carte encart"><h2>Toujours bloqué ?</h2><p>L'équipe et la communauté sont sur Discord pour t'aider en quelques minutes.</p>
+    <a class="bouton" href="https://discord.gg/onyxfight" target="_blank" rel="noopener">Rejoindre le Discord</a></div>
+</main>
+<footer class="pied2" id="pied"></footer>
+</body>
+</html>

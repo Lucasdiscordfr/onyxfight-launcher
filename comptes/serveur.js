@@ -552,8 +552,8 @@ Object.assign(ROUTES, {
     if (!c) return [401, { erreur: 'Connecte-toi pour acheter (l\'achat arrive sur ton compte en jeu).' }];
     const token = config().tebex;
     if (!token) return [400, { erreur: 'La boutique n\'est pas encore ouverte.' }];
-    const id = parseInt(b.produit, 10);
-    if (!id) return [400, { erreur: 'Produit inconnu.' }];
+    const ids = (Array.isArray(b.produits) ? b.produits : [b.produit]).map((x) => parseInt(x, 10)).filter((x) => x > 0).slice(0, 20);
+    if (!ids.length) return [400, { erreur: 'Ton panier est vide.' }];
     const site = String(config().adresse || 'https://play.onyxfight.fr').replace(/\/+$/, '');
     try {
       const r1 = await fetch(`https://headless.tebex.io/api/accounts/${encodeURIComponent(token)}/baskets`, {
@@ -564,13 +564,17 @@ Object.assign(ROUTES, {
       const p1 = await r1.json();
       const ident = p1.data && p1.data.ident;
       if (!ident) return [502, { erreur: (p1 && (p1.detail || p1.message)) || 'Tebex refuse le panier.' }];
-      const r2 = await fetch(`https://headless.tebex.io/api/baskets/${ident}/packages`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(8000),
-        body: JSON.stringify({ package_id: id, quantity: 1 }),
-      });
-      const p2 = await r2.json();
-      const lien = (p2.data && p2.data.links && p2.data.links.checkout) || (p1.data.links && p1.data.links.checkout);
-      if (!lien) return [502, { erreur: (p2 && (p2.detail || p2.message)) || 'Tebex refuse ce produit.' }];
+      let p2 = null;
+      for (const id of ids) {
+        const r2 = await fetch(`https://headless.tebex.io/api/baskets/${ident}/packages`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(8000),
+          body: JSON.stringify({ package_id: id, quantity: 1 }),
+        });
+        p2 = await r2.json();
+        if (!r2.ok) return [502, { erreur: (p2 && (p2.detail || p2.message)) || 'Tebex refuse un produit du panier.' }];
+      }
+      const lien = (p2 && p2.data && p2.data.links && p2.data.links.checkout) || (p1.data.links && p1.data.links.checkout);
+      if (!lien) return [502, { erreur: 'Tebex ne donne pas de lien de paiement.' }];
       return [200, { lien }];
     } catch (e) {
       return [502, { erreur: 'La boutique ne répond pas pour le moment.' }];

@@ -11,13 +11,9 @@
 <script src="commun.js" defer></script>
 </head>
 <body>
-<header>
-  <a class="marque" href="/"><img src="icone.png" alt="">OnyxFight</a>
-  <nav id="menu"></nav>
-</header>
+<header class="entete" id="entete"></header>
 <main>
-  <h1 class="titre-page">Voter pour OnyxFight</h1>
-  <p class="sous-titre">Chaque vote fait connaître le serveur. Merci ! Tu peux voter sur chaque site toutes les 24 heures (ou selon le site).</p>
+  <div class="titre-centre"><h1>Voter pour OnyxFight</h1><p>Chaque vote fait connaître le serveur. Merci ! Tu peux voter sur chaque site toutes les 24 heures (ou selon le site).</p></div>
   <div class="grille" id="sites"><p class="vide">Chargement…</p></div>
   <div class="carte" style="margin-top:18px">
     <h3>Comment ça marche ?</h3>
@@ -36,6 +32,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     el('h3', {}, s.nom), el('p', {}, 'Voter sur ' + new URL(s.url).hostname + ' →'))));
 });
 </script>
-<footer>OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.</footer>
+<footer class="pied2" id="pied"></footer>
 </body>
 </html>

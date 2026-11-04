@@ -41,30 +41,38 @@ function message(el, texte, ok) {
   el.textContent = texte || '';
   el.className = 'message ' + (texte ? (ok ? 'ok' : 'erreur') : '');
 }
-// Menu commun à toutes les pages
-document.addEventListener('DOMContentLoaded', async () => {
-  const nav = document.getElementById('menu');
-  if (!nav) return;
+// En-tête (menu à gauche et à droite, logo au centre) et pied de page, communs à toutes les pages
+const DISCORD = 'https://discord.gg/onyxfight';
+const LAUNCHER = 'https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/latest/download/OnyxFight-Launcher.exe';
+document.addEventListener('DOMContentLoaded', () => {
   const ici = location.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
-  const liens = [['/', 'Accueil'], ['/classement', 'Classement'], ['/boutique', 'Boutique'], ['/voter', 'Voter'],
-    ['/compte', Session.lire() ? 'Mon compte' : 'Connexion']];
-  const dessiner = (equipe) => {
-    nav.innerHTML = '';
-    for (const [h, t] of liens) {
-      const a = document.createElement('a');
-      a.href = h;
-      a.textContent = t;
-      if (h === ici) a.className = 'actif';
-      nav.appendChild(a);
-    }
-    const dc = document.createElement('a');
-    dc.href = 'https://discord.gg/onyxfight';
-    dc.target = '_blank';
-    dc.rel = 'noopener';
-    dc.textContent = 'Discord';
-    nav.appendChild(dc);
+  const lien = (h, t, cls) => {
+    const a = document.createElement('a');
+    a.href = h;
+    a.textContent = t;
+    a.className = (cls || '') + (h === ici ? ' actif' : '');
+    if (/^https:/.test(h)) { a.target = '_blank'; a.rel = 'noopener'; }
+    return a;
   };
-  dessiner(false);
+  const entete = document.getElementById('entete');
+  if (entete) {
+    const gauche = el('nav', {}, lien('/', 'Accueil'), lien('/jouer', 'Jouer'), lien('/voter', 'Votes'), lien('/boutique', 'Boutique', 'plein'));
+    const droite = el('nav', { class: 'droite' }, lien('/reglement', 'Règlement'), lien('/classement', 'Classement'), lien(DISCORD, 'Discord'),
+      lien('/compte', Session.lire() ? 'Mon compte' : 'Connexion', 'contour'));
+    const burger = el('button', { class: 'burger', onclick: () => entete.classList.toggle('ouvert') }, '☰');
+    entete.replaceChildren(el('div', { class: 'barre' }, gauche, el('a', { class: 'logo-centre', href: '/' }, el('img', { src: 'logo.png', alt: 'OnyxFight' })), droite, burger));
+  }
+  const pied = document.getElementById('pied');
+  if (pied) {
+    const p = (html) => { const x = document.createElement('p'); x.innerHTML = html; return x; };
+    pied.replaceChildren(el('div', { class: 'colonnes' },
+      el('div', {}, el('h4', {}, 'À propos'), p('Le <strong>PvP Faction</strong> moddé au combat de la <strong>1.8</strong> : factions, <strong>KOTH</strong>, catastrophes en warzone, <strong>Boss du Gouffre</strong>, runes légendaires et cosmétiques en 3D.')),
+      el('div', {}, el('h4', {}, 'Liens'), el('div', { class: 'liens' }, lien('/', 'Accueil'), lien('/reglement', 'Règlement'), lien(DISCORD, 'Discord'), lien('/classement', 'Classement'),
+        lien('/jouer', 'Nous rejoindre'), lien('/compte', 'Mon compte'), lien('/voter', 'Votes'), lien('/boutique', 'Boutique'))),
+      el('div', {}, el('h4', {}, 'Boutique'), p('Grades, clés et cosmétiques : tout arrive automatiquement en jeu, et ça aide le serveur à vivre.'),
+        el('a', { class: 'bouton', href: '/boutique', style: 'width:100%;text-align:center' }, '🛒 Boutique'))),
+      el('div', { class: 'copy' }, 'OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.'));
+  }
 });
 function el(tag, attrs, ...enfants) {
   const e = document.createElement(tag);
