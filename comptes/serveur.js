@@ -14,9 +14,10 @@ const crypto = require('crypto');
 const PORT = parseInt(process.env.ONYX_PORT || '8090', 10);
 const DONNEES = process.env.ONYX_DONNEES || path.join(__dirname, 'donnees');
 const SITE = process.env.ONYX_SITE || path.join(__dirname, 'site');
+const LOGS = path.join(DONNEES, 'logs'); // logs par joueur (une ligne JSON par événement)
 // Panneau de l'équipe, servi seulement à l'adresse moderation.… (pas sur le site public)
 const SITE_MOD = process.env.ONYX_SITE_MOD || path.join(__dirname, 'site-moderation');
-const HOTE_MOD = /^moderation\./i;
+const HOTE_MOD = new RegExp('^(moderation\\.' + (process.env.ONYX_HOTE_MOD ? '|' + process.env.ONYX_HOTE_MOD.replace(/[.]/g, '\\.') : '') + ')', 'i');
 const FICHIER = path.join(DONNEES, 'comptes.json');
 const IMAGES = path.join(DONNEES, 'images'); // skins et capes importés (nommés par UUID)
 const JOUR = 24 * 3600 * 1000;
@@ -25,6 +26,7 @@ const DUREE_JEU = JOUR; // jeton donné au jeu à chaque lancement
 
 fs.mkdirSync(DONNEES, { recursive: true, mode: 0o700 });
 fs.mkdirSync(IMAGES, { recursive: true, mode: 0o700 });
+fs.mkdirSync(LOGS, { recursive: true, mode: 0o700 });
 
 // ---------- Données ----------
 let d = { comptes: {}, sessions: {}, jeux: {} };
@@ -390,7 +392,8 @@ function niveau(c) {
 }
 /** Compte connecté avec au moins ce niveau, sinon la réponse d'erreur. */
 function equipe(b, min) {
-  const c = session(b.session);
+  const x = typeof b.session === 'string' && d.sessions[b.session];
+  const c = x && x.mod && x.exp > Date.now() ? d.comptes[x.cle] : null;
   if (!c) return [null, [401, { erreur: 'Connexion expirée : reconnecte-toi.' }]];
   if (niveau(c) < min) return [null, [403, { erreur: 'Tu n\'as pas accès à cette partie.' }]];
   return [c, null];
@@ -416,6 +419,8 @@ function niveauAction(a) {
       return a.sanction === 'ban' ? 2 : 1;
     case 'inventaire':
       return 1;
+    case 'modifier':
+      return a.champ === 'faction' || a.champ === 'rang' ? 2 : 3;
     case 'joueur':
       return a.action === 'vider' ? 2 : 1;
     case 'annonce':
@@ -486,6 +491,14 @@ function nettoyer(a) {
       break;
     case 'inventaire':
       x.pseudo = t('pseudo', 16);
+      break;
+    case 'modifier':
+      x.pseudo = t('pseudo', 16);
+      x.champ = ['grade', 'faction', 'rang', 'stats', 'cosmetique', 'cles', 'classe'].includes(a.champ) ? a.champ : null;
+      x.valeur = t('valeur', 64).replace(/[^A-Za-z0-9_:.-]/g, '');
+      x.valeur2 = t('valeur2', 16).replace(/[^A-Za-z0-9_.-]/g, '');
+      for (const k of ['kills', 'morts', 'puissance']) x[k] = a[k] === '' || a[k] == null ? '' : String(Number(a[k]) || 0);
+      if (!x.champ) return null;
       break;
     case 'joueur':
       x.pseudo = t('pseudo', 16);
@@ -565,9 +578,22 @@ Object.assign(ROUTES, {
   },
 
   // ---------- Équipe ----------
+  /** Connexion au site de modération : seulement l'équipe ; connexion à part (12 h), jamais celle du site public. */
+  'POST /api/mod/connexion': (b, ip) => {
+    if (trop(ip, 'connexion', 10, 15)) return [429, { erreur: 'Trop d\'essais. Attends 15 minutes.' }];
+    const c = d.comptes[String(b.pseudo || '').trim().toLowerCase()];
+    const h = empreinte(String(b.motdepasse || ''), c ? c.sel : '00000000000000000000000000000000');
+    if (!c || !egal(h, c.hash)) return [401, { erreur: 'Pseudo ou mot de passe incorrect.' }];
+    if (niveau(c) < 1) return [403, { erreur: 'Accès réservé à l\'équipe d\'OnyxFight.' }];
+    const s2 = jeton();
+    d.sessions[s2] = { cle: c.pseudo.toLowerCase(), exp: Date.now() + 12 * 3600e3, mod: true };
+    noter(c.pseudo, 'connexion', 'site de modération (' + ip + ')');
+    return [200, { session: s2 }];
+  },
+
   'POST /api/mod/moi': (b) => {
-    const c = session(b.session);
-    if (!c) return [401, { erreur: 'Connexion expirée : reconnecte-toi.' }];
+    const [c, err] = equipe(b, 1);
+    if (err) return err;
     return [200, { pseudo: c.pseudo, role: c.role || 'joueur', nomRole: NOMS_ROLES[c.role || 'joueur'], niveau: niveau(c) }];
   },
 
@@ -628,8 +654,8 @@ Object.assign(ROUTES, {
 
   /** Une action pour le serveur (mise en file ; le plugin la fait dans la seconde). */
   'POST /api/mod/action': (b) => {
-    const c = session(b.session);
-    if (!c) return [401, { erreur: 'Connexion expirée : reconnecte-toi.' }];
+    const [c, err] = equipe(b, 1);
+    if (err) return err;
     const a = nettoyer(b.action || {});
     if (!a) return [400, { erreur: 'Action incomplète ou invalide.' }];
     const min = a.nomEvenement ? 2 : niveauAction(a);
@@ -735,6 +761,7 @@ function suivreActivite(avant, maintenant, ecart) {
     jj.s += pas;
     if (j.afk) jj.afk += pas;
     if (!avant.has(cle)) evenementJoueur(a, 'connexion', t);
+    if (j.ip) chercherPays(j.ip);
     if (j.ip && (!a.ips.length || a.ips[a.ips.length - 1].ip !== j.ip)) {
       a.ips = a.ips.filter((x) => x.ip !== j.ip);
       a.ips.push({ ip: j.ip, t });
@@ -750,6 +777,57 @@ setInterval(() => {
   const limite = jourDe(Date.now() - 214 * 86400e3);
   for (const a of Object.values(d.activite)) for (const j of Object.keys(a.jours)) if (j < limite) delete a.jours[j];
 }, 86400e3).unref();
+
+// ---------- Pays et VPN des adresses IP (ip-api.com, gardé en cache 30 jours) ----------
+if (!d.geo) d.geo = {};
+const geoEnCours = new Set();
+let geoMinute = 0, geoCompte = 0;
+function chercherPays(ip) {
+  const g = d.geo[ip];
+  if ((g && Date.now() - g.t < 30 * 86400e3) || geoEnCours.has(ip)) return;
+  if (/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1|fe80)/.test(ip)) {
+    d.geo[ip] = { t: Date.now(), code: '', pays: 'Réseau local', vpn: false };
+    return;
+  }
+  const m = Math.floor(Date.now() / 60000);
+  if (m !== geoMinute) { geoMinute = m; geoCompte = 0; }
+  if (++geoCompte > 30) return; // limite du service gratuit : 45 par minute
+  geoEnCours.add(ip);
+  fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,countryCode,country,proxy,hosting,isp&lang=fr`, { signal: AbortSignal.timeout(5000) })
+    .then((r) => r.json())
+    .then((j) => {
+      if (j.status === 'success') d.geo[ip] = { t: Date.now(), code: j.countryCode, pays: j.country, vpn: !!(j.proxy || j.hosting), fai: j.isp };
+      sauver();
+    })
+    .catch(() => {})
+    .finally(() => geoEnCours.delete(ip));
+}
+function geoDe(a) {
+  const ip = a && a.ips.length ? a.ips[a.ips.length - 1].ip : null;
+  return ip ? Object.assign({ ip }, d.geo[ip] || {}) : null;
+}
+function lies(a) {
+  if (!a) return [];
+  const ips = new Set(a.ips.map((x) => x.ip));
+  return Object.values(d.activite).filter((x) => x !== a && x.ips.some((y) => ips.has(y.ip))).map((x) => x.pseudo);
+}
+/** Score de suspicion (0 à 100) : VPN, comptes liés, sanctions. */
+function suspicion(a, cas) {
+  let s = 0;
+  const g = geoDe(a);
+  if (g && g.vpn) s += 40;
+  s += Math.min(50, lies(a).length * 25);
+  for (const x of (cas && cas.sanctions) || []) s += x.type === 'ban' ? 30 : x.type === 'mute' ? 10 : x.type === 'warn' ? 5 : 3;
+  return Math.min(100, s);
+}
+function lireLogs(cle, n) {
+  try {
+    const t = fs.readFileSync(path.join(LOGS, cle + '.jsonl'), 'utf8').trim().split('\n');
+    return t.slice(-n).reverse().map((l) => { try { return JSON.parse(l); } catch (e) { return null; } }).filter(Boolean);
+  } catch (e) {
+    return [];
+  }
+}
 
 /** Statistiques de temps de jeu (secondes) : total, 30 et 7 derniers jours, moyenne par semaine, 6 derniers mois. */
 function tempsDeJeu(a) {
@@ -789,11 +867,9 @@ Object.assign(ROUTES, {
     const ligne = jeu.enLigne.find((x) => x.pseudo.toLowerCase() === cle);
     if (!c && !a && !cas && !ligne) return [404, { erreur: 'Joueur inconnu.' }];
     const pseudo = (c && c.pseudo) || (ligne && ligne.pseudo) || (a && a.pseudo) || (cas && cas.pseudo);
-    const admin = niveau(moi) >= 2;
-    // Autres pseudos vus avec les mêmes adresses (doubles comptes)
-    const ips = a ? a.ips.map((x) => x.ip) : [];
-    const lies = !admin ? [] : Object.values(d.activite).filter((x) => x !== a && x.ips.some((y) => ips.includes(y.ip))).map((x) => x.pseudo);
-    const enLigneSansIp = ligne ? Object.assign({}, ligne, { ip: admin ? ligne.ip : undefined }) : null;
+    const createur = niveau(moi) >= 3;
+    const enLigneSansIp = ligne ? Object.assign({}, ligne, { ip: createur ? ligne.ip : undefined }) : null;
+    const g = geoDe(a);
     return [200, {
       pseudo,
       uuid: (c && c.uuid) || (ligne && ligne.uuid) || uuidHorsLigne(pseudo),
@@ -806,10 +882,45 @@ Object.assign(ROUTES, {
       premiere: (a && a.premiere) || (c && c.cree) || null,
       derniere: ligne ? Date.now() : (a && a.derniere) || (c && c.derniereConnexion) || null,
       evenements: a ? a.evenements.slice(-100).reverse() : [],
-      ips: admin && a ? a.ips.slice().reverse() : null,
-      lies,
+      ips: createur && a ? a.ips.slice().reverse().map((x) => Object.assign({}, x, d.geo[x.ip] || {})) : null,
+      pays: createur && g ? { code: g.code, pays: g.pays, vpn: g.vpn, fai: g.fai } : null,
+      lies: niveau(moi) >= 2 ? lies(a) : [],
+      suspicion: suspicion(a, cas),
+      logs: lireLogs(cle, 1000),
+      meta: Object.assign({ grades: {}, cosmetiques: {}, classes: [] }, jeu.meta || {}, { factions: jeu.factions.map((x) => ({ id: x.id, nom: x.nom })) }),
       journal: d.journal.filter((j) => j.details.toLowerCase().includes('"pseudo":"' + cle) || j.details.toLowerCase().includes(cle + ' →')).slice(-100).reverse(),
     }];
+  },
+});
+
+Object.assign(ROUTES, {
+  /** Liste de tous les joueurs connus (pour la page « Joueurs » de la modération). */
+  'POST /api/mod/liste': (b) => {
+    const [moi, err] = equipe(b, 1);
+    if (err) return err;
+    const createur = niveau(moi) >= 3;
+    const tous = new Map();
+    for (const [cle, a] of Object.entries(d.activite)) tous.set(cle, { a, pseudo: a.pseudo || cle });
+    for (const [cle, c] of Object.entries(d.comptes)) if (!tous.has(cle)) tous.set(cle, { a: null, pseudo: c.pseudo });
+    const enLigne = new Set(jeu.enLigne.map((j) => j.pseudo.toLowerCase()));
+    const t = Date.now();
+    let liste = [...tous.entries()].map(([cle, x]) => {
+      const c = d.comptes[cle], cas = jeu.casiers.find((y) => y.pseudo.toLowerCase() === cle), g = geoDe(x.a);
+      const banni = !!(cas && cas.sanctions.some((s) => s.type === 'ban' && !s.leve && (s.fin <= 0 || s.fin > t)));
+      return {
+        pseudo: x.pseudo, uuid: (c && c.uuid) || uuidHorsLigne(x.pseudo), premiere: (x.a && x.a.premiere) || (c && c.cree) || null,
+        derniere: enLigne.has(cle) ? t : (x.a && x.a.derniere) || null, temps: tempsDeJeu(x.a).total, enLigne: enLigne.has(cle),
+        compte: !!c, role: c && c.role ? NOMS_ROLES[c.role] : null, sanctions: cas ? cas.sanctions.length : 0, banni,
+        pays: createur && g ? g.code || '' : null, vpn: createur && g ? !!g.vpn : null, suspicion: suspicion(x.a, cas),
+      };
+    });
+    liste.sort((p, q) => (p.premiere || 9e15) - (q.premiere || 9e15));
+    liste.forEach((x, i) => (x.id = i + 1));
+    const stats = { total: liste.length, enLigne: liste.filter((x) => x.enLigne).length, bannis: liste.filter((x) => x.banni).length,
+      staff: Object.values(d.comptes).filter((c) => niveau(c) > 0).length, suspects: liste.filter((x) => x.suspicion >= 50).length };
+    const q = String(b.recherche || '').toLowerCase();
+    if (q) liste = liste.filter((x) => x.pseudo.toLowerCase().includes(q) || x.uuid.includes(q) || String(x.id) === q);
+    return [200, { stats, joueurs: liste.reverse().slice(0, 1000) }];
   },
 });
 
@@ -848,7 +959,28 @@ const LOCAL = {
   '/api/serveur/donnees': (b) => {
     if (b.classements) jeu.classements = b.classements;
     if (Array.isArray(b.factions)) jeu.factions = b.factions;
+    if (b.meta) jeu.meta = b.meta;
     jeu.majDonnees = Date.now();
+    return [200, { ok: true }];
+  },
+  '/api/serveur/logs': (b) => {
+    const parJoueur = {};
+    for (const e of Array.isArray(b.logs) ? b.logs.slice(0, 2000) : []) {
+      const cle = String(e.pseudo || '').toLowerCase();
+      if (!/^[a-z0-9_]{1,16}$/.test(cle)) continue;
+      (parJoueur[cle] = parJoueur[cle] || []).push(JSON.stringify({ t: Number(e.t) || Date.now(), type: String(e.type || '').slice(0, 16), texte: String(e.texte || '').slice(0, 300) }));
+    }
+    for (const [cle, lignes] of Object.entries(parJoueur)) {
+      const f = path.join(LOGS, cle + '.jsonl');
+      fs.appendFileSync(f, lignes.join('\n') + '\n', { mode: 0o600 });
+      // Au-delà de 2 Mo, on garde la moitié la plus récente
+      try {
+        if (fs.statSync(f).size > 2 * 1024 * 1024) {
+          const t = fs.readFileSync(f, 'utf8');
+          fs.writeFileSync(f, t.slice(t.indexOf('\n', t.length / 2) + 1), { mode: 0o600 });
+        }
+      } catch (x) { /* rien */ }
+    }
     return [200, { ok: true }];
   },
   '/api/serveur/casiers': (b) => {
