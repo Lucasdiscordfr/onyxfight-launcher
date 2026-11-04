@@ -5,6 +5,7 @@ const fs = require('fs');
 const cfg = require('./config');
 const Compte = require('./compte');
 const { jouer } = require('./jeu');
+const { jouer121 } = require('./jeu121');
 const { lireJson } = require('./telechargement');
 const discord = require('./discord');
 
@@ -152,6 +153,7 @@ ipcMain.handle('reglages:sauver', async (e, r) => {
     ram: Math.max(1, Math.min(32, parseInt(r.ram, 10) || 4)),
     garderOuvert: !!r.garderOuvert,
     connexionDirecte: !!r.connexionDirecte,
+    version121: !!r.version121,
   });
   sauverReglages(nouveau);
   return nouveau;
@@ -173,7 +175,12 @@ ipcMain.handle('jouer', async () => {
   try {
     if (compte.test && !(await modeTestOuvert())) throw new Error('Le mode test est fermé : reconnecte-toi avec ton compte Microsoft.');
     const autorisation = await compte.pourJouer();
-    await jouer(r, autorisation, {
+    let v121 = null;
+    if (r.version121) {
+      v121 = (await lireJson(cfg.MANIFESTE)).v121;
+      if (!v121) throw new Error("Le serveur de test 1.21.1 n'est pas ouvert pour le moment.");
+    }
+    await (v121 ? (rr, a, e) => jouer121(rr, a, v121, e) : jouer)(r, autorisation, {
       etat: (texte, part) => envoyer('etat', { texte, part }),
       journal: (l) => flux.write(l.endsWith('\n') ? l : l + '\n'),
       lance: () => {

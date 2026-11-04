@@ -64,6 +64,7 @@ function ouvrirReglages() {
   $('ram-valeur').textContent = r.ram;
   $('garder').checked = !!r.garderOuvert;
   $('direct').checked = !!r.connexionDirecte;
+  $('v121').checked = !!r.version121;
   $('reglages').classList.remove('cache');
 }
 
@@ -87,6 +88,7 @@ async function demarrer() {
       ram: $('ram').value,
       garderOuvert: $('garder').checked,
       connexionDirecte: $('direct').checked,
+      version121: $('v121').checked,
     });
     $('reglages').classList.add('cache');
   };
