@@ -1,0 +1,4 @@
+name: OnyxCarte
+version: 1.0
+main: fr.onyxfight.carte.Generation
+description: Génère d'avance la map OnyxFight (terrain 1.8)
