@@ -171,14 +171,19 @@ const PAGES = {
     $('titre').textContent = '⚡ Événements & annonces';
     const msg = el('div', { class: 'message' });
     const evts = [['boss', '👹 Boss du Gouffre'], ['koth', '⛰ KOTH'], ['largage', '📦 Largage'], ['tornade', '🌪 Tornade'], ['meteorites', '☄ Météorites'],
-      ['eruption', '🌋 Éruption'], ['seisme', '🌍 Séisme'], ['grele', '🧊 Grêle'], ['tempete', '⛈ Tempête'], ['lunedesang', '🌕 Lune de sang']];
+      ['eruption', '🌋 Éruption'], ['seisme', '🌍 Séisme'], ['grele', '🧊 Grêle'], ['tempete', '⛈ Tempête'], ['lunedesang', '🌕 Lune de sang'],
+      ['quartz', '◆ Event Quartz'], ['radioactif', '☢ Zone radioactive'], ['marchenoir', '☠ Marché noir']];
     vue().replaceChildren(
       carte(titre('📢', 'Annonce à tout le serveur', '--c-jaune'), el('div', { class: 'ligne-form' }, champ('a-texte', 'Message', { placeholder: 'Titre à l\'écran + message dans le chat' }),
         el('button', { class: 'bouton', onclick: () => val('a-texte') && action({ type: 'annonce', texte: val('a-texte') }, msg) }, 'Annoncer'))),
       carte(titre('⚡', 'Lancer un événement', '--c-orange'), el('div', { class: 'petits' }, evts.map(([n, t]) => el('button', { onclick: () => confirm('Lancer : ' + t + ' ?') && action({ type: 'evenement', nom: n }, msg) }, t))),
         el('div', { class: 'petits', style: 'margin-top:10px' },
           el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'arreter' }, msg) }, '⏹ Arrêter l\'événement en cours'),
-          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'retirerboss' }, msg) }, '✖ Retirer le Boss'))), msg);
+          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'retirerboss' }, msg) }, '✖ Retirer le Boss'),
+          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'quartzstop' }, msg) }, '⏹ Arrêter le Quartz'),
+          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'radioactifstop' }, msg) }, '⏹ Fermer la zone radioactive'),
+          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'marchenoirstop' }, msg) }, '⏹ Renvoyer le marché noir')),
+        el('p', { class: 'aide' }, 'Quartz, zone radioactive et marché noir utilisent les lieux posés en jeu (/quartz lieu, /radioactif pnj, /marchenoir lieu ajouter).')), msg);
   },
 
   async factions() {

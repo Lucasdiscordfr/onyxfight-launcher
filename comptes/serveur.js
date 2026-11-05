@@ -451,6 +451,8 @@ const EVENEMENTS = {
   eruption: 'evenement lancer eruption maintenant', seisme: 'evenement lancer seisme maintenant',
   grele: 'evenement lancer grele maintenant', tempete: 'evenement lancer tempete maintenant',
   lunedesang: 'evenement lancer lunedesang maintenant', arreter: 'evenement arreter', retirerboss: 'gouffre retirer',
+  quartz: 'quartz lancer', quartzstop: 'quartz stop', radioactif: 'radioactif lancer', radioactifstop: 'radioactif stop',
+  marchenoir: 'marchenoir lancer', marchenoirstop: 'marchenoir stop',
 };
 const PSEUDO_JEU = /^[A-Za-z0-9_]{1,16}$/;
 /** Vérifie et nettoie une action venue du site. */
