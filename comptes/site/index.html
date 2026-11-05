@@ -6,274 +6,198 @@
 <title>OnyxFight · Serveur PvP Faction moddé</title>
 <meta name="description" content="OnyxFight : PvP Faction moddé avec le combat de la 1.8. Launcher gratuit, factions, raids, donjons, événements et cosmétiques 3D.">
 <link rel="icon" href="icone.png">
+<link rel="preload" as="image" href="img/factions.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <script src="commun.js" defer></script>
 <style>
-  /* ---------- Accueil : les quatre minerais d'OnyxFight ---------- */
-  :root {
-    --pierre: #141217; --pierre2: #1c1920; --pierre3: #26222b;
-    --rubis: #e5405a; --saphir: #4a86ff; --emeraude: #34d17f; --onyx: #a26bff;
-    --clair: #f3f0f7; --doux: #a9a2b3;
-  }
+  :root { --pierre: #121016; --pierre2: #1a1720; --pierre3: #29242f;
+    --rubis: #ff4d68; --saphir: #4f8dff; --emeraude: #39dd88; --onyx: #a974ff; --or: #ffc94d;
+    --clair: #f5f2f8; --doux: #aaa3b5; }
   body { background: var(--pierre); }
   main.accueil { max-width: none; padding: 0; }
-  .large { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+  .large { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  h2.titre { font: 700 clamp(32px, 4.2vw, 48px)/1.02 Rajdhani, sans-serif; color: var(--clair); margin: 0 0 10px; }
+  p.sous { color: var(--doux); margin: 0 0 34px; max-width: 46em; line-height: 1.6; font-size: 16px; }
+  section.bloc { padding: 90px 0; }
 
-  /* Héros */
-  .heros { position: relative; overflow: hidden; padding: 70px 0 90px; }
-  .heros::before { content: ""; position: absolute; inset: 0; background:
-      radial-gradient(600px 380px at 78% 45%, rgba(162, 107, 255, .22), transparent 70%),
-      radial-gradient(420px 300px at 92% 85%, rgba(229, 64, 90, .14), transparent 70%),
-      radial-gradient(420px 300px at 60% 10%, rgba(74, 134, 255, .12), transparent 70%); pointer-events: none; }
-  .heros .large { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
-  .heros h1 { font: 700 clamp(46px, 7vw, 84px)/.95 Rajdhani, sans-serif; margin: 0 0 22px; letter-spacing: -.5px; color: var(--clair); }
-  .heros h1 span { display: block; }
-  .heros .accroche { font-size: 18px; line-height: 1.6; color: var(--doux); max-width: 34em; margin: 0 0 30px; }
-  .heros .accroche b { color: var(--clair); font-weight: 600; }
-  .heros .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-  .heros .actions .bouton { padding: 15px 26px; font-size: 16px; }
-  .etat { display: inline-flex; align-items: center; gap: 12px; margin-top: 26px; padding: 10px 16px 10px 12px; border-radius: 10px;
-    background: var(--pierre2); border: 1px solid var(--pierre3); color: var(--doux); font-size: 14px; cursor: copy; }
-  .etat b { color: var(--clair); font: 700 17px Rajdhani, sans-serif; letter-spacing: .4px; }
-  .etat .point { width: 9px; height: 9px; border-radius: 50%; background: #6b6474; box-shadow: 0 0 0 4px rgba(107, 100, 116, .2); }
-  .etat.ouvert .point { background: var(--emeraude); box-shadow: 0 0 0 4px rgba(52, 209, 127, .2); }
+  /* ----- Héros plein écran sur l'illustration ----- */
+  .heros { position: relative; min-height: calc(100vh - 82px); max-height: 900px; display: grid; place-items: center; text-align: center; overflow: hidden; isolation: isolate; }
+  .heros .fond-h { position: absolute; inset: -4%; background: url(img/factions.webp) center 30% / cover; z-index: -2; animation: travelling 30s ease-in-out infinite alternate; }
+  .heros::after { content: ""; position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(ellipse 60% 55% at 50% 48%, rgba(14,12,18,.72), rgba(14,12,18,.35) 75%), linear-gradient(180deg, rgba(18,16,22,.35) 0%, rgba(18,16,22,0) 30%, rgba(18,16,22,.4) 70%, var(--pierre) 100%); }
+  @keyframes travelling { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.08) translate(-1.5%, 1%); } }
+  #poussiere { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+  .heros .contenu { padding: 60px 20px 90px; max-width: 860px; }
+  .heros h1 { font: 700 clamp(44px, 7.4vw, 92px)/.92 Rajdhani, sans-serif; color: #fff; margin: 0 0 18px; text-shadow: 0 4px 30px rgba(0,0,0,.7); letter-spacing: -.5px; }
+  .heros p { font-size: clamp(16px, 2vw, 20px); color: #ece7f3; margin: 0 auto 30px; max-width: 34em; line-height: 1.55; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+  .heros .actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .gros { display: inline-flex; align-items: center; gap: 10px; padding: 17px 34px; border-radius: 12px; font: 700 20px Rajdhani, sans-serif; letter-spacing: .3px; text-decoration: none; cursor: pointer; border: 0;
+    transition: transform .15s, box-shadow .2s, background .2s; }
+  .gros:hover { transform: translateY(-2px); }
+  .gros.jouer { color: #fff; background: linear-gradient(135deg, #b77cff, #7a3cf0); box-shadow: 0 10px 34px rgba(150, 90, 255, .55), inset 0 1px 0 rgba(255,255,255,.35); }
+  .gros.jouer:hover { box-shadow: 0 14px 44px rgba(150, 90, 255, .75), inset 0 1px 0 rgba(255,255,255,.35); }
+  .gros.compte { color: #fff; background: rgba(20, 16, 26, .55); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.55); backdrop-filter: blur(6px); }
+  .gros.compte:hover { background: rgba(255,255,255,.12); }
+  .ip { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 12px; margin-top: 26px; padding: 11px 18px; border-radius: 999px;
+    background: rgba(14, 12, 18, .7); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); color: #d9d3e2; font-size: 14px; }
+  .ip b { font: 700 18px Rajdhani, sans-serif; color: #fff; letter-spacing: .5px; }
+  .ip .point { width: 9px; height: 9px; border-radius: 50%; background: #77707f; }
+  .ip.ouvert .point { background: var(--emeraude); box-shadow: 0 0 0 0 rgba(57, 221, 136, .6); animation: battement 2s infinite; }
+  @keyframes battement { 70% { box-shadow: 0 0 0 9px rgba(57, 221, 136, 0); } 100% { box-shadow: 0 0 0 0 rgba(57, 221, 136, 0); } }
+  .ip:focus-visible, .gros:focus-visible, .tuile:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .heros .contenu > * { animation: entre .9s cubic-bezier(.2, .8, .2, 1) both; }
+  .heros .contenu > :nth-child(2) { animation-delay: .12s; } .heros .contenu > :nth-child(3) { animation-delay: .24s; } .heros .contenu > :nth-child(4) { animation-delay: .36s; }
+  @keyframes entre { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+  .defiler { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.6); font-size: 13px; text-decoration: none; }
 
-  /* La gemme : l'élément marquant de la page */
-  .gemme { width: min(420px, 100%); justify-self: center; aspect-ratio: 1; position: relative; }
-  .gemme svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 30px 60px rgba(162, 107, 255, .35)); }
-  .gemme .facette { opacity: 0; transform-origin: 200px 200px; animation: allume .7s cubic-bezier(.2, .8, .2, 1) forwards; }
-  .gemme .eclat { animation: scintille 5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
-  .gemme .tourne { animation: flotte 7s ease-in-out infinite; transform-origin: 200px 200px; }
-  @keyframes allume { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
-  @keyframes scintille { 0%, 100% { opacity: .15; transform: scale(.6); } 50% { opacity: 1; transform: scale(1.1); } }
-  @keyframes flotte { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
-  .heros h1 span, .heros .accroche, .heros .actions, .etat { animation: monte .8s cubic-bezier(.2, .8, .2, 1) both; }
-  .heros h1 span:nth-child(2) { animation-delay: .08s; } .heros h1 span:nth-child(3) { animation-delay: .16s; }
-  .heros .accroche { animation-delay: .3s; } .heros .actions { animation-delay: .4s; } .etat { animation-delay: .5s; }
-  @keyframes monte { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  /* ----- Mosaïque illustrée ----- */
+  .mosaique { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 250px; gap: 16px; }
+  .tuile { position: relative; overflow: hidden; border-radius: 18px; color: #fff; text-decoration: none; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px;
+    box-shadow: 0 18px 40px rgba(0,0,0,.35); isolation: isolate; text-align: left; }
+  .tuile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+  .tuile::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(10,8,14,.92) 100%); }
+  .tuile::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); pointer-events: none; transition: box-shadow .3s; }
+  .tuile:hover img { transform: scale(1.07); }
+  .tuile:hover::after { box-shadow: inset 0 0 0 2px var(--c), 0 0 40px color-mix(in srgb, var(--c) 40%, transparent); }
+  .tuile .tag { align-self: flex-start; background: var(--c); color: #120f16; font: 700 13px Rajdhani, sans-serif; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px; }
+  .tuile h3 { font: 700 30px/1 Rajdhani, sans-serif; margin: 0 0 6px; text-transform: none; letter-spacing: 0; color: #fff; }
+  .tuile p { margin: 0; color: #d9d3e2; font-size: 15px; line-height: 1.5; max-width: 32em; }
+  .tuile.grande { grid-column: span 2; grid-row: span 2; padding: 32px; }
+  .tuile.grande h3 { font-size: 46px; }
+  .tuile.grande p { font-size: 17px; }
+  .tuile.large2 { grid-column: span 2; }
 
-  /* Séparation en marches de blocs */
-  .marches { height: 24px; background: var(--pierre2);
-    clip-path: polygon(0 100%, 0 50%, 4% 50%, 4% 0, 9% 0, 9% 50%, 15% 50%, 15% 25%, 22% 25%, 22% 75%, 28% 75%, 28% 0, 35% 0, 35% 50%, 41% 50%, 41% 25%, 48% 25%,
-      48% 75%, 54% 75%, 54% 0, 61% 0, 61% 50%, 67% 50%, 67% 25%, 74% 25%, 74% 75%, 80% 75%, 80% 0, 87% 0, 87% 50%, 93% 50%, 93% 25%, 100% 25%, 100% 100%); }
-  .marches.bas { transform: scaleY(-1); }
-  .bande { background: var(--pierre2); padding: 70px 0; }
-
-  h2.titre { font: 700 clamp(30px, 4vw, 44px)/1.05 Rajdhani, sans-serif; color: var(--clair); margin: 0 0 10px; }
-  p.sous { color: var(--doux); margin: 0 0 40px; max-width: 46em; line-height: 1.6; }
-
-  /* Les quatre minerais */
-  .minerais { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--pierre3); border-radius: 14px; overflow: hidden; }
-  .minerai { position: relative; padding: 30px 26px 30px; background: var(--pierre); border-left: 1px solid var(--pierre3); }
-  .minerai:first-child { border-left: 0; }
-  .minerai::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--c); box-shadow: 0 0 24px var(--c); }
-  .minerai .pierre { width: 42px; height: 42px; margin-bottom: 18px; }
-  .minerai h3 { font: 700 24px Rajdhani, sans-serif; margin: 0 0 4px; color: var(--clair); text-transform: none; letter-spacing: 0; }
-  .minerai .nom { color: var(--c); font: 600 14px Rajdhani, sans-serif; letter-spacing: .5px; margin-bottom: 14px; display: block; }
-  .minerai ul { list-style: none; margin: 0; padding: 0; color: var(--doux); font-size: 15px; line-height: 1.5; }
-  .minerai li { padding: 6px 0 6px 18px; position: relative; border-top: 1px solid var(--pierre3); }
-  .minerai li::before { content: ""; position: absolute; left: 2px; top: 13px; width: 7px; height: 7px; background: var(--c); transform: rotate(45deg); }
-  .rubis { --c: var(--rubis); } .saphir { --c: var(--saphir); } .emeraude { --c: var(--emeraude); } .onyx { --c: var(--onyx); }
-
-  /* En ce moment */
-  .direct { display: grid; grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: start; }
-  .chiffres { display: grid; gap: 14px; }
-  .chiffre { display: flex; align-items: baseline; gap: 14px; padding: 18px 22px; border-radius: 12px; background: var(--pierre2); border: 1px solid var(--pierre3); }
-  .chiffre b { font: 700 42px/1 Rajdhani, sans-serif; color: var(--c, var(--clair)); min-width: 2.2ch; }
-  .chiffre span { color: var(--doux); }
-  .podium { list-style: none; margin: 0; padding: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--pierre3); }
-  .podium li { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: center; padding: 14px 18px; background: var(--pierre2); border-top: 1px solid var(--pierre3); }
-  .podium li:first-child { border-top: 0; }
-  .podium .rang { font: 700 24px Rajdhani, sans-serif; color: var(--doux); text-align: center; }
-  .podium li:nth-child(1) .rang { color: #f2c14e; } .podium li:nth-child(2) .rang { color: #c9ced6; } .podium li:nth-child(3) .rang { color: #d08a52; }
-  .podium a { color: var(--clair); text-decoration: none; font-weight: 600; }
-  .podium a:hover { text-decoration: underline; }
-  .podium small { display: block; color: var(--doux); font-weight: 400; font-size: 13px; }
-  .podium .pw { font: 700 20px Rajdhani, sans-serif; color: var(--onyx); }
-  .podium .vide { display: block; padding: 22px; color: var(--doux); background: var(--pierre2); }
-  .direct h3 { font: 700 22px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 14px; text-transform: none; letter-spacing: 0; }
-
-  /* Commencer : une vraie suite d'étapes */
-  .etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; counter-reset: e; }
-  .etape { position: relative; padding: 0 28px 0 0; }
-  .etape::after { content: ""; position: absolute; top: 27px; left: 64px; right: 10px; height: 2px; background: linear-gradient(90deg, var(--c), transparent); }
-  .etape:last-child::after { display: none; }
-  .etape .num { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 14px; background: var(--pierre); border: 2px solid var(--c);
-    font: 700 26px Rajdhani, sans-serif; color: var(--c); box-shadow: 0 0 22px color-mix(in srgb, var(--c) 35%, transparent); margin-bottom: 18px; }
-  .etape h3 { font: 700 22px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 6px; text-transform: none; letter-spacing: 0; }
-  .etape p { color: var(--doux); margin: 0 0 14px; line-height: 1.55; }
-  .etape a { color: var(--clair); font-weight: 600; }
-
-  /* Actualités */
-  .actus3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
-  .actu { padding: 22px 24px; border-radius: 12px; background: var(--pierre2); border: 1px solid var(--pierre3); border-left: 3px solid var(--c, var(--onyx)); }
-  .actu time { color: var(--doux); font-size: 13px; }
-  .actu h4 { font: 700 20px Rajdhani, sans-serif; color: var(--clair); margin: 4px 0 8px; }
-  .actu p { color: var(--doux); margin: 0; line-height: 1.55; }
-
-  /* Appel final */
-  .final { text-align: center; padding: 80px 0 90px; position: relative; overflow: hidden; }
-  .final::before { content: ""; position: absolute; inset: 0; background: conic-gradient(from 200deg at 50% 120%, var(--rubis), var(--onyx), var(--saphir), var(--emeraude), var(--rubis));
-    opacity: .14; filter: blur(40px); }
-  .final .large { position: relative; }
-  .final h2 { font: 700 clamp(34px, 5vw, 56px)/1 Rajdhani, sans-serif; color: var(--clair); margin: 0 0 14px; }
-  .final p { color: var(--doux); margin: 0 auto 28px; max-width: 34em; }
-  .final .actions { justify-content: center; display: flex; gap: 12px; flex-wrap: wrap; }
-
-
-  /* Particules de minerai dans le héros */
-  #poussiere { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .7; }
-  .heros { min-height: min(760px, calc(100vh - 82px)); display: flex; align-items: center; }
-  .heros .large { width: 100%; }
-  .gemme svg { transition: transform .25s ease-out; }
-
-  /* Vitrine des minerais (onglets) */
-  .vitrine { display: grid; grid-template-columns: 260px 1fr; border: 1px solid var(--pierre3); border-radius: 16px; overflow: hidden; background: var(--pierre); }
-  .choix { display: flex; flex-direction: column; border-right: 1px solid var(--pierre3); }
-  .choix button { all: unset; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 20px 22px; border-top: 1px solid var(--pierre3); color: var(--doux);
-    font: 600 20px Rajdhani, sans-serif; position: relative; transition: background .2s, color .2s; }
-  .choix button:first-child { border-top: 0; }
-  .choix button img { width: 34px; height: 34px; image-rendering: pixelated; transition: transform .25s; }
-  .choix button:hover { color: var(--clair); background: var(--pierre2); }
-  .choix button[aria-selected="true"] { color: var(--clair); background: linear-gradient(90deg, color-mix(in srgb, var(--c) 22%, transparent), transparent); }
-  .choix button[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); box-shadow: 0 0 18px var(--c); }
-  .choix button[aria-selected="true"] img { transform: scale(1.15) rotate(-8deg); }
-  .choix button:focus-visible { outline: 2px solid var(--c); outline-offset: -4px; }
-  .panneau-m { position: relative; padding: 36px 40px 40px; overflow: hidden; min-height: 360px; }
-  .panneau-m::before { content: ""; position: absolute; right: -120px; top: -120px; width: 420px; height: 420px; border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--c) 30%, transparent), transparent 65%); transition: background .4s; }
-  .panneau-m > * { position: relative; }
-  .panoplie { display: flex; gap: 18px; margin-bottom: 26px; flex-wrap: wrap; }
-  .panoplie figure { margin: 0; width: 92px; height: 92px; display: grid; place-items: center; border-radius: 14px; background: var(--pierre2);
-    border: 1px solid var(--pierre3); box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--c) 45%, transparent); }
-  .panoplie img { width: 64px; height: 64px; image-rendering: pixelated; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c) 55%, transparent)) drop-shadow(0 6px 8px rgba(0,0,0,.5)); }
-  .choix button img { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c) 60%, transparent)); }
-  .panneau-m.change .panoplie figure { animation: pose .45s cubic-bezier(.2, .9, .3, 1.3) both; }
-  .panneau-m.change .panoplie figure:nth-child(2) { animation-delay: .05s; } .panneau-m.change .panoplie figure:nth-child(3) { animation-delay: .1s; }
-  .panneau-m.change .panoplie figure:nth-child(4) { animation-delay: .15s; }
-  @keyframes pose { from { opacity: 0; transform: translateY(14px) scale(.85); } to { opacity: 1; transform: none; } }
-  .panneau-m h3 { font: 700 34px Rajdhani, sans-serif; color: var(--clair); margin: 0; text-transform: none; letter-spacing: 0; }
-  .panneau-m .role { color: var(--c); font: 600 17px Rajdhani, sans-serif; margin: 0 0 14px; }
-  .panneau-m p.texte { color: var(--doux); line-height: 1.65; max-width: 36em; margin: 0 0 18px; }
-  .panneau-m ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; color: var(--clair); }
-  .panneau-m li { padding-left: 18px; position: relative; }
-  .panneau-m li::before { content: ""; position: absolute; left: 0; top: 8px; width: 7px; height: 7px; background: var(--c); transform: rotate(45deg); }
-
-  /* Agenda de la warzone */
-  .agenda { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .rdv { position: relative; padding: 24px 24px 22px; border-radius: 14px; background: var(--pierre); border: 1px solid var(--pierre3); overflow: hidden; }
-  .rdv::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: var(--avance, 0%); background: var(--c); box-shadow: 0 0 14px var(--c); transition: width 1s linear; }
-  .rdv h3 { font: 700 22px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 4px; text-transform: none; letter-spacing: 0; }
-  .rdv .quand { color: var(--doux); font-size: 14px; margin: 0 0 16px; }
-  .rdv .rebours { font: 700 40px/1 Rajdhani, sans-serif; color: var(--c); font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+  /* ----- Agenda ----- */
+  .agenda { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .rdv { position: relative; padding: 24px; border-radius: 16px; background: var(--pierre2); overflow: hidden; box-shadow: inset 0 0 0 1px var(--pierre3); }
+  .rdv::before { content: ""; position: absolute; right: -60px; top: -60px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--c) 35%, transparent), transparent 70%); }
+  .rdv::after { content: ""; position: absolute; left: 0; bottom: 0; height: 4px; width: var(--avance, 0%); background: var(--c); box-shadow: 0 0 16px var(--c); transition: width 1s linear; }
+  .rdv h3 { font: 700 24px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 2px; text-transform: none; letter-spacing: 0; position: relative; }
+  .rdv .quand { color: var(--doux); font-size: 14px; margin: 0 0 18px; position: relative; }
+  .rdv .rebours { font: 700 46px/1 Rajdhani, sans-serif; color: var(--c); font-variant-numeric: tabular-nums; letter-spacing: 1px; position: relative; }
   .rdv .rebours small { font-size: 15px; color: var(--doux); margin-left: 6px; letter-spacing: 0; }
   .rdv.bientot .rebours { animation: pouls 1.2s ease-in-out infinite; }
-  @keyframes pouls { 50% { text-shadow: 0 0 18px var(--c); } }
-  @media (max-width: 900px) {
-    .vitrine { grid-template-columns: 1fr; }
-    .choix { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--pierre3); }
-    .choix button { border-top: 0; border-left: 1px solid var(--pierre3); padding: 14px 16px; font-size: 17px; flex: 1 0 auto; }
-    .choix button[aria-selected="true"]::before { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 3px; }
-    .panneau-m { padding: 26px 22px 30px; }
-    .panneau-m ul { grid-template-columns: 1fr; }
-    .agenda { grid-template-columns: 1fr; }
-    .heros { min-height: 0; }
-  }
+  @keyframes pouls { 50% { text-shadow: 0 0 20px var(--c); } }
+
+  /* ----- Direct ----- */
+  .direct { display: grid; grid-template-columns: 1fr 1.25fr; gap: 40px; align-items: start; }
+  .chiffres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .chiffre { padding: 18px 16px; border-radius: 14px; background: var(--pierre2); box-shadow: inset 0 0 0 1px var(--pierre3); text-align: center; }
+  .chiffre b { display: block; font: 700 44px/1 Rajdhani, sans-serif; color: var(--c); }
+  .chiffre span { color: var(--doux); font-size: 13px; }
+  .podium { list-style: none; margin: 0; padding: 0; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--pierre3); }
+  .podium li { display: grid; grid-template-columns: 46px 1fr auto; gap: 14px; align-items: center; padding: 15px 18px; background: var(--pierre2); border-top: 1px solid var(--pierre3); }
+  .podium li:first-child { border-top: 0; background: linear-gradient(90deg, rgba(255, 201, 77, .12), var(--pierre2) 60%); }
+  .podium .rang { font: 700 26px Rajdhani, sans-serif; color: var(--doux); text-align: center; }
+  .podium li:nth-child(1) .rang { color: var(--or); } .podium li:nth-child(2) .rang { color: #cfd5de; } .podium li:nth-child(3) .rang { color: #e09a5f; }
+  .podium a { color: var(--clair); text-decoration: none; font-weight: 600; } .podium a:hover { text-decoration: underline; }
+  .podium small { display: block; color: var(--doux); font-size: 13px; }
+  .podium .pw { font: 700 22px Rajdhani, sans-serif; color: var(--onyx); }
+  .podium .vide { display: block; padding: 22px; color: var(--doux); background: var(--pierre2); }
+  .direct h3 { font: 700 24px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 14px; text-transform: none; letter-spacing: 0; }
+
+  /* ----- Étapes ----- */
+  .etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .etape { position: relative; padding: 28px 26px; border-radius: 16px; background: var(--pierre2); box-shadow: inset 0 0 0 1px var(--pierre3); }
+  .etape .num { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 14px; background: var(--c); color: #120f16; font: 700 28px Rajdhani, sans-serif; margin-bottom: 18px;
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--c) 45%, transparent); }
+  .etape h3 { font: 700 24px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 6px; text-transform: none; letter-spacing: 0; }
+  .etape p { color: var(--doux); margin: 0 0 16px; line-height: 1.55; }
+  .etape a { color: var(--clair); font-weight: 600; }
+
+  /* ----- Actualités ----- */
+  .actus3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .actu { border-radius: 16px; overflow: hidden; background: var(--pierre2); box-shadow: inset 0 0 0 1px var(--pierre3); }
+  .actu img { width: 100%; height: 150px; object-fit: cover; display: block; }
+  .actu div { padding: 18px 22px 22px; }
+  .actu time { color: var(--doux); font-size: 13px; }
+  .actu h4 { font: 700 22px Rajdhani, sans-serif; color: var(--clair); margin: 4px 0 8px; }
+  .actu p { color: var(--doux); margin: 0; line-height: 1.55; }
+
+  /* ----- Final ----- */
+  .final { position: relative; text-align: center; padding: 120px 0; overflow: hidden; isolation: isolate; margin-top: 60px; }
+  .final img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .final::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--pierre) 0%, rgba(18,16,22,.55) 35%, rgba(18,16,22,.55) 65%, var(--pierre) 100%); }
+  .final h2 { font: 700 clamp(38px, 6vw, 68px)/1 Rajdhani, sans-serif; color: #fff; margin: 0 0 14px; text-shadow: 0 4px 24px rgba(0,0,0,.7); }
+  .final p { color: #e6e0ee; margin: 0 auto 30px; max-width: 32em; font-size: 18px; text-shadow: 0 2px 10px rgba(0,0,0,.8); }
+  .final .actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .pied2 { margin-top: 0; }
-  main.accueil .bouton.secondaire { background: transparent !important; color: var(--clair) !important; box-shadow: 0 0 0 1px #5a5363 inset !important; }
-  main.accueil .bouton.secondaire:hover { box-shadow: 0 0 0 1px var(--onyx) inset, 0 0 18px rgba(162, 107, 255, .3) !important; }
-  .bouton:focus-visible, a:focus-visible, .etat:focus-visible { outline: 2px solid var(--onyx); outline-offset: 3px; }
-  @media (max-width: 900px) {
-    .heros .large, .direct { grid-template-columns: 1fr; }
-    .gemme { width: min(300px, 80%); order: -1; }
-    .minerais { grid-template-columns: 1fr 1fr; }
-    .minerai:nth-child(3) { border-left: 0; }
-    .minerai:nth-child(n+3) { border-top: 1px solid var(--pierre3); }
-    .etapes { grid-template-columns: 1fr; gap: 28px; }
-    .etape::after { display: none; }
+
+  @media (max-width: 960px) {
+    .mosaique { grid-template-columns: 1fr 1fr; grid-auto-rows: 220px; }
+    .tuile.grande { grid-column: span 2; grid-row: span 2; }
+    .agenda, .etapes, .direct { grid-template-columns: 1fr; }
   }
-  @media (max-width: 560px) { .minerais { grid-template-columns: 1fr; } .minerai { border-left: 0; border-top: 1px solid var(--pierre3); } .minerai:first-child { border-top: 0; } }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } .gemme .facette { opacity: 1; } }
+  @media (max-width: 600px) {
+    .mosaique { grid-template-columns: 1fr; }
+    .tuile.grande, .tuile.large2 { grid-column: auto; grid-row: span 2; }
+    .tuile.grande h3 { font-size: 36px; }
+    .chiffres { grid-template-columns: 1fr 1fr 1fr; }
+    .chiffre b { font-size: 34px; }
+    .gros { padding: 15px 26px; font-size: 18px; }
+    section.bloc { padding: 64px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <header class="entete" id="entete"></header>
 <main class="accueil">
   <section class="heros">
+    <div class="fond-h"></div>
     <canvas id="poussiere" aria-hidden="true"></canvas>
-    <div class="large">
-      <div>
-        <h1><span>Ta faction.</span><span>Ton territoire.</span><span>Ta guerre.</span></h1>
-        <p class="accroche">OnyxFight, c'est le <b>PvP Faction moddé</b> avec le combat nerveux de la <b>1.8</b> : des minerais à nous, des raids à la dynamite, des donjons, des boss et des catastrophes en warzone. On joue avec un <b>launcher gratuit</b>, sans compte Microsoft.</p>
-        <div class="actions">
-          <a class="bouton" href="/jouer">Télécharger le launcher</a>
-          <a class="bouton secondaire" href="/inscription">Créer mon compte</a>
-        </div>
-        <button class="etat" id="etat" type="button" title="Copier l'adresse"><span class="point"></span><b>play.onyxfight.fr</b><span id="statut">…</span></button>
+    <div class="contenu">
+      <h1>Le PvP Faction moddé, au feeling 1.8</h1>
+      <p>Forme ta faction, mine du rubis et de l'onyx, fais sauter les bases ennemies et affronte les boss de la warzone. On joue avec un launcher gratuit, sans compte Microsoft.</p>
+      <div class="actions">
+        <a class="gros jouer" href="/jouer">▶ Jouer gratuitement</a>
+        <a class="gros compte" href="/inscription">Créer mon compte</a>
       </div>
-      <div class="gemme" aria-hidden="true">
-        <svg viewBox="0 0 400 400">
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9c2ff"/><stop offset="1" stop-color="#7a3df0"/></linearGradient>
-            <linearGradient id="g2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b48bff"/><stop offset="1" stop-color="#4b1fa8"/></linearGradient>
-            <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e57f5"/><stop offset="1" stop-color="#2c0f6e"/></linearGradient>
-          </defs>
-          <g class="tourne">
-            <!-- couronne -->
-            <polygon class="facette" style="animation-delay:.05s" points="120,110 200,70 200,150" fill="url(#g1)"/>
-            <polygon class="facette" style="animation-delay:.12s" points="200,70 280,110 200,150" fill="#c9a6ff"/>
-            <polygon class="facette" style="animation-delay:.19s" points="120,110 60,160 200,150" fill="#9b63ff"/>
-            <polygon class="facette" style="animation-delay:.26s" points="280,110 340,160 200,150" fill="url(#g2)"/>
-            <!-- pavillon -->
-            <polygon class="facette" style="animation-delay:.33s" points="60,160 200,150 200,340" fill="url(#g3)"/>
-            <polygon class="facette" style="animation-delay:.40s" points="340,160 200,150 200,340" fill="#3a1590"/>
-            <polygon class="facette" style="animation-delay:.47s" points="60,160 130,175 200,340" fill="#6c34d9" opacity=".9"/>
-            <polygon class="facette" style="animation-delay:.54s" points="340,160 270,175 200,340" fill="#2a0c6a" opacity=".9"/>
-            <!-- reflets des trois autres minerais -->
-            <polygon class="facette" style="animation-delay:.70s" points="200,150 235,180 200,250" fill="#e5405a" opacity=".55"/>
-            <polygon class="facette" style="animation-delay:.80s" points="200,150 165,180 200,250" fill="#4a86ff" opacity=".55"/>
-            <polygon class="facette" style="animation-delay:.90s" points="200,250 220,270 200,320 180,270" fill="#34d17f" opacity=".5"/>
-            <path class="facette" style="animation-delay:.6s" d="M120,110 L200,70 L280,110 L340,160 L200,340 L60,160 Z" fill="none" stroke="#efe6ff" stroke-opacity=".55" stroke-width="2"/>
-          </g>
-          <g fill="#fff">
-            <path class="eclat" d="M150 95 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/>
-            <path class="eclat" style="animation-delay:1.7s" d="M300 210 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/>
-            <path class="eclat" style="animation-delay:3.1s" d="M90 250 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/>
-          </g>
-        </svg>
+      <div><button class="ip" id="etat" type="button" title="Copier l'adresse"><span class="point"></span><b>play.onyxfight.fr</b><span id="statut">…</span></button></div>
+    </div>
+  </section>
+
+  <section class="bloc">
+    <div class="large">
+      <h2 class="titre">Ce qui t'attend sur OnyxFight</h2>
+      <p class="sous">Un serveur Faction avec du contenu à nous : nouveaux minerais, événements, boss et donjons.</p>
+      <div class="mosaique">
+        <a class="tuile grande" href="/factions" style="--c:var(--onyx)"><img src="img/factions.webp" alt="" loading="lazy">
+          <span class="tag">Factions</span><h3>Bâtis ta faction, rase les autres</h3>
+          <p>Territoires, alliés, raids à la dynamite, laboratoire de faction et reliques à voler. Chaque saison, un classement.</p></a>
+        <a class="tuile large2" href="/jouer" style="--c:var(--rubis)"><img src="img/combat-petit.webp" alt="" loading="lazy">
+          <span class="tag">Combat 1.8</span><h3>Le PvP que tu connais</h3><p>Pas de temps de recharge, des combos, et des armes en rubis, saphir et onyx.</p></a>
+        <a class="tuile" href="/jouer" style="--c:var(--saphir)"><img src="img/evenements-petit.webp" alt="" loading="lazy">
+          <span class="tag">Événements</span><h3>La warzone vit</h3><p>Tornades, météorites, KOTH, largages.</p></a>
+        <a class="tuile" href="/jouer" style="--c:var(--rubis)"><img src="img/donjons-petit.webp" alt="" loading="lazy">
+          <span class="tag">Boss et donjons</span><h3>Le Gardien t'attend</h3><p>Donjons à 4 et Boss du Gouffre.</p></a>
+        <a class="tuile large2" href="/jouer" style="--c:var(--emeraude)"><img src="img/minerais-petit.webp" alt="" loading="lazy">
+          <span class="tag">Progression</span><h3>Mine, monte, débloque</h3><p>Rubis, Saphir, Onyx, 4 métiers, pass de saison à 50 paliers et cosmétiques 3D.</p></a>
+        <a class="tuile large2" href="/boutique" style="--c:var(--or)"><img src="img/cosmetiques.webp" alt="" loading="lazy" style="object-position:50% 20%">
+          <span class="tag">Cosmétiques</span><h3>Ailes, capes, compagnons</h3><p>Des cosmétiques en 3D, visibles par tous, sans avantage en jeu.</p></a>
       </div>
     </div>
   </section>
 
-  <div class="marches"></div>
-  <section class="bande">
+  <section class="bloc" style="padding-top:20px">
     <div class="large">
-      <h2 class="titre">Quatre minerais, quatre façons de jouer</h2>
-      <p class="sous">On les mine pour forger son stuff, et chacun raconte une facette du serveur. Choisis-en un.</p>
-      <div class="vitrine">
-        <div class="choix" role="tablist" aria-label="Les minerais">
-          <button role="tab" aria-selected="true" data-m="rubis" style="--c:var(--rubis)"><img src="img/rubis.png" alt="">Rubis</button>
-          <button role="tab" aria-selected="false" data-m="saphir" style="--c:var(--saphir)"><img src="img/saphir.png" alt="">Saphir</button>
-          <button role="tab" aria-selected="false" data-m="emeraude" style="--c:var(--emeraude)"><img src="img/epee_emeraude.png" alt="">Émeraude</button>
-          <button role="tab" aria-selected="false" data-m="onyx" style="--c:var(--onyx)"><img src="img/epee_onyx.png" alt="">Onyx</button>
-        </div>
-        <div class="panneau-m" id="panneau-m" role="tabpanel" style="--c:var(--rubis)"></div>
-      </div>
+      <h2 class="titre">Prochains rendez-vous en warzone</h2>
+      <p class="sous">Les événements automatiques, à l'heure de Paris.</p>
+      <div class="agenda" id="agenda"></div>
     </div>
   </section>
-  <div class="marches bas"></div>
 
-  <section style="padding:80px 0">
+  <section class="bloc" style="padding-top:20px">
     <div class="large direct">
       <div>
-        <h2 class="titre">En ce moment sur le serveur</h2>
-        <p class="sous" style="margin-bottom:24px">Les chiffres se mettent à jour tout seuls, comme les fiches de faction.</p>
+        <h2 class="titre">En direct</h2>
+        <p class="sous" style="margin-bottom:20px">Ce qui se passe sur le serveur en ce moment.</p>
         <div class="chiffres">
-          <div class="chiffre" style="--c:var(--emeraude)"><b id="n-joueurs">–</b><span>joueurs en ligne</span></div>
-          <div class="chiffre" style="--c:var(--saphir)"><b id="n-factions">–</b><span>factions en guerre</span></div>
-          <div class="chiffre" style="--c:var(--rubis)"><b id="n-kills">–</b><span>kills entre factions</span></div>
+          <div class="chiffre" style="--c:var(--emeraude)"><b id="n-joueurs">–</b><span>en ligne</span></div>
+          <div class="chiffre" style="--c:var(--saphir)"><b id="n-factions">–</b><span>factions</span></div>
+          <div class="chiffre" style="--c:var(--rubis)"><b id="n-kills">–</b><span>kills</span></div>
         </div>
       </div>
       <div>
@@ -284,69 +208,36 @@
     </div>
   </section>
 
-
-  <div class="marches"></div>
-  <section class="bande">
-    <div class="large">
-      <h2 class="titre">Les prochains rendez-vous en warzone</h2>
-      <p class="sous">Les événements automatiques, à l'heure de Paris. Prépare ton stuff.</p>
-      <div class="agenda" id="agenda"></div>
-    </div>
-  </section>
-  <div class="marches bas"></div>
-
-  <section style="padding:80px 0 40px">
+  <section class="bloc" style="padding-top:20px">
     <div class="large">
       <h2 class="titre">Rejoindre en trois étapes</h2>
-      <p class="sous">Le launcher installe Java, Minecraft et tous les mods pour toi.</p>
+      <p class="sous">Le launcher installe Java, Minecraft et les mods pour toi.</p>
       <div class="etapes">
         <div class="etape" style="--c:var(--rubis)"><div class="num">1</div><h3>Crée ton compte</h3><p>Un pseudo et un mot de passe sur le site. Pas besoin de compte Microsoft.</p><a href="/inscription">Créer mon compte</a></div>
-        <div class="etape" style="--c:var(--saphir)"><div class="num">2</div><h3>Installe le launcher</h3><p>Il télécharge et met à jour le jeu et les mods tout seul.</p><a href="/jouer">Télécharger</a></div>
-        <div class="etape" style="--c:var(--emeraude)"><div class="num">3</div><h3>Connecte-toi et joue</h3><p>Choisis une faction ou crée la tienne avec <b style="color:var(--clair)">/f create</b>.</p><a href="/reglement">Lire le règlement</a></div>
+        <div class="etape" style="--c:var(--saphir)"><div class="num">2</div><h3>Installe le launcher</h3><p>Il télécharge et met à jour le jeu et les mods tout seul.</p><a href="/jouer">Télécharger le launcher</a></div>
+        <div class="etape" style="--c:var(--emeraude)"><div class="num">3</div><h3>Connecte-toi et joue</h3><p>Rejoins une faction ou crée la tienne avec <b style="color:var(--clair)">/f creer</b>.</p><a href="/reglement">Lire le règlement</a></div>
       </div>
     </div>
   </section>
 
-  <section style="padding:40px 0 30px">
+  <section class="bloc" style="padding-top:20px;padding-bottom:0">
     <div class="large">
       <h2 class="titre">Actualités</h2>
-      <p class="sous" style="margin-bottom:28px">Les nouveautés du serveur, aussi affichées dans le launcher.</p>
+      <p class="sous">Les nouveautés du serveur, aussi affichées dans le launcher.</p>
       <div class="actus3" id="actus"><p class="vide">Chargement…</p></div>
     </div>
   </section>
 
   <section class="final">
+    <img src="img/evenements.webp" alt="" loading="lazy">
     <div class="large">
-      <h2>Ta place t'attend sur la carte</h2>
+      <h2>La warzone t'attend</h2>
       <p>Choisis ton camp, mine ton premier rubis et prépare ton premier raid.</p>
-      <div class="actions"><a class="bouton" href="/jouer">Télécharger le launcher</a><a class="bouton secondaire" href="/voter">Voter pour le serveur</a></div>
+      <div class="actions"><a class="gros jouer" href="/jouer">▶ Jouer gratuitement</a><a class="gros compte" href="/voter">Voter pour le serveur</a></div>
     </div>
   </section>
 </main>
 <script>
-
-const MINERAIS = {
-  rubis: { nom: 'Rubis', role: 'Le combat', c: 'var(--rubis)', objets: ['epee_rubis', 'casque_rubis', 'plastron_rubis', 'pioche_rubis'],
-    texte: 'Le PvP comme en 1.8 : pas de temps de recharge, des combos et du blocage à l\'épée. Le rubis forge un stuff taillé pour les duels.',
-    points: ['Combat sans temps de recharge', 'Arcs légendaires très rares', 'Livres d\'enchantement custom', 'Anti-déconnexion en combat'] },
-  saphir: { nom: 'Saphir', role: 'Les factions', c: 'var(--saphir)', objets: ['epee_saphir', 'casque_saphir', 'plastron_saphir', 'pioche_saphir'],
-    texte: 'Prends des territoires, fais-toi des alliés et fais sauter les bases ennemies. Chaque saison, la faction la plus forte entre au classement.',
-    points: ['Raids à la dynamite', 'Laboratoire de faction', 'Reliques à voler', 'Contrats agricoles en commun'] },
-  emeraude: { nom: 'Émeraude', role: 'La progression', c: 'var(--emeraude)', objets: ['epee_emeraude', 'casque_emeraude', 'plastron_emeraude', 'pioche_emeraude'],
-    texte: 'Monte tes métiers, débloque des recettes, avance dans le pass de saison et descends en donjon avec tes amis pour le butin.',
-    points: ['4 métiers à monter', 'Pass de saison à 50 paliers', 'Donjons en groupe avec boss', 'Défis du jour'] },
-  onyx: { nom: 'Onyx', role: 'Les événements', c: 'var(--onyx)', objets: ['epee_onyx', 'casque_onyx', 'plastron_onyx', 'pioche_onyx'],
-    texte: 'Le minerai le plus rare, au cœur de la warzone. C\'est là que tombent les largages, que se tient le KOTH et que se réveille le Boss du Gouffre.',
-    points: ['Boss du Gouffre', 'Tornades, météorites, éruptions', 'Event Quartz et zone radioactive', 'Chasse au trésor'] },
-};
-function montrerMinerai(id, anime) {
-  const m = MINERAIS[id], pan = $('panneau-m');
-  document.querySelectorAll('.choix button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.m === id)));
-  pan.style.setProperty('--c', m.c);
-  pan.replaceChildren(el('div', { class: 'panoplie' }, m.objets.map((o) => el('figure', {}, el('img', { src: 'img/' + o + '.png', alt: '' })))),
-    el('h3', {}, m.nom), el('p', { class: 'role' }, m.role), el('p', { class: 'texte' }, m.texte), el('ul', {}, m.points.map((t) => el('li', {}, t))));
-  pan.classList.remove('change'); if (anime) { void pan.offsetWidth; pan.classList.add('change'); }
-}
 /** Heure de Paris actuelle, en { jour (0 = dimanche), minutes depuis minuit }. */
 function maintenantParis() {
   const f = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
@@ -407,34 +298,17 @@ function poussiere() {
   };
   pas();
 }
-/** La gemme suit un peu la souris. */
-function inclinaison() {
-  const z = document.querySelector('.gemme'), svg = z && z.querySelector('svg'); if (!svg || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  document.querySelector('.heros').addEventListener('pointermove', (e) => {
-    const r = z.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-    svg.style.transform = `perspective(700px) rotateY(${x * 18}deg) rotateX(${-y * 14}deg)`;
-  });
-  document.querySelector('.heros').addEventListener('pointerleave', () => { svg.style.transform = ''; });
-}
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.choix button').forEach((b) => b.addEventListener('click', () => montrerMinerai(b.dataset.m, true)));
-  document.querySelector('.choix').addEventListener('keydown', (e) => {
-    if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
-    const l = [...document.querySelectorAll('.choix button')], i = l.indexOf(document.activeElement), k = (i + (/Down|Right/.test(e.key) ? 1 : l.length - 1)) % l.length;
-    l[k].focus(); montrerMinerai(l[k].dataset.m, true); e.preventDefault();
-  });
-  montrerMinerai('rubis', false); dessinerAgenda(); poussiere(); inclinaison();
-});
-const COULEURS = ['var(--onyx)', 'var(--rubis)', 'var(--saphir)', 'var(--emeraude)'];
+const IMAGES_ACTUS = ['img/factions-petit.webp', 'img/combat-petit.webp', 'img/evenements-petit.webp', 'img/donjons-petit.webp', 'img/minerais-petit.webp'];
 function compter(id, n) {
   const e = $(id), fin = Math.max(0, Math.round(n));
   if (matchMedia('(prefers-reduced-motion: reduce)').matches || fin === 0) return (e.textContent = nombre(fin));
   const t0 = performance.now();
-  const pas = (t) => { const k = Math.min(1, (t - t0) / 900); e.textContent = nombre(fin * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(pas); };
+  const pas = (t) => { const k = Math.min(1, (t - t0) / 1000); e.textContent = nombre(fin * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(pas); };
   requestAnimationFrame(pas);
 }
 document.addEventListener('DOMContentLoaded', async () => {
-  $('etat').onclick = () => { try { navigator.clipboard.writeText('play.onyxfight.fr'); $('statut').textContent = 'Adresse copiée'; } catch (e) { /* rien */ } };
+  dessinerAgenda(); poussiere();
+  $('etat').onclick = () => { try { navigator.clipboard.writeText('play.onyxfight.fr'); $('statut').textContent = 'adresse copiée'; } catch (e) { /* rien */ } };
   try {
     const s = await (await fetch('/api/statut')).json();
     $('etat').classList.toggle('ouvert', !!s.enLigne);
@@ -453,8 +327,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (e) { $('podium').replaceChildren(el('li', {}, el('span', { class: 'vide' }, 'Le classement revient dans un instant.'))); }
   try {
     const l = await (await fetch('https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/actualites.json')).json();
-    $('actus').replaceChildren(...(l.length ? l.slice(0, 6).map((a, i) => el('article', { class: 'actu', style: '--c:' + COULEURS[i % 4] },
-      el('time', {}, a.date), el('h4', {}, a.titre), el('p', {}, a.texte)))
+    $('actus').replaceChildren(...(l.length ? l.slice(0, 6).map((a, i) => el('article', { class: 'actu' }, el('img', { src: a.image || IMAGES_ACTUS[i % IMAGES_ACTUS.length], alt: '', loading: 'lazy' }),
+      el('div', {}, el('time', {}, a.date), el('h4', {}, a.titre), el('p', {}, a.texte))))
       : [el('p', { class: 'vide' }, 'Pas encore d\'actualité.')]));
   } catch (e) { $('actus').replaceChildren(el('p', { class: 'vide' }, 'Les actualités n\'ont pas pu se charger.')); }
 });
