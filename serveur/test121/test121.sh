@@ -66,6 +66,11 @@ echo "=== Mods tiers (téléchargés depuis leurs sites officiels) ==="
   https://cdn.modrinth.com/data/9eGKb6K1/versions/qqNx1Yjm/voicechat-neoforge-1.21.1-2.6.24.jar
 # Easy NPC retiré (remplacé par les PNJ d'OnyxFight : /pnj)
 rm -f mods/easy_npc*.jar
+# Too Many Bows (arcs, recettes avec les minerais d'OnyxFight) + Architectury API
+[ -f mods/too_many_bows-neoforge-1.21-1.2.0.jar ] || curl -fsSL -o mods/too_many_bows-neoforge-1.21-1.2.0.jar \
+  https://cdn.modrinth.com/data/FOiJ92uI/versions/pSPpjheZ/too_many_bows-neoforge-1.21-1.2.0.jar
+[ -f mods/architectury-13.0.8-neoforge.jar ] || curl -fsSL -o mods/architectury-13.0.8-neoforge.jar \
+  https://cdn.modrinth.com/data/lhGA9TYQ/versions/ZxYGwlk0/architectury-13.0.8-neoforge.jar
 # Ouvre le port du chat vocal si le pare-feu ufw est actif
 if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow 24454/udp >/dev/null || true; fi
 ls -la mods

@@ -83,6 +83,18 @@
         "url": "https://cdn.modrinth.com/data/9eGKb6K1/versions/qqNx1Yjm/voicechat-neoforge-1.21.1-2.6.24.jar",
         "sha1": "436ee200d5192ffda65fcf70c42c086fcdc00826",
         "taille": 4934688
+      },
+      {
+        "chemin": "mods/too_many_bows-neoforge-1.21-1.2.0.jar",
+        "url": "https://cdn.modrinth.com/data/FOiJ92uI/versions/pSPpjheZ/too_many_bows-neoforge-1.21-1.2.0.jar",
+        "sha1": "cb8aee524e2a75c40c39a95d225dba504a3668fe",
+        "taille": 789723
+      },
+      {
+        "chemin": "mods/architectury-13.0.8-neoforge.jar",
+        "url": "https://cdn.modrinth.com/data/lhGA9TYQ/versions/ZxYGwlk0/architectury-13.0.8-neoforge.jar",
+        "sha1": "6ca11d3cc136bf69bb8f4d56982481eb85b5100b",
+        "taille": 584004
       }
     ]
   },
