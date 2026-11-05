@@ -71,8 +71,8 @@ rm -f mods/easy_npc*.jar
   https://cdn.modrinth.com/data/FOiJ92uI/versions/pSPpjheZ/too_many_bows-neoforge-1.21-1.2.0.jar
 [ -f mods/architectury-13.0.8-neoforge.jar ] || curl -fsSL -o mods/architectury-13.0.8-neoforge.jar \
   https://cdn.modrinth.com/data/lhGA9TYQ/versions/ZxYGwlk0/architectury-13.0.8-neoforge.jar
-# Ouvre le port du chat vocal si le pare-feu ufw est actif
-if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow 24454/udp >/dev/null || true; fi
+# Ouvre les ports du chat vocal et des votes (Votifier intégré) si le pare-feu ufw est actif
+if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow 24454/udp >/dev/null || true; ufw allow 8192/tcp >/dev/null || true; fi
 ls -la mods
 
 echo "=== Plugin OnyxFight 1.21.1 ==="
