@@ -453,6 +453,7 @@ const EVENEMENTS = {
   lunedesang: 'evenement lancer lunedesang maintenant', arreter: 'evenement arreter', retirerboss: 'gouffre retirer',
   quartz: 'quartz lancer', quartzstop: 'quartz stop', radioactif: 'radioactif lancer', radioactifstop: 'radioactif stop',
   marchenoir: 'marchenoir lancer', marchenoirstop: 'marchenoir stop',
+  tresor: 'tresor lancer', tresorstop: 'tresor stop', peche: 'peche concours 15', pechestop: 'peche concours stop',
 };
 const PSEUDO_JEU = /^[A-Za-z0-9_]{1,16}$/;
 /** Vérifie et nettoie une action venue du site. */

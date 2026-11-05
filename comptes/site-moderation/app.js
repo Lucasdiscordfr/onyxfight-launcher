@@ -172,7 +172,7 @@ const PAGES = {
     const msg = el('div', { class: 'message' });
     const evts = [['boss', '👹 Boss du Gouffre'], ['koth', '⛰ KOTH'], ['largage', '📦 Largage'], ['tornade', '🌪 Tornade'], ['meteorites', '☄ Météorites'],
       ['eruption', '🌋 Éruption'], ['seisme', '🌍 Séisme'], ['grele', '🧊 Grêle'], ['tempete', '⛈ Tempête'], ['lunedesang', '🌕 Lune de sang'],
-      ['quartz', '◆ Event Quartz'], ['radioactif', '☢ Zone radioactive'], ['marchenoir', '☠ Marché noir']];
+      ['quartz', '◆ Event Quartz'], ['radioactif', '☢ Zone radioactive'], ['marchenoir', '☠ Marché noir'], ['tresor', '🗝 Chasse au trésor'], ['peche', '🎣 Concours de pêche (15 min)']];
     vue().replaceChildren(
       carte(titre('📢', 'Annonce à tout le serveur', '--c-jaune'), el('div', { class: 'ligne-form' }, champ('a-texte', 'Message', { placeholder: 'Titre à l\'écran + message dans le chat' }),
         el('button', { class: 'bouton', onclick: () => val('a-texte') && action({ type: 'annonce', texte: val('a-texte') }, msg) }, 'Annoncer'))),
@@ -182,8 +182,10 @@ const PAGES = {
           el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'retirerboss' }, msg) }, '✖ Retirer le Boss'),
           el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'quartzstop' }, msg) }, '⏹ Arrêter le Quartz'),
           el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'radioactifstop' }, msg) }, '⏹ Fermer la zone radioactive'),
-          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'marchenoirstop' }, msg) }, '⏹ Renvoyer le marché noir')),
-        el('p', { class: 'aide' }, 'Quartz, zone radioactive et marché noir utilisent les lieux posés en jeu (/quartz lieu, /radioactif pnj, /marchenoir lieu ajouter).')), msg);
+          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'marchenoirstop' }, msg) }, '⏹ Renvoyer le marché noir'),
+          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'tresorstop' }, msg) }, '⏹ Arrêter la chasse au trésor'),
+          el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'pechestop' }, msg) }, '⏹ Finir le concours de pêche')),
+        el('p', { class: 'aide' }, 'Quartz, zone radioactive et marché noir utilisent les lieux posés en jeu (/quartz lieu, /radioactif pnj, /marchenoir lieu ajouter). Concours de construction : en jeu avec /construction lancer <minutes> <thème>.')), msg);
   },
 
   async factions() {
