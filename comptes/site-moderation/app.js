@@ -185,7 +185,7 @@ const PAGES = {
           el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'marchenoirstop' }, msg) }, '⏹ Renvoyer le marché noir'),
           el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'tresorstop' }, msg) }, '⏹ Arrêter la chasse au trésor'),
           el('button', { class: 'danger', onclick: () => action({ type: 'evenement', nom: 'pechestop' }, msg) }, '⏹ Finir le concours de pêche')),
-        el('p', { class: 'aide' }, 'Quartz, zone radioactive et marché noir utilisent les lieux posés en jeu (/quartz lieu, /radioactif pnj, /marchenoir lieu ajouter). Concours de construction : en jeu avec /construction lancer <minutes> <thème>.')), msg);
+        el('p', { class: 'aide' }, 'Quartz, zone radioactive et marché noir utilisent les lieux posés en jeu (/quartz lieu, /radioactif pnj, /marchenoir lieu ajouter).')), msg);
   },
 
   async factions() {
