@@ -122,6 +122,65 @@
   .final p { color: var(--doux); margin: 0 auto 28px; max-width: 34em; }
   .final .actions { justify-content: center; display: flex; gap: 12px; flex-wrap: wrap; }
 
+
+  /* Particules de minerai dans le héros */
+  #poussiere { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .7; }
+  .heros { min-height: min(760px, calc(100vh - 82px)); display: flex; align-items: center; }
+  .heros .large { width: 100%; }
+  .gemme svg { transition: transform .25s ease-out; }
+
+  /* Vitrine des minerais (onglets) */
+  .vitrine { display: grid; grid-template-columns: 260px 1fr; border: 1px solid var(--pierre3); border-radius: 16px; overflow: hidden; background: var(--pierre); }
+  .choix { display: flex; flex-direction: column; border-right: 1px solid var(--pierre3); }
+  .choix button { all: unset; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 20px 22px; border-top: 1px solid var(--pierre3); color: var(--doux);
+    font: 600 20px Rajdhani, sans-serif; position: relative; transition: background .2s, color .2s; }
+  .choix button:first-child { border-top: 0; }
+  .choix button img { width: 34px; height: 34px; image-rendering: pixelated; transition: transform .25s; }
+  .choix button:hover { color: var(--clair); background: var(--pierre2); }
+  .choix button[aria-selected="true"] { color: var(--clair); background: linear-gradient(90deg, color-mix(in srgb, var(--c) 22%, transparent), transparent); }
+  .choix button[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); box-shadow: 0 0 18px var(--c); }
+  .choix button[aria-selected="true"] img { transform: scale(1.15) rotate(-8deg); }
+  .choix button:focus-visible { outline: 2px solid var(--c); outline-offset: -4px; }
+  .panneau-m { position: relative; padding: 36px 40px 40px; overflow: hidden; min-height: 360px; }
+  .panneau-m::before { content: ""; position: absolute; right: -120px; top: -120px; width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--c) 30%, transparent), transparent 65%); transition: background .4s; }
+  .panneau-m > * { position: relative; }
+  .panoplie { display: flex; gap: 18px; margin-bottom: 26px; flex-wrap: wrap; }
+  .panoplie figure { margin: 0; width: 92px; height: 92px; display: grid; place-items: center; border-radius: 14px; background: var(--pierre2);
+    border: 1px solid var(--pierre3); box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--c) 45%, transparent); }
+  .panoplie img { width: 64px; height: 64px; image-rendering: pixelated; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c) 55%, transparent)) drop-shadow(0 6px 8px rgba(0,0,0,.5)); }
+  .choix button img { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c) 60%, transparent)); }
+  .panneau-m.change .panoplie figure { animation: pose .45s cubic-bezier(.2, .9, .3, 1.3) both; }
+  .panneau-m.change .panoplie figure:nth-child(2) { animation-delay: .05s; } .panneau-m.change .panoplie figure:nth-child(3) { animation-delay: .1s; }
+  .panneau-m.change .panoplie figure:nth-child(4) { animation-delay: .15s; }
+  @keyframes pose { from { opacity: 0; transform: translateY(14px) scale(.85); } to { opacity: 1; transform: none; } }
+  .panneau-m h3 { font: 700 34px Rajdhani, sans-serif; color: var(--clair); margin: 0; text-transform: none; letter-spacing: 0; }
+  .panneau-m .role { color: var(--c); font: 600 17px Rajdhani, sans-serif; margin: 0 0 14px; }
+  .panneau-m p.texte { color: var(--doux); line-height: 1.65; max-width: 36em; margin: 0 0 18px; }
+  .panneau-m ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; color: var(--clair); }
+  .panneau-m li { padding-left: 18px; position: relative; }
+  .panneau-m li::before { content: ""; position: absolute; left: 0; top: 8px; width: 7px; height: 7px; background: var(--c); transform: rotate(45deg); }
+
+  /* Agenda de la warzone */
+  .agenda { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .rdv { position: relative; padding: 24px 24px 22px; border-radius: 14px; background: var(--pierre); border: 1px solid var(--pierre3); overflow: hidden; }
+  .rdv::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: var(--avance, 0%); background: var(--c); box-shadow: 0 0 14px var(--c); transition: width 1s linear; }
+  .rdv h3 { font: 700 22px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 4px; text-transform: none; letter-spacing: 0; }
+  .rdv .quand { color: var(--doux); font-size: 14px; margin: 0 0 16px; }
+  .rdv .rebours { font: 700 40px/1 Rajdhani, sans-serif; color: var(--c); font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+  .rdv .rebours small { font-size: 15px; color: var(--doux); margin-left: 6px; letter-spacing: 0; }
+  .rdv.bientot .rebours { animation: pouls 1.2s ease-in-out infinite; }
+  @keyframes pouls { 50% { text-shadow: 0 0 18px var(--c); } }
+  @media (max-width: 900px) {
+    .vitrine { grid-template-columns: 1fr; }
+    .choix { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--pierre3); }
+    .choix button { border-top: 0; border-left: 1px solid var(--pierre3); padding: 14px 16px; font-size: 17px; flex: 1 0 auto; }
+    .choix button[aria-selected="true"]::before { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 3px; }
+    .panneau-m { padding: 26px 22px 30px; }
+    .panneau-m ul { grid-template-columns: 1fr; }
+    .agenda { grid-template-columns: 1fr; }
+    .heros { min-height: 0; }
+  }
   .pied2 { margin-top: 0; }
   main.accueil .bouton.secondaire { background: transparent !important; color: var(--clair) !important; box-shadow: 0 0 0 1px #5a5363 inset !important; }
   main.accueil .bouton.secondaire:hover { box-shadow: 0 0 0 1px var(--onyx) inset, 0 0 18px rgba(162, 107, 255, .3) !important; }
@@ -143,6 +202,7 @@
 <header class="entete" id="entete"></header>
 <main class="accueil">
   <section class="heros">
+    <canvas id="poussiere" aria-hidden="true"></canvas>
     <div class="large">
       <div>
         <h1><span>Ta faction.</span><span>Ton territoire.</span><span>Ta guerre.</span></h1>
@@ -191,28 +251,15 @@
   <section class="bande">
     <div class="large">
       <h2 class="titre">Quatre minerais, quatre façons de jouer</h2>
-      <p class="sous">Rubis, Saphir, Émeraude et Onyx : on les mine pour forger son stuff, et chacun résume une facette du serveur.</p>
-      <div class="minerais">
-        <div class="minerai rubis">
-          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#7a1a2a" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#e5405a" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#ffb3c0" d="M2 2h2v1H3v1H2z"/></svg>
-          <h3>Combat</h3><span class="nom">Rubis</span>
-          <ul><li>Le PvP de la 1.8 : pas de temps de recharge</li><li>Armes et armures en Rubis, Saphir, Onyx</li><li>Arcs légendaires très rares</li><li>Livres d'enchantement custom</li></ul>
+      <p class="sous">On les mine pour forger son stuff, et chacun raconte une facette du serveur. Choisis-en un.</p>
+      <div class="vitrine">
+        <div class="choix" role="tablist" aria-label="Les minerais">
+          <button role="tab" aria-selected="true" data-m="rubis" style="--c:var(--rubis)"><img src="img/rubis.png" alt="">Rubis</button>
+          <button role="tab" aria-selected="false" data-m="saphir" style="--c:var(--saphir)"><img src="img/saphir.png" alt="">Saphir</button>
+          <button role="tab" aria-selected="false" data-m="emeraude" style="--c:var(--emeraude)"><img src="img/epee_emeraude.png" alt="">Émeraude</button>
+          <button role="tab" aria-selected="false" data-m="onyx" style="--c:var(--onyx)"><img src="img/epee_onyx.png" alt="">Onyx</button>
         </div>
-        <div class="minerai saphir">
-          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#16306e" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#4a86ff" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#c3d7ff" d="M2 2h2v1H3v1H2z"/></svg>
-          <h3>Factions</h3><span class="nom">Saphir</span>
-          <ul><li>Territoires, alliés et raids à la dynamite</li><li>Laboratoire de faction et reliques à voler</li><li>Contrats agricoles en commun</li><li>Saisons classées</li></ul>
-        </div>
-        <div class="minerai emeraude">
-          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#0f5a33" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#34d17f" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#bff5d8" d="M2 2h2v1H3v1H2z"/></svg>
-          <h3>Progression</h3><span class="nom">Émeraude</span>
-          <ul><li>4 métiers et leurs recettes à débloquer</li><li>Pass de saison à 50 paliers</li><li>Donjons en groupe avec boss</li><li>Défis du jour et récompenses de connexion</li></ul>
-        </div>
-        <div class="minerai onyx">
-          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#2c0f6e" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#a26bff" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#e3d2ff" d="M2 2h2v1H3v1H2z"/></svg>
-          <h3>Événements</h3><span class="nom">Onyx</span>
-          <ul><li>Boss du Gouffre, KOTH et largages</li><li>Tornades, météorites, éruptions</li><li>Event Quartz et zone radioactive</li><li>Chasse au trésor et marché noir</li></ul>
-        </div>
+        <div class="panneau-m" id="panneau-m" role="tabpanel" style="--c:var(--rubis)"></div>
       </div>
     </div>
   </section>
@@ -237,8 +284,18 @@
     </div>
   </section>
 
+
   <div class="marches"></div>
   <section class="bande">
+    <div class="large">
+      <h2 class="titre">Les prochains rendez-vous en warzone</h2>
+      <p class="sous">Les événements automatiques, à l'heure de Paris. Prépare ton stuff.</p>
+      <div class="agenda" id="agenda"></div>
+    </div>
+  </section>
+  <div class="marches bas"></div>
+
+  <section style="padding:80px 0 40px">
     <div class="large">
       <h2 class="titre">Rejoindre en trois étapes</h2>
       <p class="sous">Le launcher installe Java, Minecraft et tous les mods pour toi.</p>
@@ -249,9 +306,8 @@
       </div>
     </div>
   </section>
-  <div class="marches bas"></div>
 
-  <section style="padding:80px 0 30px">
+  <section style="padding:40px 0 30px">
     <div class="large">
       <h2 class="titre">Actualités</h2>
       <p class="sous" style="margin-bottom:28px">Les nouveautés du serveur, aussi affichées dans le launcher.</p>
@@ -268,6 +324,107 @@
   </section>
 </main>
 <script>
+
+const MINERAIS = {
+  rubis: { nom: 'Rubis', role: 'Le combat', c: 'var(--rubis)', objets: ['epee_rubis', 'casque_rubis', 'plastron_rubis', 'pioche_rubis'],
+    texte: 'Le PvP comme en 1.8 : pas de temps de recharge, des combos et du blocage à l\'épée. Le rubis forge un stuff taillé pour les duels.',
+    points: ['Combat sans temps de recharge', 'Arcs légendaires très rares', 'Livres d\'enchantement custom', 'Anti-déconnexion en combat'] },
+  saphir: { nom: 'Saphir', role: 'Les factions', c: 'var(--saphir)', objets: ['epee_saphir', 'casque_saphir', 'plastron_saphir', 'pioche_saphir'],
+    texte: 'Prends des territoires, fais-toi des alliés et fais sauter les bases ennemies. Chaque saison, la faction la plus forte entre au classement.',
+    points: ['Raids à la dynamite', 'Laboratoire de faction', 'Reliques à voler', 'Contrats agricoles en commun'] },
+  emeraude: { nom: 'Émeraude', role: 'La progression', c: 'var(--emeraude)', objets: ['epee_emeraude', 'casque_emeraude', 'plastron_emeraude', 'pioche_emeraude'],
+    texte: 'Monte tes métiers, débloque des recettes, avance dans le pass de saison et descends en donjon avec tes amis pour le butin.',
+    points: ['4 métiers à monter', 'Pass de saison à 50 paliers', 'Donjons en groupe avec boss', 'Défis du jour'] },
+  onyx: { nom: 'Onyx', role: 'Les événements', c: 'var(--onyx)', objets: ['epee_onyx', 'casque_onyx', 'plastron_onyx', 'pioche_onyx'],
+    texte: 'Le minerai le plus rare, au cœur de la warzone. C\'est là que tombent les largages, que se tient le KOTH et que se réveille le Boss du Gouffre.',
+    points: ['Boss du Gouffre', 'Tornades, météorites, éruptions', 'Event Quartz et zone radioactive', 'Chasse au trésor'] },
+};
+function montrerMinerai(id, anime) {
+  const m = MINERAIS[id], pan = $('panneau-m');
+  document.querySelectorAll('.choix button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.m === id)));
+  pan.style.setProperty('--c', m.c);
+  pan.replaceChildren(el('div', { class: 'panoplie' }, m.objets.map((o) => el('figure', {}, el('img', { src: 'img/' + o + '.png', alt: '' })))),
+    el('h3', {}, m.nom), el('p', { class: 'role' }, m.role), el('p', { class: 'texte' }, m.texte), el('ul', {}, m.points.map((t) => el('li', {}, t))));
+  pan.classList.remove('change'); if (anime) { void pan.offsetWidth; pan.classList.add('change'); }
+}
+/** Heure de Paris actuelle, en { jour (0 = dimanche), minutes depuis minuit }. */
+function maintenantParis() {
+  const f = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const p = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
+  const jours = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  return { jour: jours.indexOf(p.weekday), s: (+p.hour % 24) * 3600 + (+p.minute) * 60 + (+p.second) };
+}
+const AGENDA = [
+  { nom: 'KOTH', quand: 'Tous les jours à 18h00 et 21h30', c: 'var(--rubis)', horaires: [[-1, '18:00'], [-1, '21:30']] },
+  { nom: 'Largage', quand: 'Tous les jours à 14h, 16h, 20h et 22h30', c: 'var(--saphir)', horaires: [[-1, '14:00'], [-1, '16:00'], [-1, '20:00'], [-1, '22:30']] },
+  { nom: 'Boss du Gouffre', quand: 'Chaque samedi à 21h00', c: 'var(--onyx)', horaires: [[6, '21:00']] },
+];
+/** Secondes avant le prochain horaire, et durée de la période (pour la barre). */
+function prochain(horaires) {
+  const n = maintenantParis(), semaine = 7 * 86400, maintenant = n.jour * 86400 + n.s;
+  const instants = [];
+  for (const [j, h] of horaires) {
+    const [hh, mm] = h.split(':').map(Number);
+    for (const d of j < 0 ? [0, 1, 2, 3, 4, 5, 6] : [j]) instants.push(d * 86400 + hh * 3600 + mm * 60);
+  }
+  instants.sort((a, b) => a - b);
+  let suivant = instants.find((t) => t > maintenant), precedent = [...instants].reverse().find((t) => t <= maintenant);
+  if (suivant === undefined) suivant = instants[0] + semaine;
+  if (precedent === undefined) precedent = instants[instants.length - 1] - semaine;
+  return { reste: suivant - maintenant, periode: suivant - precedent };
+}
+function rebours(sec) {
+  const j = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60, d = (x) => String(x).padStart(2, '0');
+  return j > 0 ? [j + 'j ' + d(h) + 'h', 'restants'] : [d(h) + ':' + d(m) + ':' + d(s), ''];
+}
+function dessinerAgenda() {
+  const cartes = AGENDA.map((a) => { const b = el('b', { class: 'rebours' }); const c = el('div', { class: 'rdv', style: '--c:' + a.c }, el('h3', {}, a.nom), el('p', { class: 'quand' }, a.quand), b); return { a, b, c }; });
+  $('agenda').replaceChildren(...cartes.map((x) => x.c));
+  const maj = () => cartes.forEach(({ a, b, c }) => {
+    const p = prochain(a.horaires), [t, u] = rebours(p.reste);
+    b.replaceChildren(t, u ? el('small', {}, u) : '');
+    c.style.setProperty('--avance', (100 - p.reste / p.periode * 100).toFixed(1) + '%');
+    c.classList.toggle('bientot', p.reste < 600);
+  });
+  maj(); setInterval(maj, 1000);
+}
+/** Poussière de minerai qui monte doucement dans le héros. */
+function poussiere() {
+  const cv = $('poussiere'); if (!cv || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ctx = cv.getContext('2d'), cols = ['#e5405a', '#4a86ff', '#34d17f', '#a26bff'];
+  let w, h, grains = [];
+  const taille = () => { w = cv.width = cv.offsetWidth; h = cv.height = cv.offsetHeight; };
+  taille(); addEventListener('resize', taille);
+  for (let i = 0; i < 46; i++) grains.push({ x: Math.random(), y: Math.random(), v: .00025 + Math.random() * .0006, t: 2 + Math.floor(Math.random() * 3) * 2, c: cols[i % 4], a: Math.random() * 6.28 });
+  const pas = () => {
+    ctx.clearRect(0, 0, w, h);
+    for (const g of grains) {
+      g.y -= g.v; g.a += .01; if (g.y < -.05) { g.y = 1.05; g.x = Math.random(); }
+      ctx.globalAlpha = .25 + .35 * Math.abs(Math.sin(g.a));
+      ctx.fillStyle = g.c; ctx.fillRect(Math.round(g.x * w + Math.sin(g.a) * 12), Math.round(g.y * h), g.t, g.t);
+    }
+    requestAnimationFrame(pas);
+  };
+  pas();
+}
+/** La gemme suit un peu la souris. */
+function inclinaison() {
+  const z = document.querySelector('.gemme'), svg = z && z.querySelector('svg'); if (!svg || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelector('.heros').addEventListener('pointermove', (e) => {
+    const r = z.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    svg.style.transform = `perspective(700px) rotateY(${x * 18}deg) rotateX(${-y * 14}deg)`;
+  });
+  document.querySelector('.heros').addEventListener('pointerleave', () => { svg.style.transform = ''; });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.choix button').forEach((b) => b.addEventListener('click', () => montrerMinerai(b.dataset.m, true)));
+  document.querySelector('.choix').addEventListener('keydown', (e) => {
+    if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    const l = [...document.querySelectorAll('.choix button')], i = l.indexOf(document.activeElement), k = (i + (/Down|Right/.test(e.key) ? 1 : l.length - 1)) % l.length;
+    l[k].focus(); montrerMinerai(l[k].dataset.m, true); e.preventDefault();
+  });
+  montrerMinerai('rubis', false); dessinerAgenda(); poussiere(); inclinaison();
+});
 const COULEURS = ['var(--onyx)', 'var(--rubis)', 'var(--saphir)', 'var(--emeraude)'];
 function compter(id, n) {
   const e = $(id), fin = Math.max(0, Math.round(n));
