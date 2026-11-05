@@ -536,6 +536,20 @@ Object.assign(ROUTES, {
   // ---------- Public ----------
   'GET /api/statut': () => [200, { enLigne: Date.now() - jeu.majEnLigne < 30000, joueurs: jeu.enLigne.length, max: jeu.max }],
   'GET /api/classements': () => [200, { classements: jeu.classements, maj: jeu.majDonnees }],
+  /** Fiches publiques des factions (sans la banque). */
+  'GET /api/factions': () => {
+    const txt = (v, n) => String(v == null ? '' : v).slice(0, n);
+    const num = (v) => Math.max(0, Math.round(Number(v) || 0));
+    const factions = (jeu.factions || []).map((f) => ({
+      id: txt(f.id, 40), nom: txt(f.nom, 40), chef: txt(f.chef, 16), description: txt(f.description, 200), creee: txt(f.creee, 20),
+      puissance: num(f.puissance), territoires: num(f.territoires), kills: num(f.kills), morts: num(f.morts), saison: num(f.saison),
+      membres: (Array.isArray(f.detail) ? f.detail : (f.membres || []).map((p) => ({ pseudo: p }))).slice(0, 60)
+        .map((m) => ({ pseudo: txt(m.pseudo, 16), rang: txt(m.rang || 'membre', 12), kills: num(m.kills), morts: num(m.morts) })),
+      labo: f.labo && typeof f.labo === 'object' ? Object.fromEntries(Object.entries(f.labo).slice(0, 10).map(([k, v]) => [txt(k, 40), num(v)])) : {},
+      reliques: Array.isArray(f.reliques) ? f.reliques.slice(0, 10).map((r) => txt(r, 40)) : [],
+    }));
+    return [200, { factions, maj: jeu.majDonnees }];
+  },
   'GET /api/votes': () => [200, { sites: Array.isArray(config().votes) ? config().votes : [] }],
 
   'GET /api/boutique': async () => {

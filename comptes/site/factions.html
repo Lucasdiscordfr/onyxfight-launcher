@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factions · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+<style>
+  .recherche { width: 100%; max-width: 360px; padding: 11px 14px; border-radius: 8px; border: 1px solid var(--bord); background: #111; color: var(--texte); font: 500 15px Inter, sans-serif; margin: 0 auto 18px; display: block; }
+  .grille-f { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+  .fac { cursor: pointer; padding: 0; overflow: hidden; transition: transform .15s, border-color .15s; }
+  .fac:hover { transform: translateY(-2px); border-color: #555; }
+  .banniere { height: 74px; display: flex; align-items: center; gap: 12px; padding: 0 16px; position: relative; }
+  .blason { width: 46px; height: 54px; clip-path: polygon(0 0, 100% 0, 100% 72%, 50% 100%, 0 72%); display: grid; place-items: center;
+    font: 700 20px Rajdhani, sans-serif; color: #fff; border: 0; background: rgba(0, 0, 0, .35); flex: none; }
+  .banniere h3 { margin: 0; font: 700 22px Rajdhani, sans-serif; letter-spacing: 1px; color: #fff; text-shadow: 0 2px 6px rgba(0, 0, 0, .6); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); padding: 12px 14px; gap: 6px; text-align: center; }
+  .stats b { display: block; font: 700 18px Rajdhani, sans-serif; }
+  .stats span { font-size: 12px; color: var(--gris); }
+  .fichef .banniere { height: 120px; border-radius: 12px 12px 0 0; }
+  .fichef .blason { width: 70px; height: 82px; font-size: 30px; }
+  .fichef h2 { margin: 0; font: 700 34px Rajdhani, sans-serif; color: #fff; }
+  .fichef .desc { color: var(--gris); font-style: italic; margin: 4px 0 0; }
+  .fichef .stats { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); padding: 18px 0; text-align: left; }
+  .deux { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .deux { grid-template-columns: 1fr; } }
+  .membre { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #262626; }
+  .membre .r { margin-left: auto; font-size: 12px; color: var(--gris); }
+  .barre-l { height: 6px; background: #262626; border-radius: 4px; margin-top: 5px; }
+  .barre-l i { display: block; height: 100%; background: #e6e6e6; border-radius: 4px; }
+  .pastille { display: inline-block; padding: 4px 10px; border-radius: 20px; background: #262626; margin: 3px; font-size: 13px; }
+  .retour { cursor: pointer; color: var(--gris); margin-bottom: 12px; display: inline-block; }
+</style>
+</head>
+<body>
+<header class="entete" id="entete"></header>
+<main>
+  <div class="titre-centre"><h1>Factions</h1><p>Les fiches de toutes les factions d'OnyxFight. <span id="maj"></span></p></div>
+  <div id="vue"><div class="carte vide">Chargement…</div></div>
+</main>
+<script>
+const RANGS = { chef: ['★', 'Chef', 0], officier: ['✦', 'Officier', 1], membre: ['●', 'Membre', 2], recrue: ['○', 'Recrue', 3] };
+let FACTIONS = [];
+/** Couleurs de bannière tirées du nom (toujours les mêmes pour une faction). */
+function couleurs(nom) {
+  let h = 0;
+  for (const c of nom) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const t = h % 360;
+  return [`hsl(${t} 22% 28%)`, `hsl(${(t + 40) % 360} 18% 12%)`];
+}
+function banniere(f) {
+  const [a, b] = couleurs(f.nom);
+  return el('div', { class: 'banniere', style: `background: linear-gradient(120deg, ${a}, ${b})` },
+    el('div', { class: 'blason' }, f.nom.slice(0, 2).toUpperCase()), el('div', {}, el('h3', {}, f.nom), f.chef ? el('div', { style: 'font-size:13px;color:#ddd' }, '★ ' + f.chef) : ''));
+}
+function ratio(k, m) { return (k / Math.max(1, m)).toFixed(2); }
+function liste(filtre) {
+  const l = FACTIONS.filter((f) => !filtre || f.nom.toLowerCase().includes(filtre) || f.membres.some((m) => m.pseudo.toLowerCase().includes(filtre)));
+  const grille = el('div', { class: 'grille-f' }, ...l.map((f) => el('div', { class: 'carte fac', onclick: () => { location.hash = encodeURIComponent(f.id); } },
+    banniere(f),
+    el('div', { class: 'stats' },
+      el('div', {}, el('b', {}, nombre(f.puissance)), el('span', {}, 'Puissance')),
+      el('div', {}, el('b', {}, f.membres.length), el('span', {}, 'Membres')),
+      el('div', {}, el('b', {}, nombre(f.kills)), el('span', {}, 'Kills'))))));
+  return l.length ? grille : el('div', { class: 'carte vide' }, filtre ? 'Aucune faction trouvée.' : 'Aucune faction pour le moment.');
+}
+function accueil() {
+  const champ = el('input', { class: 'recherche', placeholder: 'Rechercher une faction ou un joueur…' });
+  const zone = el('div', {}, liste(''));
+  champ.oninput = () => zone.replaceChildren(liste(champ.value.trim().toLowerCase()));
+  $('vue').replaceChildren(champ, zone);
+}
+function fiche(f) {
+  const rang = [...FACTIONS].sort((a, b) => b.puissance - a.puissance).findIndex((x) => x.id === f.id) + 1;
+  const membres = [...f.membres].sort((a, b) => (RANGS[a.rang] || RANGS.membre)[2] - (RANGS[b.rang] || RANGS.membre)[2] || b.kills - a.kills);
+  const stat = (v, t) => el('div', {}, el('b', {}, v), el('span', {}, t));
+  const labo = Object.entries(f.labo || {});
+  $('vue').replaceChildren(
+    el('a', { class: 'retour', onclick: () => { location.hash = ''; } }, '← Toutes les factions'),
+    el('div', { class: 'carte fichef', style: 'padding:0' },
+      (() => { const b = banniere(f); b.querySelector('h3').replaceWith(el('h2', {}, f.nom)); return b; })(),
+      el('div', { style: 'padding:0 20px 6px' },
+        f.description ? el('p', { class: 'desc' }, '« ' + f.description + ' »') : '',
+        el('div', { class: 'stats' }, stat('#' + rang, 'Classement'), stat(nombre(f.puissance), 'Puissance'), stat(f.territoires, 'Territoires'),
+          stat(nombre(f.kills), 'Kills'), stat(ratio(f.kills, f.morts), 'Ratio K/M'), stat(nombre(f.saison), 'Points de saison')),
+        f.creee ? el('p', { style: 'color:var(--gris);font-size:13px;margin:0 0 14px' }, 'Fondée le ' + f.creee) : '')),
+    el('div', { class: 'deux', style: 'margin-top:16px' },
+      el('div', { class: 'carte' }, el('h3', { style: 'margin-top:0' }, `Membres (${membres.length})`),
+        ...membres.map((m) => { const r = RANGS[m.rang] || RANGS.membre;
+          return el('div', { class: 'membre' }, teteMini(m.pseudo), el('span', {}, r[0] + ' ' + m.pseudo), el('span', { class: 'r' }, r[1] + ' · ' + nombre(m.kills) + ' kills')); })),
+      el('div', {},
+        el('div', { class: 'carte' }, el('h3', { style: 'margin-top:0' }, 'Laboratoire'),
+          labo.length ? labo.map(([n, v]) => el('div', { style: 'margin-bottom:10px' }, el('div', { style: 'display:flex;justify-content:space-between;font-size:14px' }, el('span', {}, n), el('span', { style: 'color:var(--gris)' }, v + '/3')),
+            el('div', { class: 'barre-l' }, el('i', { style: `width:${Math.min(100, v / 3 * 100)}%` })))) : el('p', { class: 'vide' }, 'Aucune recherche.')),
+        el('div', { class: 'carte', style: 'margin-top:16px' }, el('h3', { style: 'margin-top:0' }, 'Reliques exposées'),
+          f.reliques.length ? el('div', {}, ...f.reliques.map((r) => el('span', { class: 'pastille' }, '✦ ' + r))) : el('p', { class: 'vide' }, 'Aucune relique.')))));
+  window.scrollTo(0, 0);
+}
+function route() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  const f = id && FACTIONS.find((x) => x.id === id || x.nom.toLowerCase() === id.toLowerCase());
+  f ? fiche(f) : accueil();
+}
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const r = await (await fetch('/api/factions')).json();
+    FACTIONS = r.factions || [];
+    if (r.maj) $('maj').textContent = 'Mis à jour le ' + new Date(r.maj).toLocaleString('fr-FR') + '.';
+  } catch (e) { /* hors ligne */ }
+  route();
+});
+window.addEventListener('hashchange', route);
+</script>
+<footer class="pied2" id="pied"></footer>
+</body>
+</html>

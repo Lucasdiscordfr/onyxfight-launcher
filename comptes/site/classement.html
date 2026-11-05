@@ -13,7 +13,7 @@
 <body>
 <header class="entete" id="entete"></header>
 <main>
-  <div class="titre-centre"><h1>Classement</h1><p>Les meilleurs joueurs et factions d'OnyxFight. <span id="maj"></span></p></div>
+  <div class="titre-centre"><h1>Classement</h1><p>Les meilleurs joueurs et factions d'OnyxFight. <span id="maj"></span> <a href="/factions">Voir les fiches de faction →</a></p></div>
   <div class="onglets" id="onglets"></div>
   <div class="carte"><table><thead id="tete"></thead><tbody id="corps"><tr><td class="vide">Chargement…</td></tr></tbody></table></div>
 </main>
@@ -39,8 +39,8 @@ function montrer(id) {
     if (id === 'kills') cellules = [joueur(x.nom), el('td', {}, x.faction || '—'), el('td', {}, nombre(x.kills)), el('td', {}, nombre(x.morts))];
     else if (id === 'ratio') cellules = [joueur(x.nom), el('td', {}, x.faction || '—'), el('td', {}, x.valeur.toFixed(2)), el('td', {}, nombre(x.kills))];
     else if (id === 'serie') cellules = [joueur(x.nom), el('td', {}, x.faction || '—'), el('td', {}, nombre(x.valeur) + ' kills d\'affilée')];
-    else if (id === 'puissance') cellules = [el('td', {}, x.nom), el('td', {}, nombre(x.valeur)), el('td', {}, x.membres), el('td', {}, x.territoires)];
-    else if (id === 'fkills') cellules = [el('td', {}, x.nom), el('td', {}, nombre(x.valeur)), el('td', {}, x.membres)];
+    else if (id === 'puissance') cellules = [el('td', {}, el('a', { href: '/factions#' + encodeURIComponent(x.nom) }, x.nom)), el('td', {}, nombre(x.valeur)), el('td', {}, x.membres), el('td', {}, x.territoires)];
+    else if (id === 'fkills') cellules = [el('td', {}, el('a', { href: '/factions#' + encodeURIComponent(x.nom) }, x.nom)), el('td', {}, nombre(x.valeur)), el('td', {}, x.membres)];
     else cellules = [joueur(x.nom), el('td', {}, nombre(x.valeur))];
     return el('tr', { class: ['or', 'argent', 'bronze'][i] || '' }, el('td', { class: 'rang' }, i + 1), cellules);
   }));
