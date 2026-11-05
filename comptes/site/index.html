@@ -111,6 +111,16 @@
   .gros.compte { color: #fff; background: rgba(20, 16, 26, .55); box-shadow: inset 0 0 0 2px rgba(255,255,255,.55); }
   .gros.compte:hover { background: rgba(255,255,255,.12); }
   .gros:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+  /* Blocs illustrés */
+  .b-illu { background: #241c35; }
+  .b-illu > img.fond-b { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform .6s; }
+  .b-illu:hover > img.fond-b { transform: scale(1.06); }
+  .b-illu::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 20%, color-mix(in srgb, var(--teinte) 92%, transparent) 100%); }
+  .b-boutique.b-illu::before { background: linear-gradient(90deg, color-mix(in srgb, var(--teinte) 95%, transparent) 30%, transparent 85%); }
+  .b-boutique.b-illu { --teinte: #4b1fa8; } .b-voter.b-illu { --teinte: #0f6b40; } .b-classement.b-illu { --teinte: #1f3f9e; }
+  .b-voter.b-illu .ico, .b-classement.b-illu .ico { display: none; }
+  .b-illu h3, .b-illu p { text-shadow: 0 2px 8px rgba(0,0,0,.6); }
   /* ----- Mosaïque illustrée ----- */
   .mosaique { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 250px; gap: 16px; }
   .tuile { position: relative; overflow: hidden; border-radius: 18px; color: #fff; text-decoration: none; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px;
@@ -215,12 +225,11 @@
           <button class="copie" id="copie" type="button" title="Copier l'adresse du serveur">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span id="copie-txt">play.onyxfight.fr</span></button>
           <span class="fleche">↗</span></a>
-        <a class="b b-boutique" href="/boutique"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
-          <div><h3>Boutique</h3><p>Ailes, capes et compagnons en 3D</p></div><span class="fleche">↗</span>
-          <svg class="filigrane" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></a>
-        <a class="b b-voter" href="/voter"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span>
+        <a class="b b-boutique b-illu" href="/boutique"><img class="fond-b" src="img/boutique-petit.webp" alt="" style="object-position:70% 30%"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
+          <div><h3>Boutique</h3><p>Ailes, capes et compagnons en 3D</p></div><span class="fleche">↗</span></a>
+        <a class="b b-voter b-illu" href="/voter"><img class="fond-b" src="img/vote-petit.webp" alt="" style="object-position:45% 30%"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span>
           <h3>Voter</h3><p>Une clé à chaque vote</p></a>
-        <a class="b b-classement" href="/classement"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 6h3v2a3 3 0 0 1-3 3M7 6H4v2a3 3 0 0 0 3 3"/></svg></span>
+        <a class="b b-classement b-illu" href="/classement"><img class="fond-b" src="img/classement-petit.webp" alt="" style="object-position:60% 30%"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 6h3v2a3 3 0 0 1-3 3M7 6H4v2a3 3 0 0 0 3 3"/></svg></span>
           <h3>Classement</h3><p>Joueurs et factions</p></a>
         <div class="b b-enligne ferme" id="enligne"><div><b id="n-ligne">–</b><span><span class="barres"><i></i><i></i><i></i><i></i></span><span id="t-ligne">en ligne</span></span></div></div>
         <a class="b b-cta" href="/inscription"><img class="perso" src="img/heros-perso.webp" alt="">
@@ -247,7 +256,7 @@
           <span class="tag">Boss et donjons</span><h3>Le Gardien t'attend</h3><p>Donjons à 4 et Boss du Gouffre.</p></a>
         <a class="tuile large2" href="/jouer" style="--c:var(--emeraude)"><img src="img/minerais-petit.webp" alt="" loading="lazy">
           <span class="tag">Progression</span><h3>Mine, monte, débloque</h3><p>Rubis, Saphir, Onyx, 4 métiers, pass de saison à 50 paliers et cosmétiques 3D.</p></a>
-        <a class="tuile large2" href="/boutique" style="--c:var(--or)"><img src="img/cosmetiques.webp" alt="" loading="lazy" style="object-position:50% 20%">
+        <a class="tuile large2" href="/boutique" style="--c:var(--or)"><img src="img/boutique-petit.webp" alt="" loading="lazy" style="object-position:50% 40%">
           <span class="tag">Cosmétiques</span><h3>Ailes, capes, compagnons</h3><p>Des cosmétiques en 3D, visibles par tous, sans avantage en jeu.</p></a>
       </div>
     </div>

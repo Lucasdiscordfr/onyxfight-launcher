@@ -288,3 +288,13 @@ body::before { background: linear-gradient(180deg, rgba(10,10,10,.6), rgba(10,10
 .boutique2 .categories button.actif { background: linear-gradient(90deg, #2a2a2a, #141414) !important; }
 .produit2:hover { box-shadow: 0 10px 30px rgba(255,255,255,.12) !important; }
 .accordeon .num { box-shadow: 0 0 0 2px #ffffff33 !important; }
+
+/* ---------- Bannière illustrée en haut des pages ---------- */
+.banniere-page { position: relative; overflow: hidden; border-radius: 22px; min-height: 260px; display: flex; flex-direction: column; justify-content: flex-end; padding: 34px 38px;
+  margin: 10px 0 34px; isolation: isolate; box-shadow: 0 18px 44px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.08); }
+.banniere-page img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; z-index: -2; }
+.banniere-page::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(20,14,32,.88) 0%, rgba(20,14,32,.45) 55%, rgba(20,14,32,0) 85%); }
+.banniere-page h1 { font: 400 clamp(38px, 5.5vw, 64px)/1 'Lilita One', Rajdhani, sans-serif; text-transform: uppercase; color: #fff; margin: 0 0 8px; letter-spacing: .5px;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,.3)); }
+.banniere-page p { color: #ece6f5; margin: 0; max-width: 34em; font-size: 17px; text-shadow: 0 2px 10px rgba(0,0,0,.7); }
+@media (max-width: 600px) { .banniere-page { min-height: 200px; padding: 24px; } }
