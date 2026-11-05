@@ -177,6 +177,7 @@
   .podium a { color: var(--clair); text-decoration: none; font-weight: 600; } .podium a:hover { text-decoration: underline; }
   .podium small { display: block; color: var(--doux); font-size: 13px; }
   .podium .pw { font: 700 22px Rajdhani, sans-serif; color: var(--onyx); }
+  .podium li.seul { display: block; padding: 0; background: var(--pierre2) !important; }
   .podium .vide { display: block; padding: 22px; color: var(--doux); background: var(--pierre2); }
   .direct h3 { font: 700 24px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 14px; text-transform: none; letter-spacing: 0; }
 
@@ -298,7 +299,7 @@
       </div>
       <div>
         <h3>Les factions les plus puissantes</h3>
-        <ol class="podium" id="podium"><li><span class="vide">Chargement…</span></li></ol>
+        <ol class="podium" id="podium"><li class="seul"><span class="vide">Chargement…</span></li></ol>
         <p style="margin:14px 0 0"><a href="/factions" style="color:var(--clair);font-weight:600">Voir toutes les fiches de faction</a></p>
       </div>
     </div>
@@ -422,8 +423,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('podium').replaceChildren(...(l.length ? l.slice(0, 5).map((f, i) => el('li', {}, el('span', { class: 'rang' }, i + 1),
       el('div', {}, el('a', { href: '/factions#' + encodeURIComponent(f.id) }, f.nom), el('small', {}, f.membres.length + ' membre' + (f.membres.length > 1 ? 's' : '') + ', ' + nombre(f.kills) + ' kills')),
       el('span', { class: 'pw' }, nombre(f.puissance))))
-      : [el('li', {}, el('span', { class: 'vide' }, 'Aucune faction pour l\'instant. La première place est libre.'))]));
-  } catch (e) { $('podium').replaceChildren(el('li', {}, el('span', { class: 'vide' }, 'Le classement revient dans un instant.'))); }
+      : [el('li', { class: 'seul' }, el('span', { class: 'vide' }, 'Aucune faction pour l\'instant. La première place est libre !'))]));
+  } catch (e) { $('podium').replaceChildren(el('li', { class: 'seul' }, el('span', { class: 'vide' }, 'Le classement revient dans un instant.'))); }
   try {
     const l = await (await fetch('https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/actualites.json')).json();
     $('actus').replaceChildren(...(l.length ? l.slice(0, 6).map((a, i) => el('article', { class: 'actu' }, el('img', { src: a.image || IMAGES_ACTUS[i % IMAGES_ACTUS.length], alt: '', loading: 'lazy' }),

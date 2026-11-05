@@ -369,3 +369,5 @@ main > .banniere-page:first-child { margin-top: -70px; }
 .pied2 h4 { font: 400 20px 'Lilita One', Rajdhani, sans-serif !important; letter-spacing: .5px; }
 .pied2 .colonnes > div { border-color: var(--pierre3) !important; }
 .pied2 .copy { border-color: var(--pierre3) !important; }
+.entete::after { z-index: 1; }
+.entete .logo-centre { z-index: 3; }
