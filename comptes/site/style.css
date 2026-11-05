@@ -305,3 +305,67 @@ body::before { background: linear-gradient(180deg, rgba(10,10,10,.6), rgba(10,10
 .sous-banniere { text-align: center; color: var(--gris); margin: -14px auto 30px; max-width: 46em; line-height: 1.6; }
 
 .titre-cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* =====================================================================================================================
+   Thème OnyxFight 2 : pierre violette, quatre minerais, titres Lilita One (s'applique à tout le site)
+   ===================================================================================================================== */
+:root { --pierre: #121016; --pierre2: #1a1720; --pierre3: #29242f; --rubis: #ff4d68; --saphir: #4f8dff; --emeraude: #39dd88; --onyx: #a974ff; --or: #ffc94d;
+  --clair: #f5f2f8; --doux: #aaa3b5; --carte: #1a1720; --bord: #29242f; --gris: #aaa3b5; --texte: #f5f2f8; --violet: #a974ff; --violet2: #c49bff;
+  --gemmes: linear-gradient(90deg, var(--rubis), var(--onyx) 35%, var(--saphir) 68%, var(--emeraude)); }
+body { background: var(--pierre) !important; color: var(--clair); }
+a { color: var(--violet2); }
+
+/* En-tête */
+.entete { background: rgba(18, 16, 22, .86) !important; backdrop-filter: blur(10px); border-bottom: 0 !important; position: sticky !important; top: 0; }
+.entete::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--gemmes); opacity: .8; }
+.entete nav a { color: #e8e3ef !important; border-radius: 8px !important; transition: background .15s, color .15s; }
+.entete nav a:hover { background: rgba(255,255,255,.07) !important; color: #fff !important; }
+.entete nav a.actif { color: #fff !important; background: rgba(169, 116, 255, .18) !important; }
+.entete nav a.plein { background: linear-gradient(180deg, #b77cff, #7a3cf0) !important; color: #fff !important; box-shadow: 0 4px 0 #4a1fa0, 0 8px 20px rgba(150, 90, 255, .35) !important; }
+.entete nav a.contour { border: 0 !important; background: linear-gradient(180deg, #3fe397, #19a463) !important; color: #06210f !important; box-shadow: 0 4px 0 #0c6b3d !important; font-weight: 700 !important; }
+
+/* Boutons */
+.bouton { background: linear-gradient(180deg, #b77cff, #7a3cf0) !important; color: #fff !important; border-radius: 12px !important; box-shadow: 0 4px 0 #4a1fa0, 0 10px 24px rgba(150, 90, 255, .3) !important;
+  font: 400 18px 'Lilita One', Rajdhani, sans-serif !important; letter-spacing: .4px !important; text-transform: uppercase; transition: transform .1s, filter .15s; }
+.bouton:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.bouton:active { transform: translateY(3px); box-shadow: 0 1px 0 #4a1fa0 !important; }
+.bouton.secondaire { background: var(--pierre3) !important; box-shadow: 0 4px 0 #0e0c12 !important; }
+.bouton:disabled { filter: grayscale(.6) brightness(.8); }
+
+/* Titres et cartes */
+.titre-centre h1, .titre-page, .carte h1, .formulaire h1 { font: 400 clamp(32px, 4.5vw, 48px)/1.05 'Lilita One', Rajdhani, sans-serif !important; text-transform: uppercase; letter-spacing: .5px; }
+.carte { background: var(--pierre2) !important; border: 0 !important; border-radius: 16px !important; box-shadow: inset 0 0 0 1px var(--pierre3), 0 12px 30px rgba(0,0,0,.25); }
+.carte h3 { font: 400 20px 'Lilita One', Rajdhani, sans-serif !important; text-transform: uppercase; letter-spacing: .5px; }
+input, select, textarea { background: #0f0d13 !important; border: 1px solid var(--pierre3) !important; border-radius: 10px !important; color: var(--clair); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--onyx) !important; box-shadow: 0 0 0 3px rgba(169, 116, 255, .2); }
+.onglets button { border-radius: 10px !important; background: var(--pierre2) !important; border: 1px solid var(--pierre3) !important; color: var(--doux) !important; }
+.onglets button.actif { background: linear-gradient(180deg, #b77cff, #7a3cf0) !important; color: #fff !important; border-color: transparent !important; }
+table th { color: var(--doux); }
+tr.or td.rang { color: var(--or); } tr.argent td.rang { color: #cfd5de; } tr.bronze td.rang { color: #e09a5f; }
+
+/* Bannière de page : pleine largeur, même hauteur partout */
+main > .banniere-page:first-child { margin-top: -70px; }
+.banniere-page { position: relative; width: 100vw; margin-left: calc(50% - 50vw) !important; margin-right: 0 !important; margin-bottom: 50px !important; border-radius: 0 !important;
+  height: clamp(260px, 30vw, 380px); min-height: 0 !important; max-width: none !important; aspect-ratio: auto !important; box-shadow: none !important; overflow: hidden; isolation: isolate;
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 0 max(24px, calc(50vw - 570px)) 46px !important; }
+.banniere-page img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; animation: banniere 24s ease-in-out infinite alternate; }
+@keyframes banniere { from { transform: scale(1); } to { transform: scale(1.06); } }
+.banniere-page::before { display: block !important; content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg, rgba(18,16,22,.92) 0%, rgba(18,16,22,.6) 38%, rgba(18,16,22,.05) 70%), linear-gradient(180deg, rgba(18,16,22,.25) 0%, transparent 35%, rgba(18,16,22,.55) 80%, var(--pierre) 100%) !important; }
+.banniere-page::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--gemmes); }
+.banniere-page h1 { margin: 0 0 8px !important; }
+.banniere-page p { max-width: 36em; }
+@media (max-width: 900px) { main > .banniere-page:first-child { margin-top: -30px; } .banniere-page { padding-bottom: 30px !important; } }
+
+/* Séparation entre deux parties */
+.separation { display: flex; align-items: center; gap: 14px; margin: 56px 0 36px; }
+.separation::before, .separation::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--pierre3)); }
+.separation::after { background: linear-gradient(90deg, var(--pierre3), transparent); }
+.separation i { width: 12px; height: 12px; transform: rotate(45deg); background: var(--onyx); box-shadow: 0 0 14px var(--onyx); }
+
+/* Pied de page */
+.pied2 { background: #0e0c12 !important; border-top: 0 !important; position: relative; margin-top: 80px !important; }
+.pied2::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--gemmes); }
+.pied2 h4 { font: 400 20px 'Lilita One', Rajdhani, sans-serif !important; letter-spacing: .5px; }
+.pied2 .colonnes > div { border-color: var(--pierre3) !important; }
+.pied2 .copy { border-color: var(--pierre3) !important; }
