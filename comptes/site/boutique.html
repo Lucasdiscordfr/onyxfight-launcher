@@ -9,11 +9,26 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 <script src="commun.js" defer></script>
+<style>
+  .fiche-fond { position: fixed; inset: 0; background: rgba(0, 0, 0, .7); display: grid; place-items: center; z-index: 50; padding: 16px; }
+  .fiche-produit { position: relative; display: grid; grid-template-columns: 260px 1fr; gap: 24px; max-width: 720px; width: 100%; align-items: start; }
+  .fiche-produit img, .fiche-produit .sans-image { width: 100%; aspect-ratio: 76 / 100; object-fit: cover; border-radius: 8px; background: #111; }
+  .fiche-produit h2 { margin: 0 0 6px; font: 700 28px Rajdhani, sans-serif; }
+  .fiche-produit .prix-fiche { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  .fiche-produit .desc { color: var(--gris); white-space: pre-line; line-height: 1.55; margin: 0 0 18px; }
+  .fiche-produit .fermer { position: absolute; top: 10px; right: 12px; background: none; border: 0; color: var(--gris); font-size: 20px; cursor: pointer; }
+  @media (max-width: 640px) { .fiche-produit { grid-template-columns: 1fr; } .fiche-produit img { max-height: 260px; } }
+  .produit2 img { inset: 0 !important; width: 100% !important; height: 100% !important; object-fit: cover !important; }
+  .produit2 .nom { position: relative; z-index: 1; text-shadow: 0 2px 6px #000; }
+  .produit2 .prix, .produit2 .ajout { z-index: 1; }
+  .produit2 { border-color: #2b2b2b !important; }
+  .produit2:hover { box-shadow: 0 10px 30px rgba(255, 255, 255, .08) !important; border-color: #555 !important; }
+</style>
 </head>
 <body>
 <header class="entete" id="entete"></header>
 <main>
-  <div class="titre-centre"><h1>Boutique</h1><p>Grades, clés et cosmétiques : tout arrive automatiquement sur ton compte en jeu.</p></div>
+  <div class="titre-centre"><h1>Boutique</h1><p>Cosmétiques 3D, 100 % visuels, livrés automatiquement sur ton compte en jeu. Merci de soutenir OnyxFight !</p></div>
   <div class="message" id="msg" style="max-width:700px;margin:0 auto 20px"></div>
   <div class="boutique2">
     <div class="cote">
@@ -36,16 +51,36 @@ function dessinerPanier() {
   $('panier').replaceChildren(...(panier.length ? panier.map((p, i) => el('div', { class: 'ligne' }, el('span', {}, p.nom), el('span', {}, prix(p), ' ', el('button', { title: 'Retirer', onclick: () => { panier.splice(i, 1); garder(); dessinerPanier(); } }, '✕'))))
     : [el('p', { class: 'vide' }, '🛒', el('br'), 'Ton panier est vide')]));
 }
+/** Texte simple à partir de la description HTML de Tebex (pas d'HTML injecté). */
+function texte(html) {
+  const d = document.createElement('div');
+  d.innerHTML = String(html || '').replace(/<(br|\/p|\/li)\s*\/?>/gi, '\n');
+  return d.textContent.replace(/\n{3,}/g, '\n\n').trim();
+}
+function ajouter(p) {
+  if (panier.some((x) => x.id === p.id)) return message($('msg'), p.nom + ' est déjà dans ton panier.');
+  panier.push(p); garder(); dessinerPanier(); message($('msg'), p.nom + ' ajouté au panier.', true);
+}
+function fiche(p) {
+  const fond = el('div', { class: 'fiche-fond', onclick: (e) => { if (e.target === fond) fond.remove(); } },
+    el('div', { class: 'fiche-produit carte' },
+      el('button', { class: 'fermer', title: 'Fermer', onclick: () => fond.remove() }, '✕'),
+      p.image ? el('img', { src: p.image, alt: '' }) : el('div', { class: 'sans-image' }, '◆'),
+      el('div', {}, el('h2', {}, p.nom), el('div', { class: 'prix-fiche' }, prix(p)),
+        el('p', { class: 'desc' }, texte(p.description) || 'Cosmétique livré automatiquement en jeu.'),
+        el('button', { class: 'bouton', onclick: () => { ajouter(p); fond.remove(); } }, panier.some((x) => x.id === p.id) ? 'Déjà dans le panier' : '+ Ajouter au panier'))));
+  document.body.append(fond);
+}
 function dessiner() {
   const cats = boutique.categories.filter((c) => c.produits.length);
   $('categories').replaceChildren(...cats.map((c, i) => el('button', { class: i === categorie ? 'actif' : '', onclick: () => { categorie = i; dessiner(); } }, c.nom)));
   const c = cats[categorie] || { produits: [] };
-  $('produits').replaceChildren(...c.produits.map((p) => el('div', { class: 'produit2', title: p.nom, onclick: () => { panier.push(p); garder(); dessinerPanier(); message($('msg'), p.nom + ' ajouté au panier.', true); } },
+  $('produits').replaceChildren(...c.produits.map((p) => el('div', { class: 'produit2', title: p.nom, onclick: () => fiche(p) },
     el('div', { class: 'nom' }, p.nom), p.image ? el('img', { src: p.image, alt: '' }) : el('div', { class: 'sans-image' }, '◆'),
-    el('div', { class: 'prix' }, el('small', {}, 'DÈS'), prix(p)), el('span', { class: 'ajout' }, '+ Panier'))));
+    el('div', { class: 'prix' }, prix(p)), el('span', { class: 'ajout', onclick: (e) => { e.stopPropagation(); ajouter(p); } }, '+ Panier'))));
 }
 document.addEventListener('DOMContentLoaded', async () => {
-  if (new URLSearchParams(location.search).has('merci')) { panier = []; garder(); message($('msg'), 'Merci pour ton soutien ! Ton achat arrive en jeu dans la minute.', true); }
+  if (new URLSearchParams(location.search).has('merci')) { panier = []; garder(); message($('msg'), 'Merci pour ton soutien ! Ton achat arrive en jeu dans la minute (/cosmetiques pour l\'équiper).', true); }
   dessinerPanier();
   if (Session.lire()) {
     const c = await api('session', { session: Session.lire() });
@@ -67,8 +102,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   try { boutique = await (await fetch('/api/boutique')).json(); } catch (e) { boutique = { erreur: 'La boutique ne répond pas.' }; }
   if (boutique.erreur) return $('produits').replaceChildren(el('p', { class: 'vide' }, boutique.erreur));
   if (!boutique.ouverte) {
-    $('categories').replaceChildren(...['Grades', 'Clés', 'Cosmétiques', 'Divers'].map((n, i) => el('button', { class: i === 0 ? 'actif' : '' }, n)));
-    return $('produits').replaceChildren(el('div', { class: 'carte vide', style: 'grid-column:1/-1' }, '🛒 La boutique ouvre bientôt. Suis le Discord pour ne rien rater !'));
+    $('categories').replaceChildren(...['Cosmétiques'].map((n, i) => el('button', { class: i === 0 ? 'actif' : '' }, n)));
+    return $('produits').replaceChildren(el('div', { class: 'carte vide', style: 'grid-column:1/-1' }, '🛒 La boutique ouvre très bientôt !'));
   }
   dessiner();
 });
