@@ -76,7 +76,7 @@ const PAGES = {
     const f = await api('mod/fiche', { pseudo: p });
     if (f.erreur) return vue().replaceChildren(carte(null, f.erreur));
     $('titre').replaceChildren(teteMini(f.pseudo, 24), 'Joueur - ' + f.pseudo);
-    const ONGLETS = [['infos', 'Informations'], ['modifier', 'Modifier'], ['casier', `Casier (${f.casier.length})`], ['inventaire', 'Inventaire'], ['logs', 'Logs'],
+    const ONGLETS = [['infos', 'Informations'], ['modifier', 'Modifier'], ['casier', `Casier (${f.casier.length})`], ['inventaire', 'Inventaire'], ['morts', 'Morts & remboursements'], ['logs', 'Logs'],
       ['identifiants', 'Identifiants'], ['equipe', 'Actions de l\'équipe']];
     const o = ONGLETS.some((x) => x[0] === onglet) ? onglet : 'infos';
     const gauche = el('div'), droite = el('div');
@@ -432,8 +432,40 @@ const PROFIL = {
       el('div', { class: 'inv-legende' }, el('span', {}, '🟪 bordure violette : objet OnyxFight'), el('span', {}, '✨ lueur : enchanté'), el('span', {}, 'Survole une case pour les détails')));
   },
 
+  async morts(z, f) {
+    const msg = el('div', { class: 'message' });
+    z.replaceChildren(carte(titre('💀', 'Morts & remboursements', '--c-rouge'), el('p', { class: 'vide' }, 'Demande au serveur…'), msg));
+    const r = await action({ type: 'morts', pseudo: f.pseudo }, msg);
+    if (!r || !r.donnees) return;
+    const l = r.donnees.morts;
+    const petite = (objets) => el('div', { class: 'inv', style: 'grid-template-columns:repeat(auto-fill,44px)' }, objets.map((o) => {
+      const nom = o.nom || o.id.replace(/^minecraft:/, '').replace(/^onyxfight:/, '').replace(/_/g, ' ');
+      return el('div', { class: 'case pleine' + (o.enchantements ? ' ench' : '') + (o.id.startsWith('onyxfight:') ? ' onyx' : ''), style: 'width:44px;height:44px;font-size:19px',
+        title: [nom + ' (' + o.id + ')', o.nombre > 1 ? '× ' + o.nombre : '', o.enchantements ? 'Enchantements : ' + o.enchantements.join(', ') : ''].filter(Boolean).join('\n') },
+        iconeObjet(o.id), o.nombre > 1 ? el('span', { class: 'n', style: 'font-size:11px' }, o.nombre) : null);
+    }));
+    z.replaceChildren(
+      carte(titre('💀', 'Morts gardées (' + r.donnees.jours + ' derniers jours, 10 au plus)', '--c-rouge'),
+        el('p', { class: 'aide' }, 'Rembourser met les objets et l\'XP de la mort dans un colis : le joueur les récupère avec /remboursement (rien n\'est perdu si son inventaire est plein). Une mort ne se rembourse qu\'une fois.'), msg),
+      ...(l.length ? l.map((m) => carte(null,
+        el('div', { style: 'display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px' },
+          el('div', {}, el('strong', {}, '💀 ' + (m.tueur ? 'Tué par ' : '') ), m.tueur ? el('a', { href: '#/joueur/' + encodeURIComponent(m.tueur) }, m.tueur) : el('span', {}, m.cause || 'Mort'),
+            el('div', { class: 'aide' }, dh(m.t) + ' · 📍 ' + m.ou + ' · ' + m.objets.length + ' objet(s) · ' + m.niveaux + ' niveau(x)' + (m.tueur && m.cause ? ' · ' + m.cause : ''))),
+          m.rembourse ? el('span', { class: 'statut-bug', style: '--c:var(--c-vert)' }, '✅ Remboursé par ' + m.par + ' le ' + dh(m.le))
+            : el('button', { class: 'bouton', disabled: moi.niveau < 2, title: moi.niveau < 2 ? 'Réservé aux administrateurs' : '', onclick: async () => {
+              const raison = prompt('Pourquoi ce remboursement ? (ex : tué par un tricheur, bug)');
+              if (!raison || raison.trim().length < 3) return;
+              if (!confirm('Rembourser cette mort de ' + f.pseudo + ' (' + m.objets.length + ' objets) ?')) return;
+              await action({ type: 'rembourser', pseudo: f.pseudo, id: m.id, raison }, msg);
+              setTimeout(() => PROFIL.morts(z, f), 1500);
+            } }, '💸 Rembourser')),
+        m.raison ? el('p', { class: 'aide' }, 'Raison : ' + m.raison) : null,
+        m.objets.length ? petite(m.objets) : el('p', { class: 'aide' }, 'Aucun objet (seulement de l\'XP).')))
+        : [carte(null, el('p', { class: 'vide' }, 'Aucune mort gardée.'))]));
+  },
+
   logs(z, f) {
-    const TYPES = [['tous', 'Tout'], ['connexion', 'Connexions'], ['chat', 'Chat'], ['commande', 'Commandes'], ['mort', 'Morts'], ['kill', 'Kills'], ['objet', 'Objets jetés'], ['mode', 'Mode de jeu']];
+    const TYPES = [['tous', 'Tout'], ['connexion', 'Connexions'], ['chat', 'Chat'], ['commande', 'Commandes'], ['mort', 'Morts'], ['kill', 'Kills'], ['objet', 'Objets jetés'], ['mode', 'Mode de jeu'], ['remboursement', 'Remboursements']];
     let type = 'tous';
     const recherche = el('input', { placeholder: 'Rechercher dans les logs…', style: 'max-width:320px' });
     const corps = el('tbody');

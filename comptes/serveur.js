@@ -418,7 +418,10 @@ function niveauAction(a) {
     case 'lever':
       return a.sanction === 'ban' ? 2 : 1;
     case 'inventaire':
+    case 'morts':
       return 1;
+    case 'rembourser':
+      return 2;
     case 'modifier':
       return a.champ === 'faction' || a.champ === 'rang' ? 2 : 3;
     case 'joueur':
@@ -490,7 +493,14 @@ function nettoyer(a) {
       if (!x.action) return null;
       break;
     case 'inventaire':
+    case 'morts':
       x.pseudo = t('pseudo', 16);
+      break;
+    case 'rembourser':
+      x.pseudo = t('pseudo', 16);
+      x.id = t('id', 16).replace(/[^a-z0-9]/g, '');
+      x.raison = t('raison', 200);
+      if (!x.id || x.raison.trim().length < 3) return null;
       break;
     case 'modifier':
       x.pseudo = t('pseudo', 16);
