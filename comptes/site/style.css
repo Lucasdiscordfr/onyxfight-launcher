@@ -275,3 +275,16 @@ input, select { border-radius: 6px; border-color: #333; background: #121212; }
 }
 header.entete { max-width: none; margin: 0; padding: 0; display: block; }
 footer.pied2 { text-align: left; padding: 0; color: inherit; font-size: inherit; }
+
+/* ---------- Thème Noir / Gris / Blanc ---------- */
+:root { --violet: #ededed; --violet2: #ffffff; --accent: #d4d4d4; --bord: #2b2b2b; }
+body { background-color: #0d0d0d; }
+body::before { background: linear-gradient(180deg, rgba(10,10,10,.6), rgba(10,10,10,.94)); }
+.fond, .hero, .bandeau { filter: grayscale(1); }
+.bouton, .entete nav a.plein, .onglets button.actif, .accordeon .num, .boutique2 .panier .nb { background: #f2f2f2 !important; color: #0d0d0d !important;
+  box-shadow: 0 0 0 1px #ffffff inset, 0 0 18px rgba(255,255,255,.12) !important; }
+.bouton:hover, .entete nav a.plein:hover { background: #ffffff !important; }
+.entete nav a.contour { border-color: #d4d4d4 !important; box-shadow: 0 0 14px rgba(255,255,255,.08) !important; }
+.boutique2 .categories button.actif { background: linear-gradient(90deg, #2a2a2a, #141414) !important; }
+.produit2:hover { box-shadow: 0 10px 30px rgba(255,255,255,.12) !important; }
+.accordeon .num { box-shadow: 0 0 0 2px #ffffff33 !important; }

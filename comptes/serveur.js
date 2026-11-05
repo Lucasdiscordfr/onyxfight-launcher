@@ -504,7 +504,7 @@ function nettoyer(a) {
       break;
     case 'modifier':
       x.pseudo = t('pseudo', 16);
-      x.champ = ['grade', 'faction', 'rang', 'stats', 'cosmetique', 'cles', 'classe'].includes(a.champ) ? a.champ : null;
+      x.champ = ['grade', 'faction', 'rang', 'rangstaff', 'stats', 'cosmetique', 'cles', 'classe'].includes(a.champ) ? a.champ : null;
       x.valeur = t('valeur', 64).replace(/[^A-Za-z0-9_:.-]/g, '');
       x.valeur2 = t('valeur2', 16).replace(/[^A-Za-z0-9_.-]/g, '');
       for (const k of ['kills', 'morts', 'puissance']) x[k] = a[k] === '' || a[k] == null ? '' : String(Number(a[k]) || 0);

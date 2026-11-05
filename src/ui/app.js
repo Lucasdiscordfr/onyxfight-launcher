@@ -109,7 +109,7 @@ function ouvrirReglages() {
 }
 
 // Un personnage différent à chaque ouverture (onyx, rubis, émeraude, saphir)
-const PERSONNAGES = ['onyx', 'rubis', 'rubis2', 'emeraude', 'saphir'];
+const PERSONNAGES = ['onyx']; // thème noir/gris/blanc
 document.getElementById('personnage').src = '../../assets/personnage-' + PERSONNAGES[Math.floor(Math.random() * PERSONNAGES.length)] + '.png';
 
 async function demarrer() {

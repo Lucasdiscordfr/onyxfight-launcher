@@ -133,7 +133,9 @@ ipcMain.handle('compte:reprendre', async () => {
 });
 ipcMain.handle('compte:connecter', async (e, pseudo, motdepasse) => {
   try {
-    return { profil: await compte.connecter(pseudo, motdepasse) };
+    const profil = await compte.connecter(pseudo, motdepasse);
+    if (!enJeu) discord.launcher(profil && profil.pseudo);
+    return { profil };
   } catch (x) {
     return { erreur: texteErreur(x) };
   }
@@ -217,12 +219,12 @@ ipcMain.handle('jouer', async () => {
       journal: (l) => flux.write(l.endsWith('\n') ? l : l + '\n'),
       lance: () => {
         envoyer('etat', { texte: 'Bon jeu sur OnyxFight !', part: 1, lance: true });
-        discord.statut('En jeu sur OnyxFight', 'PvP Faction moddé', true);
+        discord.enJeu(compte.profil() && compte.profil().pseudo);
         if (!r.garderOuvert && fenetre) fenetre.hide();
       },
       ferme: (code) => {
         enJeu = false;
-        discord.statut('Dans le launcher', 'Prépare sa partie', true);
+        discord.launcher(compte.profil() && compte.profil().pseudo);
         flux.end();
         if (fenetre) {
           fenetre.show();
@@ -247,8 +249,8 @@ ipcMain.handle('jouer', async () => {
 async function lancerDiscord() {
   try {
     const m = await lireJson(cfg.MANIFESTE);
-    discord.demarrer(m.discordApplication, { site: m.site || cfg.SITE, discord: m.discord || cfg.DISCORD });
-    discord.statut('Dans le launcher', 'Prépare sa partie', true);
+    discord.demarrer(m.discordApplication, { site: m.site || cfg.SITE, discord: m.discord || cfg.DISCORD, comptes: m.comptes || cfg.COMPTES });
+    discord.launcher(compte.profil() && compte.profil().pseudo);
   } catch (e) {
     // pas de connexion : pas de statut
   }
