@@ -4,44 +4,302 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OnyxFight · Serveur PvP Faction moddé</title>
+<meta name="description" content="OnyxFight : PvP Faction moddé avec le combat de la 1.8. Launcher gratuit, factions, raids, donjons, événements et cosmétiques 3D.">
 <link rel="icon" href="icone.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <script src="commun.js" defer></script>
+<style>
+  /* ---------- Accueil : les quatre minerais d'OnyxFight ---------- */
+  :root {
+    --pierre: #141217; --pierre2: #1c1920; --pierre3: #26222b;
+    --rubis: #e5405a; --saphir: #4a86ff; --emeraude: #34d17f; --onyx: #a26bff;
+    --clair: #f3f0f7; --doux: #a9a2b3;
+  }
+  body { background: var(--pierre); }
+  main.accueil { max-width: none; padding: 0; }
+  .large { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+  /* Héros */
+  .heros { position: relative; overflow: hidden; padding: 70px 0 90px; }
+  .heros::before { content: ""; position: absolute; inset: 0; background:
+      radial-gradient(600px 380px at 78% 45%, rgba(162, 107, 255, .22), transparent 70%),
+      radial-gradient(420px 300px at 92% 85%, rgba(229, 64, 90, .14), transparent 70%),
+      radial-gradient(420px 300px at 60% 10%, rgba(74, 134, 255, .12), transparent 70%); pointer-events: none; }
+  .heros .large { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+  .heros h1 { font: 700 clamp(46px, 7vw, 84px)/.95 Rajdhani, sans-serif; margin: 0 0 22px; letter-spacing: -.5px; color: var(--clair); }
+  .heros h1 span { display: block; }
+  .heros .accroche { font-size: 18px; line-height: 1.6; color: var(--doux); max-width: 34em; margin: 0 0 30px; }
+  .heros .accroche b { color: var(--clair); font-weight: 600; }
+  .heros .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .heros .actions .bouton { padding: 15px 26px; font-size: 16px; }
+  .etat { display: inline-flex; align-items: center; gap: 12px; margin-top: 26px; padding: 10px 16px 10px 12px; border-radius: 10px;
+    background: var(--pierre2); border: 1px solid var(--pierre3); color: var(--doux); font-size: 14px; cursor: copy; }
+  .etat b { color: var(--clair); font: 700 17px Rajdhani, sans-serif; letter-spacing: .4px; }
+  .etat .point { width: 9px; height: 9px; border-radius: 50%; background: #6b6474; box-shadow: 0 0 0 4px rgba(107, 100, 116, .2); }
+  .etat.ouvert .point { background: var(--emeraude); box-shadow: 0 0 0 4px rgba(52, 209, 127, .2); }
+
+  /* La gemme : l'élément marquant de la page */
+  .gemme { width: min(420px, 100%); justify-self: center; aspect-ratio: 1; position: relative; }
+  .gemme svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 30px 60px rgba(162, 107, 255, .35)); }
+  .gemme .facette { opacity: 0; transform-origin: 200px 200px; animation: allume .7s cubic-bezier(.2, .8, .2, 1) forwards; }
+  .gemme .eclat { animation: scintille 5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  .gemme .tourne { animation: flotte 7s ease-in-out infinite; transform-origin: 200px 200px; }
+  @keyframes allume { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+  @keyframes scintille { 0%, 100% { opacity: .15; transform: scale(.6); } 50% { opacity: 1; transform: scale(1.1); } }
+  @keyframes flotte { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
+  .heros h1 span, .heros .accroche, .heros .actions, .etat { animation: monte .8s cubic-bezier(.2, .8, .2, 1) both; }
+  .heros h1 span:nth-child(2) { animation-delay: .08s; } .heros h1 span:nth-child(3) { animation-delay: .16s; }
+  .heros .accroche { animation-delay: .3s; } .heros .actions { animation-delay: .4s; } .etat { animation-delay: .5s; }
+  @keyframes monte { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  /* Séparation en marches de blocs */
+  .marches { height: 24px; background: var(--pierre2);
+    clip-path: polygon(0 100%, 0 50%, 4% 50%, 4% 0, 9% 0, 9% 50%, 15% 50%, 15% 25%, 22% 25%, 22% 75%, 28% 75%, 28% 0, 35% 0, 35% 50%, 41% 50%, 41% 25%, 48% 25%,
+      48% 75%, 54% 75%, 54% 0, 61% 0, 61% 50%, 67% 50%, 67% 25%, 74% 25%, 74% 75%, 80% 75%, 80% 0, 87% 0, 87% 50%, 93% 50%, 93% 25%, 100% 25%, 100% 100%); }
+  .marches.bas { transform: scaleY(-1); }
+  .bande { background: var(--pierre2); padding: 70px 0; }
+
+  h2.titre { font: 700 clamp(30px, 4vw, 44px)/1.05 Rajdhani, sans-serif; color: var(--clair); margin: 0 0 10px; }
+  p.sous { color: var(--doux); margin: 0 0 40px; max-width: 46em; line-height: 1.6; }
+
+  /* Les quatre minerais */
+  .minerais { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--pierre3); border-radius: 14px; overflow: hidden; }
+  .minerai { position: relative; padding: 30px 26px 30px; background: var(--pierre); border-left: 1px solid var(--pierre3); }
+  .minerai:first-child { border-left: 0; }
+  .minerai::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--c); box-shadow: 0 0 24px var(--c); }
+  .minerai .pierre { width: 42px; height: 42px; margin-bottom: 18px; }
+  .minerai h3 { font: 700 24px Rajdhani, sans-serif; margin: 0 0 4px; color: var(--clair); text-transform: none; letter-spacing: 0; }
+  .minerai .nom { color: var(--c); font: 600 14px Rajdhani, sans-serif; letter-spacing: .5px; margin-bottom: 14px; display: block; }
+  .minerai ul { list-style: none; margin: 0; padding: 0; color: var(--doux); font-size: 15px; line-height: 1.5; }
+  .minerai li { padding: 6px 0 6px 18px; position: relative; border-top: 1px solid var(--pierre3); }
+  .minerai li::before { content: ""; position: absolute; left: 2px; top: 13px; width: 7px; height: 7px; background: var(--c); transform: rotate(45deg); }
+  .rubis { --c: var(--rubis); } .saphir { --c: var(--saphir); } .emeraude { --c: var(--emeraude); } .onyx { --c: var(--onyx); }
+
+  /* En ce moment */
+  .direct { display: grid; grid-template-columns: 1fr 1.3fr; gap: 40px; align-items: start; }
+  .chiffres { display: grid; gap: 14px; }
+  .chiffre { display: flex; align-items: baseline; gap: 14px; padding: 18px 22px; border-radius: 12px; background: var(--pierre2); border: 1px solid var(--pierre3); }
+  .chiffre b { font: 700 42px/1 Rajdhani, sans-serif; color: var(--c, var(--clair)); min-width: 2.2ch; }
+  .chiffre span { color: var(--doux); }
+  .podium { list-style: none; margin: 0; padding: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--pierre3); }
+  .podium li { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: center; padding: 14px 18px; background: var(--pierre2); border-top: 1px solid var(--pierre3); }
+  .podium li:first-child { border-top: 0; }
+  .podium .rang { font: 700 24px Rajdhani, sans-serif; color: var(--doux); text-align: center; }
+  .podium li:nth-child(1) .rang { color: #f2c14e; } .podium li:nth-child(2) .rang { color: #c9ced6; } .podium li:nth-child(3) .rang { color: #d08a52; }
+  .podium a { color: var(--clair); text-decoration: none; font-weight: 600; }
+  .podium a:hover { text-decoration: underline; }
+  .podium small { display: block; color: var(--doux); font-weight: 400; font-size: 13px; }
+  .podium .pw { font: 700 20px Rajdhani, sans-serif; color: var(--onyx); }
+  .podium .vide { display: block; padding: 22px; color: var(--doux); background: var(--pierre2); }
+  .direct h3 { font: 700 22px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 14px; text-transform: none; letter-spacing: 0; }
+
+  /* Commencer : une vraie suite d'étapes */
+  .etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; counter-reset: e; }
+  .etape { position: relative; padding: 0 28px 0 0; }
+  .etape::after { content: ""; position: absolute; top: 27px; left: 64px; right: 10px; height: 2px; background: linear-gradient(90deg, var(--c), transparent); }
+  .etape:last-child::after { display: none; }
+  .etape .num { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 14px; background: var(--pierre); border: 2px solid var(--c);
+    font: 700 26px Rajdhani, sans-serif; color: var(--c); box-shadow: 0 0 22px color-mix(in srgb, var(--c) 35%, transparent); margin-bottom: 18px; }
+  .etape h3 { font: 700 22px Rajdhani, sans-serif; color: var(--clair); margin: 0 0 6px; text-transform: none; letter-spacing: 0; }
+  .etape p { color: var(--doux); margin: 0 0 14px; line-height: 1.55; }
+  .etape a { color: var(--clair); font-weight: 600; }
+
+  /* Actualités */
+  .actus3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .actu { padding: 22px 24px; border-radius: 12px; background: var(--pierre2); border: 1px solid var(--pierre3); border-left: 3px solid var(--c, var(--onyx)); }
+  .actu time { color: var(--doux); font-size: 13px; }
+  .actu h4 { font: 700 20px Rajdhani, sans-serif; color: var(--clair); margin: 4px 0 8px; }
+  .actu p { color: var(--doux); margin: 0; line-height: 1.55; }
+
+  /* Appel final */
+  .final { text-align: center; padding: 80px 0 90px; position: relative; overflow: hidden; }
+  .final::before { content: ""; position: absolute; inset: 0; background: conic-gradient(from 200deg at 50% 120%, var(--rubis), var(--onyx), var(--saphir), var(--emeraude), var(--rubis));
+    opacity: .14; filter: blur(40px); }
+  .final .large { position: relative; }
+  .final h2 { font: 700 clamp(34px, 5vw, 56px)/1 Rajdhani, sans-serif; color: var(--clair); margin: 0 0 14px; }
+  .final p { color: var(--doux); margin: 0 auto 28px; max-width: 34em; }
+  .final .actions { justify-content: center; display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .pied2 { margin-top: 0; }
+  main.accueil .bouton.secondaire { background: transparent !important; color: var(--clair) !important; box-shadow: 0 0 0 1px #5a5363 inset !important; }
+  main.accueil .bouton.secondaire:hover { box-shadow: 0 0 0 1px var(--onyx) inset, 0 0 18px rgba(162, 107, 255, .3) !important; }
+  .bouton:focus-visible, a:focus-visible, .etat:focus-visible { outline: 2px solid var(--onyx); outline-offset: 3px; }
+  @media (max-width: 900px) {
+    .heros .large, .direct { grid-template-columns: 1fr; }
+    .gemme { width: min(300px, 80%); order: -1; }
+    .minerais { grid-template-columns: 1fr 1fr; }
+    .minerai:nth-child(3) { border-left: 0; }
+    .minerai:nth-child(n+3) { border-top: 1px solid var(--pierre3); }
+    .etapes { grid-template-columns: 1fr; gap: 28px; }
+    .etape::after { display: none; }
+  }
+  @media (max-width: 560px) { .minerais { grid-template-columns: 1fr; } .minerai { border-left: 0; border-top: 1px solid var(--pierre3); } .minerai:first-child { border-top: 0; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } .gemme .facette { opacity: 1; } }
+</style>
 </head>
 <body>
 <header class="entete" id="entete"></header>
-<main>
-  <section class="hero2">
-    <h1>PvP Faction moddé</h1>
-    <p>Le combat de la <strong>1.8</strong>, des <strong>factions</strong>, des <strong>KOTH</strong>, des catastrophes en warzone, le <strong>Boss du Gouffre</strong>, des runes légendaires, des compagnons et des cosmétiques en 3D.</p>
-    <div class="boutons" style="justify-content:center">
-      <a class="bouton" href="/jouer">▶ Jouer maintenant</a>
-      <a class="bouton secondaire" href="/inscription">Créer mon compte</a>
+<main class="accueil">
+  <section class="heros">
+    <div class="large">
+      <div>
+        <h1><span>Ta faction.</span><span>Ton territoire.</span><span>Ta guerre.</span></h1>
+        <p class="accroche">OnyxFight, c'est le <b>PvP Faction moddé</b> avec le combat nerveux de la <b>1.8</b> : des minerais à nous, des raids à la dynamite, des donjons, des boss et des catastrophes en warzone. On joue avec un <b>launcher gratuit</b>, sans compte Microsoft.</p>
+        <div class="actions">
+          <a class="bouton" href="/jouer">Télécharger le launcher</a>
+          <a class="bouton secondaire" href="/inscription">Créer mon compte</a>
+        </div>
+        <button class="etat" id="etat" type="button" title="Copier l'adresse"><span class="point"></span><b>play.onyxfight.fr</b><span id="statut">…</span></button>
+      </div>
+      <div class="gemme" aria-hidden="true">
+        <svg viewBox="0 0 400 400">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9c2ff"/><stop offset="1" stop-color="#7a3df0"/></linearGradient>
+            <linearGradient id="g2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b48bff"/><stop offset="1" stop-color="#4b1fa8"/></linearGradient>
+            <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e57f5"/><stop offset="1" stop-color="#2c0f6e"/></linearGradient>
+          </defs>
+          <g class="tourne">
+            <!-- couronne -->
+            <polygon class="facette" style="animation-delay:.05s" points="120,110 200,70 200,150" fill="url(#g1)"/>
+            <polygon class="facette" style="animation-delay:.12s" points="200,70 280,110 200,150" fill="#c9a6ff"/>
+            <polygon class="facette" style="animation-delay:.19s" points="120,110 60,160 200,150" fill="#9b63ff"/>
+            <polygon class="facette" style="animation-delay:.26s" points="280,110 340,160 200,150" fill="url(#g2)"/>
+            <!-- pavillon -->
+            <polygon class="facette" style="animation-delay:.33s" points="60,160 200,150 200,340" fill="url(#g3)"/>
+            <polygon class="facette" style="animation-delay:.40s" points="340,160 200,150 200,340" fill="#3a1590"/>
+            <polygon class="facette" style="animation-delay:.47s" points="60,160 130,175 200,340" fill="#6c34d9" opacity=".9"/>
+            <polygon class="facette" style="animation-delay:.54s" points="340,160 270,175 200,340" fill="#2a0c6a" opacity=".9"/>
+            <!-- reflets des trois autres minerais -->
+            <polygon class="facette" style="animation-delay:.70s" points="200,150 235,180 200,250" fill="#e5405a" opacity=".55"/>
+            <polygon class="facette" style="animation-delay:.80s" points="200,150 165,180 200,250" fill="#4a86ff" opacity=".55"/>
+            <polygon class="facette" style="animation-delay:.90s" points="200,250 220,270 200,320 180,270" fill="#34d17f" opacity=".5"/>
+            <path class="facette" style="animation-delay:.6s" d="M120,110 L200,70 L280,110 L340,160 L200,340 L60,160 Z" fill="none" stroke="#efe6ff" stroke-opacity=".55" stroke-width="2"/>
+          </g>
+          <g fill="#fff">
+            <path class="eclat" d="M150 95 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/>
+            <path class="eclat" style="animation-delay:1.7s" d="M300 210 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/>
+            <path class="eclat" style="animation-delay:3.1s" d="M90 250 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/>
+          </g>
+        </svg>
+      </div>
     </div>
-    <div class="ip" id="ip" title="Le serveur se joue avec le launcher OnyxFight"><code>play.onyxfight.fr</code><span id="statut">Serveur…</span></div>
   </section>
-  <section class="atouts2">
-    <div class="carte"><div class="ic">⚔</div><h3>Combat 1.8</h3><p>Pas de temps de recharge, blocage à l'épée, le PvP que tu connais.</p></div>
-    <div class="carte"><div class="ic">⚑</div><h3>Factions</h3><p>Territoires, alliés, ennemis, banque, KOTH et classements chaque saison.</p></div>
-    <div class="carte"><div class="ic">🌪</div><h3>Événements</h3><p>Tornades, météorites, éruptions, Boss du Gouffre et largages en warzone.</p></div>
+
+  <div class="marches"></div>
+  <section class="bande">
+    <div class="large">
+      <h2 class="titre">Quatre minerais, quatre façons de jouer</h2>
+      <p class="sous">Rubis, Saphir, Émeraude et Onyx : on les mine pour forger son stuff, et chacun résume une facette du serveur.</p>
+      <div class="minerais">
+        <div class="minerai rubis">
+          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#7a1a2a" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#e5405a" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#ffb3c0" d="M2 2h2v1H3v1H2z"/></svg>
+          <h3>Combat</h3><span class="nom">Rubis</span>
+          <ul><li>Le PvP de la 1.8 : pas de temps de recharge</li><li>Armes et armures en Rubis, Saphir, Onyx</li><li>Arcs légendaires très rares</li><li>Livres d'enchantement custom</li></ul>
+        </div>
+        <div class="minerai saphir">
+          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#16306e" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#4a86ff" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#c3d7ff" d="M2 2h2v1H3v1H2z"/></svg>
+          <h3>Factions</h3><span class="nom">Saphir</span>
+          <ul><li>Territoires, alliés et raids à la dynamite</li><li>Laboratoire de faction et reliques à voler</li><li>Contrats agricoles en commun</li><li>Saisons classées</li></ul>
+        </div>
+        <div class="minerai emeraude">
+          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#0f5a33" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#34d17f" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#bff5d8" d="M2 2h2v1H3v1H2z"/></svg>
+          <h3>Progression</h3><span class="nom">Émeraude</span>
+          <ul><li>4 métiers et leurs recettes à débloquer</li><li>Pass de saison à 50 paliers</li><li>Donjons en groupe avec boss</li><li>Défis du jour et récompenses de connexion</li></ul>
+        </div>
+        <div class="minerai onyx">
+          <svg class="pierre" viewBox="0 0 8 8" shape-rendering="crispEdges"><path fill="#2c0f6e" d="M2 0h4v1h1v1h1v4H7v1H6v1H2V7H1V6H0V2h1V1h1z"/><path fill="#a26bff" d="M2 1h4v1h1v4H6v1H2V6H1V2h1z"/><path fill="#e3d2ff" d="M2 2h2v1H3v1H2z"/></svg>
+          <h3>Événements</h3><span class="nom">Onyx</span>
+          <ul><li>Boss du Gouffre, KOTH et largages</li><li>Tornades, météorites, éruptions</li><li>Event Quartz et zone radioactive</li><li>Chasse au trésor et marché noir</li></ul>
+        </div>
+      </div>
+    </div>
   </section>
-  <h2 class="section-titre">Dernières actualités</h2>
-  <div class="actus2" id="actus"><p class="vide">Chargement…</p></div>
+  <div class="marches bas"></div>
+
+  <section style="padding:80px 0">
+    <div class="large direct">
+      <div>
+        <h2 class="titre">En ce moment sur le serveur</h2>
+        <p class="sous" style="margin-bottom:24px">Les chiffres se mettent à jour tout seuls, comme les fiches de faction.</p>
+        <div class="chiffres">
+          <div class="chiffre" style="--c:var(--emeraude)"><b id="n-joueurs">–</b><span>joueurs en ligne</span></div>
+          <div class="chiffre" style="--c:var(--saphir)"><b id="n-factions">–</b><span>factions en guerre</span></div>
+          <div class="chiffre" style="--c:var(--rubis)"><b id="n-kills">–</b><span>kills entre factions</span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Les factions les plus puissantes</h3>
+        <ol class="podium" id="podium"><li><span class="vide">Chargement…</span></li></ol>
+        <p style="margin:14px 0 0"><a href="/factions" style="color:var(--clair);font-weight:600">Voir toutes les fiches de faction</a></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="marches"></div>
+  <section class="bande">
+    <div class="large">
+      <h2 class="titre">Rejoindre en trois étapes</h2>
+      <p class="sous">Le launcher installe Java, Minecraft et tous les mods pour toi.</p>
+      <div class="etapes">
+        <div class="etape" style="--c:var(--rubis)"><div class="num">1</div><h3>Crée ton compte</h3><p>Un pseudo et un mot de passe sur le site. Pas besoin de compte Microsoft.</p><a href="/inscription">Créer mon compte</a></div>
+        <div class="etape" style="--c:var(--saphir)"><div class="num">2</div><h3>Installe le launcher</h3><p>Il télécharge et met à jour le jeu et les mods tout seul.</p><a href="/jouer">Télécharger</a></div>
+        <div class="etape" style="--c:var(--emeraude)"><div class="num">3</div><h3>Connecte-toi et joue</h3><p>Choisis une faction ou crée la tienne avec <b style="color:var(--clair)">/f create</b>.</p><a href="/reglement">Lire le règlement</a></div>
+      </div>
+    </div>
+  </section>
+  <div class="marches bas"></div>
+
+  <section style="padding:80px 0 30px">
+    <div class="large">
+      <h2 class="titre">Actualités</h2>
+      <p class="sous" style="margin-bottom:28px">Les nouveautés du serveur, aussi affichées dans le launcher.</p>
+      <div class="actus3" id="actus"><p class="vide">Chargement…</p></div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="large">
+      <h2>Ta place t'attend sur la carte</h2>
+      <p>Choisis ton camp, mine ton premier rubis et prépare ton premier raid.</p>
+      <div class="actions"><a class="bouton" href="/jouer">Télécharger le launcher</a><a class="bouton secondaire" href="/voter">Voter pour le serveur</a></div>
+    </div>
+  </section>
 </main>
 <script>
+const COULEURS = ['var(--onyx)', 'var(--rubis)', 'var(--saphir)', 'var(--emeraude)'];
+function compter(id, n) {
+  const e = $(id), fin = Math.max(0, Math.round(n));
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || fin === 0) return (e.textContent = nombre(fin));
+  const t0 = performance.now();
+  const pas = (t) => { const k = Math.min(1, (t - t0) / 900); e.textContent = nombre(fin * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(pas); };
+  requestAnimationFrame(pas);
+}
 document.addEventListener('DOMContentLoaded', async () => {
+  $('etat').onclick = () => { try { navigator.clipboard.writeText('play.onyxfight.fr'); $('statut').textContent = 'Adresse copiée'; } catch (e) { /* rien */ } };
   try {
     const s = await (await fetch('/api/statut')).json();
-    $('statut').textContent = s.enLigne ? '● ' + s.joueurs + ' joueur' + (s.joueurs > 1 ? 's' : '') + ' en ligne' : 'Serveur fermé pour le moment';
-    $('statut').style.color = s.enLigne ? '#4ade80' : '';
-  } catch (e) { $('statut').textContent = ''; }
+    $('etat').classList.toggle('ouvert', !!s.enLigne);
+    $('statut').textContent = s.enLigne ? s.joueurs + ' en ligne' : 'serveur fermé pour le moment';
+    compter('n-joueurs', s.enLigne ? s.joueurs : 0);
+  } catch (e) { $('statut').textContent = ''; $('n-joueurs').textContent = '0'; }
+  try {
+    const r = await (await fetch('/api/factions')).json();
+    const l = (r.factions || []).sort((a, b) => b.puissance - a.puissance);
+    compter('n-factions', l.length);
+    compter('n-kills', l.reduce((t, f) => t + (f.kills || 0), 0));
+    $('podium').replaceChildren(...(l.length ? l.slice(0, 5).map((f, i) => el('li', {}, el('span', { class: 'rang' }, i + 1),
+      el('div', {}, el('a', { href: '/factions#' + encodeURIComponent(f.id) }, f.nom), el('small', {}, f.membres.length + ' membre' + (f.membres.length > 1 ? 's' : '') + ', ' + nombre(f.kills) + ' kills')),
+      el('span', { class: 'pw' }, nombre(f.puissance))))
+      : [el('li', {}, el('span', { class: 'vide' }, 'Aucune faction pour l\'instant. La première place est libre.'))]));
+  } catch (e) { $('podium').replaceChildren(el('li', {}, el('span', { class: 'vide' }, 'Le classement revient dans un instant.'))); }
   try {
     const l = await (await fetch('https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/distribution/actualites.json')).json();
-    $('actus').replaceChildren(...(l.length ? l.slice(0, 6).map((a) => el('div', { class: 'carte' }, el('span', { class: 'date' }, a.date), el('h4', {}, a.titre), el('p', {}, a.texte)))
-      : [el('p', { class: 'vide' }, 'Aucune actualité pour le moment.')]));
-  } catch (e) { $('actus').replaceChildren(el('p', { class: 'vide' }, 'Aucune actualité pour le moment.')); }
+    $('actus').replaceChildren(...(l.length ? l.slice(0, 6).map((a, i) => el('article', { class: 'actu', style: '--c:' + COULEURS[i % 4] },
+      el('time', {}, a.date), el('h4', {}, a.titre), el('p', {}, a.texte)))
+      : [el('p', { class: 'vide' }, 'Pas encore d\'actualité.')]));
+  } catch (e) { $('actus').replaceChildren(el('p', { class: 'vide' }, 'Les actualités n\'ont pas pu se charger.')); }
 });
 </script>
 <footer class="pied2" id="pied"></footer>
