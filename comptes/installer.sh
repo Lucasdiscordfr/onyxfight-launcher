@@ -26,7 +26,7 @@ fi
 # Hors de /opt/onyxfight : ce dossier est fermé aux autres utilisateurs, le service des comptes ne pouvait pas y lire
 DOSSIER=/opt/onyxfight-comptes
 DEPOT=https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/comptes
-FICHIERS="site-moderation/index.html site-moderation/app.js site-moderation/mod.css site-moderation/mod.js site-moderation/icone.png serveur.js site/index.html site/inscription.html site/compte.html site/oubli.html site/classement.html site/boutique.html site/voter.html site/jouer.html site/reglement.html site/404.html site/style.css site/commun.js site/logo.png site/fond.jpg site/personnage.png site/icone.png"
+FICHIERS="site-moderation/index.html site-moderation/app.js site-moderation/mod.css site-moderation/mod.js site-moderation/icone.png serveur.js site/index.html site/inscription.html site/compte.html site/oubli.html site/classement.html site/boutique.html site/voter.html site/jouer.html site/reglement.html site/bugs.html site/404.html site/style.css site/commun.js site/logo.png site/fond.jpg site/personnage.png site/icone.png"
 
 echo "=== Node.js ==="
 if ! command -v node >/dev/null || [ "$(node -p 'process.versions.node.split(".")[0]')" -lt 18 ]; then

@@ -928,6 +928,62 @@ Object.assign(ROUTES, {
   },
 });
 
+
+// ---------- Signalements de bugs (site, et /bug en jeu) ----------
+if (!d.bugs) d.bugs = [];
+const STATUTS_BUG = { nouveau: 'Nouveau', en_cours: 'En cours', corrige: 'Corrigé', refuse: 'Refusé', doublon: 'Doublon' };
+const CATEGORIES_BUG = { jeu: 'En jeu', launcher: 'Launcher', site: 'Site', autre: 'Autre' };
+function nouveauBug(pseudo, categorie, titre, description, ou) {
+  const b = { id: (d.bugs.length ? d.bugs[d.bugs.length - 1].id : 0) + 1, t: Date.now(), pseudo, categorie: CATEGORIES_BUG[categorie] ? categorie : 'autre',
+    titre: String(titre || '').trim().slice(0, 100), description: String(description || '').trim().slice(0, 3000), ou: ou || null, statut: 'nouveau', reponses: [] };
+  d.bugs.push(b);
+  if (d.bugs.length > 5000) d.bugs.shift();
+  sauver();
+  return b;
+}
+function bugPublic(b) {
+  return { id: b.id, t: b.t, categorie: CATEGORIES_BUG[b.categorie], titre: b.titre, description: b.description, statut: b.statut, nomStatut: STATUTS_BUG[b.statut],
+    reponses: b.reponses.filter((r) => !r.interne).map((r) => ({ t: r.t, texte: r.texte, equipe: true })) };
+}
+Object.assign(ROUTES, {
+  'POST /api/bug': (b, ip) => {
+    const c = session(b.session);
+    if (!c) return [401, { erreur: 'Connecte-toi pour signaler un bug (on te répondra sur ton compte).' }];
+    if (trop(ip, 'bug', 5, 60) || trop(c.pseudo, 'bug-compte', 5, 60)) return [429, { erreur: 'Tu as déjà envoyé plusieurs signalements : réessaie dans une heure.' }];
+    if (String(b.titre || '').trim().length < 5) return [400, { erreur: 'Donne un titre au bug (5 caractères au minimum).' }];
+    if (String(b.description || '').trim().length < 15) return [400, { erreur: 'Décris le bug un peu plus (ce que tu faisais, ce qui s\'est passé).' }];
+    const x = nouveauBug(c.pseudo, b.categorie, b.titre, b.description);
+    return [200, bugPublic(x)];
+  },
+  'POST /api/mes-bugs': (b) => {
+    const c = session(b.session);
+    if (!c) return [401, { erreur: 'Connexion expirée : reconnecte-toi.' }];
+    return [200, { bugs: d.bugs.filter((x) => x.pseudo === c.pseudo).slice(-50).reverse().map(bugPublic) }];
+  },
+  'POST /api/mod/bugs': (b) => {
+    const [, err] = equipe(b, 1);
+    if (err) return err;
+    const compte = {};
+    for (const x of d.bugs) compte[x.statut] = (compte[x.statut] || 0) + 1;
+    return [200, { bugs: d.bugs.slice(-500).reverse().map((x) => Object.assign({}, x, { nomStatut: STATUTS_BUG[x.statut], nomCategorie: CATEGORIES_BUG[x.categorie] })), compte, statuts: STATUTS_BUG }];
+  },
+  'POST /api/mod/bug': (b) => {
+    const [c, err] = equipe(b, 1);
+    if (err) return err;
+    const x = d.bugs.find((y) => y.id === parseInt(b.id, 10));
+    if (!x) return [404, { erreur: 'Signalement introuvable.' }];
+    if (b.statut && STATUTS_BUG[b.statut] && b.statut !== x.statut) {
+      x.reponses.push({ t: Date.now(), par: c.pseudo, texte: 'Statut : ' + STATUTS_BUG[b.statut], interne: true });
+      x.statut = b.statut;
+    }
+    const texte = String(b.reponse || '').trim().slice(0, 2000);
+    if (texte) x.reponses.push({ t: Date.now(), par: c.pseudo, texte, interne: !!b.interne });
+    sauver();
+    noter(c.pseudo, 'bug', `#${x.id} ${STATUTS_BUG[x.statut]}${texte ? ' + réponse' : ''}`);
+    return [200, Object.assign({}, x, { nomStatut: STATUTS_BUG[x.statut], nomCategorie: CATEGORIES_BUG[x.categorie] })];
+  },
+});
+
 /** Requêtes du plugin (seulement depuis la machine). */
 const LOCAL = {
   '/api/serveur/actions': () => {
@@ -986,6 +1042,15 @@ const LOCAL = {
       } catch (x) { /* rien */ }
     }
     return [200, { ok: true }];
+  },
+  /** /bug en jeu : le plugin envoie le texte et la position du joueur. */
+  '/api/serveur/bug': (b) => {
+    const p = String(b.pseudo || '');
+    if (!/^[A-Za-z0-9_]{1,16}$/.test(p) || String(b.texte || '').trim().length < 5) return [400, { erreur: 'Signalement incomplet.' }];
+    if (trop(p, 'bug-jeu', 5, 60)) return [429, { erreur: 'Trop de signalements : réessaie dans une heure.' }];
+    const t = String(b.texte).trim();
+    const x = nouveauBug(p, 'jeu', t.length > 60 ? t.slice(0, 57) + '…' : t, t, String(b.ou || '').slice(0, 80));
+    return [200, { id: x.id }];
   },
   '/api/serveur/casiers': (b) => {
     if (Array.isArray(b.casiers)) jeu.casiers = b.casiers;

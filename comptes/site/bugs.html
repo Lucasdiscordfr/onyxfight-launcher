@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signaler un bug · OnyxFight</title>
+<link rel="icon" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="commun.js" defer></script>
+</head>
+<body>
+<header class="entete" id="entete"></header>
+<main>
+  <div class="titre-centre"><h1>Signaler un bug</h1><p>Un problème en jeu, dans le launcher ou sur le site ? Dis-le à l'équipe : on te répond ici. En jeu, tu peux aussi taper <code>/bug &lt;ce qui se passe&gt;</code>.</p></div>
+  <div class="boutique2" style="grid-template-columns:1fr 1fr">
+    <form class="carte" id="form" style="padding:24px">
+      <h3>🐞 Nouveau signalement</h3>
+      <p class="aide" id="connecte"></p>
+      <label for="categorie">Où ?</label>
+      <select id="categorie"><option value="jeu">En jeu</option><option value="launcher">Launcher</option><option value="site">Site</option><option value="autre">Autre</option></select>
+      <label for="titre">Titre</label>
+      <input id="titre" maxlength="100" placeholder="Ex : la tornade traverse les murs du spawn" required>
+      <label for="description">Ce qui se passe</label>
+      <textarea id="description" rows="7" maxlength="3000" required placeholder="Ce que tu faisais, ce qui s'est passé, ce qui aurait dû se passer, où (coordonnées)…"
+        style="width:100%;padding:12px 14px;border-radius:6px;border:1px solid #333;background:#121212;color:var(--texte);font:inherit"></textarea>
+      <button class="bouton" id="envoyer" style="width:100%;margin-top:16px">Envoyer</button>
+      <div class="message" id="msg"></div>
+    </form>
+    <div class="carte" style="padding:24px"><h3>📋 Mes signalements</h3><div id="mes"><p class="vide">Connecte-toi pour voir tes signalements.</p></div></div>
+  </div>
+</main>
+<script>
+const COULEURS = { nouveau: '#9a9a9a', en_cours: '#facc15', corrige: '#4ade80', refuse: '#f87171', doublon: '#9a9a9a' };
+async function mes() {
+  const r = await api('mes-bugs', { session: Session.lire() });
+  if (r.erreur) return;
+  $('mes').replaceChildren(...(r.bugs.length ? r.bugs.map((b) => el('div', { style: 'border-bottom:1px solid #262626;padding:12px 0' },
+    el('div', { style: 'display:flex;justify-content:space-between;gap:10px' }, el('strong', {}, '#' + b.id + ' · ' + b.titre),
+      el('span', { style: `color:${COULEURS[b.statut]};font-weight:700;font-size:13px;white-space:nowrap` }, '● ' + b.nomStatut)),
+    el('div', { class: 'aide' }, b.categorie + ' · ' + new Date(b.t).toLocaleString('fr-FR')),
+    b.reponses.map((x) => el('div', { style: 'margin-top:8px;padding:10px 12px;border-radius:6px;background:#241a33;border-left:3px solid var(--violet2)' },
+      el('div', { class: 'aide' }, 'Réponse de l\'équipe · ' + new Date(x.t).toLocaleString('fr-FR')), x.texte))))
+    : [el('p', { class: 'vide' }, 'Aucun signalement pour le moment.')]));
+}
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!Session.lire()) {
+    $('connecte').innerHTML = 'Il faut être <a href="/compte">connecté</a> pour signaler un bug.';
+  } else {
+    const c = await api('session', { session: Session.lire() });
+    $('connecte').textContent = c.erreur ? '' : 'Envoyé au nom de ' + c.pseudo + '.';
+    mes();
+  }
+  $('form').onsubmit = async (e) => {
+    e.preventDefault();
+    if (!Session.lire()) return (location.href = '/compte');
+    $('envoyer').disabled = true;
+    const r = await api('bug', { session: Session.lire(), categorie: $('categorie').value, titre: $('titre').value, description: $('description').value });
+    $('envoyer').disabled = false;
+    if (r.erreur) return message($('msg'), r.erreur);
+    $('form').reset();
+    message($('msg'), 'Merci ! Signalement #' + r.id + ' envoyé à l\'équipe.', true);
+    mes();
+  };
+});
+</script>
+<footer class="pied2" id="pied"></footer>
+</body>
+</html>

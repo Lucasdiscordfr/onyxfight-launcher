@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pied.replaceChildren(el('div', { class: 'colonnes' },
       el('div', {}, el('h4', {}, 'À propos'), p('Le <strong>PvP Faction</strong> moddé au combat de la <strong>1.8</strong> : factions, <strong>KOTH</strong>, catastrophes en warzone, <strong>Boss du Gouffre</strong>, runes légendaires et cosmétiques en 3D.')),
       el('div', {}, el('h4', {}, 'Liens'), el('div', { class: 'liens' }, lien('/', 'Accueil'), lien('/reglement', 'Règlement'), lien(DISCORD, 'Discord'), lien('/classement', 'Classement'),
-        lien('/jouer', 'Nous rejoindre'), lien('/compte', 'Mon compte'), lien('/voter', 'Votes'), lien('/boutique', 'Boutique'))),
+        lien('/jouer', 'Nous rejoindre'), lien('/compte', 'Mon compte'), lien('/voter', 'Votes'), lien('/boutique', 'Boutique'), lien('/bugs', 'Signaler un bug'))),
       el('div', {}, el('h4', {}, 'Boutique'), p('Grades, clés et cosmétiques : tout arrive automatiquement en jeu, et ça aide le serveur à vivre.'),
         el('a', { class: 'bouton', href: '/boutique', style: 'width:100%;text-align:center' }, '🛒 Boutique'))),
       el('div', { class: 'copy' }, 'OnyxFight · serveur PvP Faction moddé · Pas affilié à Mojang ni Microsoft.'));
