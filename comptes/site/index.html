@@ -8,7 +8,7 @@
 <link rel="icon" href="icone.png">
 <link rel="preload" as="image" href="img/factions.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
 <script src="commun.js" defer></script>
 <style>
@@ -18,40 +18,99 @@
   body { background: var(--pierre); }
   main.accueil { max-width: none; padding: 0; }
   .large { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
-  h2.titre { font: 700 clamp(32px, 4.2vw, 48px)/1.02 Rajdhani, sans-serif; color: var(--clair); margin: 0 0 10px; }
+  h2.titre { font: 400 clamp(32px, 4.2vw, 46px)/1.02 'Lilita One', Rajdhani, sans-serif; text-transform: uppercase; letter-spacing: .4px; color: var(--clair); margin: 0 0 10px; }
   p.sous { color: var(--doux); margin: 0 0 34px; max-width: 46em; line-height: 1.6; font-size: 16px; }
   section.bloc { padding: 90px 0; }
 
-  /* ----- Héros plein écran sur l'illustration ----- */
-  .heros { position: relative; min-height: calc(100vh - 82px); max-height: 900px; display: grid; place-items: center; text-align: center; overflow: hidden; isolation: isolate; }
-  .heros .fond-h { position: absolute; inset: -4%; background: url(img/factions.webp) center 30% / cover; z-index: -2; animation: travelling 30s ease-in-out infinite alternate; }
-  .heros::after { content: ""; position: absolute; inset: 0; z-index: -1;
-    background: radial-gradient(ellipse 60% 55% at 50% 48%, rgba(14,12,18,.72), rgba(14,12,18,.35) 75%), linear-gradient(180deg, rgba(18,16,22,.35) 0%, rgba(18,16,22,0) 30%, rgba(18,16,22,.4) 70%, var(--pierre) 100%); }
-  @keyframes travelling { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.08) translate(-1.5%, 1%); } }
-  #poussiere { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-  .heros .contenu { padding: 60px 20px 90px; max-width: 860px; }
-  .heros h1 { font: 700 clamp(44px, 7.4vw, 92px)/.92 Rajdhani, sans-serif; color: #fff; margin: 0 0 18px; text-shadow: 0 4px 30px rgba(0,0,0,.7); letter-spacing: -.5px; }
-  .heros p { font-size: clamp(16px, 2vw, 20px); color: #ece7f3; margin: 0 auto 30px; max-width: 34em; line-height: 1.55; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
-  .heros .actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-  .gros { display: inline-flex; align-items: center; gap: 10px; padding: 17px 34px; border-radius: 12px; font: 700 20px Rajdhani, sans-serif; letter-spacing: .3px; text-decoration: none; cursor: pointer; border: 0;
-    transition: transform .15s, box-shadow .2s, background .2s; }
-  .gros:hover { transform: translateY(-2px); }
-  .gros.jouer { color: #fff; background: linear-gradient(135deg, #b77cff, #7a3cf0); box-shadow: 0 10px 34px rgba(150, 90, 255, .55), inset 0 1px 0 rgba(255,255,255,.35); }
-  .gros.jouer:hover { box-shadow: 0 14px 44px rgba(150, 90, 255, .75), inset 0 1px 0 rgba(255,255,255,.35); }
-  .gros.compte { color: #fff; background: rgba(20, 16, 26, .55); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.55); backdrop-filter: blur(6px); }
-  .gros.compte:hover { background: rgba(255,255,255,.12); }
-  .ip { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 12px; margin-top: 26px; padding: 11px 18px; border-radius: 999px;
-    background: rgba(14, 12, 18, .7); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); color: #d9d3e2; font-size: 14px; }
-  .ip b { font: 700 18px Rajdhani, sans-serif; color: #fff; letter-spacing: .5px; }
-  .ip .point { width: 9px; height: 9px; border-radius: 50%; background: #77707f; }
-  .ip.ouvert .point { background: var(--emeraude); box-shadow: 0 0 0 0 rgba(57, 221, 136, .6); animation: battement 2s infinite; }
-  @keyframes battement { 70% { box-shadow: 0 0 0 9px rgba(57, 221, 136, 0); } 100% { box-shadow: 0 0 0 0 rgba(57, 221, 136, 0); } }
-  .ip:focus-visible, .gros:focus-visible, .tuile:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-  .heros .contenu > * { animation: entre .9s cubic-bezier(.2, .8, .2, 1) both; }
-  .heros .contenu > :nth-child(2) { animation-delay: .12s; } .heros .contenu > :nth-child(3) { animation-delay: .24s; } .heros .contenu > :nth-child(4) { animation-delay: .36s; }
-  @keyframes entre { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
-  .defiler { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.6); font-size: 13px; text-decoration: none; }
+  /* ----- Annonce ----- */
+  .annonce { position: relative; text-align: center; padding: 9px 44px; font: 600 14px Inter, sans-serif; color: #fff;
+    background: linear-gradient(90deg, #3a1a6b, #7a3cf0 45%, #e5405a); }
+  .annonce a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+  .annonce button { all: unset; cursor: pointer; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); opacity: .8; font-size: 16px; padding: 4px; }
 
+  /* ----- Héros en blocs ----- */
+  .heros { position: relative; padding: 70px 0 40px; overflow: hidden; isolation: isolate;
+    background: radial-gradient(700px 420px at 12% 18%, rgba(229, 64, 90, .32), transparent 70%),
+      radial-gradient(800px 520px at 88% 30%, rgba(122, 60, 240, .45), transparent 70%),
+      radial-gradient(700px 500px at 60% 100%, rgba(79, 141, 255, .22), transparent 70%), linear-gradient(180deg, #241a3a, #1a1528 60%, var(--pierre)); }
+  .heros::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .07;
+    background-image: linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px); background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000, transparent 75%); }
+  .heros h1 { font: 400 clamp(38px, 6vw, 76px)/.98 'Lilita One', Rajdhani, sans-serif; text-align: center; color: #fff; margin: 0 0 40px; text-transform: uppercase;
+    letter-spacing: .5px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.28)); }
+  .heros h1 span { display: block; background: linear-gradient(90deg, #ff6a7f, #c38bff 55%, #6fa6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .blocs { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 176px; gap: 16px; }
+  .b { position: relative; border-radius: 20px; overflow: hidden; color: #fff; text-decoration: none; isolation: isolate; padding: 26px 28px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.1), inset 0 -4px 0 rgba(0,0,0,.25);
+    transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s; }
+  a.b:hover { transform: translateY(-4px); box-shadow: 0 24px 50px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.2), inset 0 -4px 0 rgba(0,0,0,.25); }
+  .b:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .b h2, .b h3 { font: 400 32px/1 'Lilita One', Rajdhani, sans-serif; margin: 0 0 6px; text-transform: uppercase; letter-spacing: .4px; color: #fff; }
+  .b p { margin: 0; color: rgba(255,255,255,.85); font-size: 15px; }
+  .b .fleche { position: absolute; right: 22px; bottom: 20px; font-size: 22px; opacity: .7; transition: transform .2s; }
+  a.b:hover .fleche { transform: translate(3px, -3px); opacity: 1; }
+  .b .filigrane { position: absolute; right: -18px; bottom: -26px; width: 150px; height: 150px; opacity: .14; z-index: -1; transform: rotate(-12deg); }
+  .b .ico { width: 54px; height: 54px; border-radius: 14px; display: grid; place-items: center; background: rgba(255,255,255,.18); margin-bottom: 14px; }
+  .b .ico svg { width: 28px; height: 28px; }
+  .b-jouer { grid-column: span 7; grid-row: span 2; display: flex; flex-direction: column; padding: 34px; }
+  .b-jouer img.fond-b { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform .6s; }
+  .b-jouer:hover img.fond-b { transform: scale(1.05); }
+  .b-jouer::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(14,10,22,.65), rgba(14,10,22,.1) 45%, rgba(14,10,22,.75)); }
+  .b-jouer h2 { font-size: clamp(34px, 4vw, 48px); text-shadow: 0 3px 12px rgba(0,0,0,.6); }
+  .b-jouer p { font-size: 17px; text-shadow: 0 2px 8px rgba(0,0,0,.8); }
+  .copie { all: unset; cursor: pointer; margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; padding: 13px 20px; border-radius: 12px;
+    background: linear-gradient(180deg, #ff5d75, #d9324d); box-shadow: 0 6px 0 #8f1c30, 0 12px 26px rgba(229, 64, 90, .45); font: 700 16px ui-monospace, Consolas, monospace; color: #fff;
+    transition: transform .1s, box-shadow .1s; }
+  .copie:active { transform: translateY(4px); box-shadow: 0 2px 0 #8f1c30, 0 6px 16px rgba(229, 64, 90, .45); }
+  .copie:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .b-boutique { grid-column: span 5; display: flex; align-items: center; gap: 18px; background: linear-gradient(135deg, #8b4dff, #5a24c9); }
+  .b-boutique .ico { margin: 0; flex: none; width: 64px; height: 64px; }
+  .b-voter, .b-classement { display: flex; flex-direction: column; justify-content: flex-end; }
+  .b-voter { grid-column: span 2; background: linear-gradient(135deg, #2fd48a, #12935a); }
+  .b-classement { grid-column: span 3; background: linear-gradient(135deg, #5b97ff, #2b5ad6); }
+  .b-voter h3, .b-classement h3 { font-size: 26px; }
+  .b-voter .ico, .b-classement .ico { margin-bottom: auto; }
+  .b-enligne { grid-column: span 4; display: grid; place-items: center; text-align: center; background: #241c35; }
+  .b-enligne b { display: block; font: 400 64px/1 'Lilita One', Rajdhani, sans-serif; }
+  .b-enligne span { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,.75); font-weight: 600; letter-spacing: .5px; }
+  .barres { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .barres i { width: 3px; background: var(--emeraude); border-radius: 1px; animation: barre 1s ease-in-out infinite; }
+  .barres i:nth-child(1) { height: 6px; } .barres i:nth-child(2) { height: 14px; animation-delay: .15s; } .barres i:nth-child(3) { height: 9px; animation-delay: .3s; } .barres i:nth-child(4) { height: 12px; animation-delay: .45s; }
+  .b-enligne .barres { display: inline-flex; align-items: flex-end; height: 14px; transform-origin: bottom; }
+  .barres i { transform-origin: bottom; display: block; }
+  @keyframes barre { 50% { transform: scaleY(.45); } }
+  .b-enligne.ferme .barres i { background: #77707f; animation: none; }
+  .b-cta { grid-column: span 8; display: flex; align-items: center; padding-left: 230px; background: linear-gradient(90deg, #2b1f44, #241c35); overflow: visible; }
+  .b-cta .perso { position: absolute; left: 30px; bottom: 0; height: 128%; z-index: 1; filter: drop-shadow(0 10px 20px rgba(0,0,0,.5)); transition: transform .3s; }
+  .b-cta:hover .perso { transform: translateY(-6px) rotate(-2deg); }
+  .b-cta h3 { font-size: 30px; } .b-cta h3 span { color: #c38bff; }
+  .b-cta .tnt { position: absolute; right: 26px; top: 50%; width: 92px; height: 92px; transform: translateY(-50%) rotate(14deg); image-rendering: pixelated; filter: drop-shadow(0 10px 14px rgba(0,0,0,.5));
+    animation: flotte 4s ease-in-out infinite; }
+  @keyframes flotte { 50% { transform: translateY(-58%) rotate(8deg); } }
+  .b-cta > div { padding-right: 120px; position: relative; z-index: 2; }
+  .descendre { display: block; margin: 26px auto 0; width: 34px; height: 34px; color: rgba(255,255,255,.6); animation: rebond 2s ease-in-out infinite; }
+  @keyframes rebond { 50% { transform: translateY(6px); } }
+  .b, .heros h1 { animation: entre .7s cubic-bezier(.2, .8, .2, 1) both; }
+  .blocs > :nth-child(2) { animation-delay: .06s; } .blocs > :nth-child(3) { animation-delay: .12s; } .blocs > :nth-child(4) { animation-delay: .18s; }
+  .blocs > :nth-child(5) { animation-delay: .24s; } .blocs > :nth-child(6) { animation-delay: .3s; }
+  @keyframes entre { from { opacity: 0; transform: translateY(20px) scale(.98); } to { opacity: 1; transform: none; } }
+  @media (max-width: 960px) {
+    .blocs { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 160px; }
+    .b-jouer { grid-column: span 6; } .b-boutique { grid-column: span 6; } .b-voter, .b-classement { grid-column: span 3; }
+    .b-enligne { grid-column: span 6; } .b-cta { grid-column: span 6; padding-left: 170px; } .b-cta .perso { left: 10px; } .b-cta > div { padding-right: 0; } .b-cta .tnt { display: none; }
+  }
+  @media (max-width: 560px) {
+    .b-cta { padding-left: 28px; } .b-cta .perso { display: none; }
+    .b-voter, .b-classement { grid-column: span 6; }
+    .b h2, .b h3 { font-size: 26px; }
+  }
+
+  .gros { display: inline-flex; align-items: center; gap: 10px; padding: 17px 34px; border-radius: 12px; font: 400 22px 'Lilita One', Rajdhani, sans-serif; letter-spacing: .4px; text-transform: uppercase; text-decoration: none; cursor: pointer; border: 0; transition: transform .15s, box-shadow .2s, background .2s; }
+  .gros:hover { transform: translateY(-2px); }
+  .gros.jouer { color: #fff; background: linear-gradient(180deg, #b77cff, #7a3cf0); box-shadow: 0 6px 0 #4a1fa0, 0 14px 34px rgba(150, 90, 255, .5); }
+  .gros.compte { color: #fff; background: rgba(20, 16, 26, .55); box-shadow: inset 0 0 0 2px rgba(255,255,255,.55); }
+  .gros.compte:hover { background: rgba(255,255,255,.12); }
+  .gros:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
   /* ----- Mosaïque illustrée ----- */
   .mosaique { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 250px; gap: 16px; }
   .tuile { position: relative; overflow: hidden; border-radius: 18px; color: #fff; text-decoration: none; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px;
@@ -143,23 +202,36 @@
 </style>
 </head>
 <body>
+<div class="annonce" id="annonce">Nouveau : donjons en groupe, chasse au trésor et pass de saison. <a href="#nouveautes">Voir les nouveautés</a>
+    <button type="button" title="Fermer" onclick="this.parentNode.remove()">✕</button></div>
 <header class="entete" id="entete"></header>
 <main class="accueil">
   <section class="heros">
-    <div class="fond-h"></div>
-    <canvas id="poussiere" aria-hidden="true"></canvas>
-    <div class="contenu">
-      <h1>Le PvP Faction moddé, au feeling 1.8</h1>
-      <p>Forme ta faction, mine du rubis et de l'onyx, fais sauter les bases ennemies et affronte les boss de la warzone. On joue avec un launcher gratuit, sans compte Microsoft.</p>
-      <div class="actions">
-        <a class="gros jouer" href="/jouer">▶ Jouer gratuitement</a>
-        <a class="gros compte" href="/inscription">Créer mon compte</a>
+    <div class="large">
+      <h1>Le serveur PvP Faction <span>moddé au feeling 1.8</span></h1>
+      <div class="blocs">
+        <a class="b b-jouer" href="/jouer"><img class="fond-b" src="img/combat.webp" alt="">
+          <h2>Jouer maintenant</h2><p>Forme ta faction, mine de l'onyx et fais sauter les bases ennemies.</p>
+          <button class="copie" id="copie" type="button" title="Copier l'adresse du serveur">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span id="copie-txt">play.onyxfight.fr</span></button>
+          <span class="fleche">↗</span></a>
+        <a class="b b-boutique" href="/boutique"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
+          <div><h3>Boutique</h3><p>Ailes, capes et compagnons en 3D</p></div><span class="fleche">↗</span>
+          <svg class="filigrane" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></a>
+        <a class="b b-voter" href="/voter"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg></span>
+          <h3>Voter</h3><p>Une clé à chaque vote</p></a>
+        <a class="b b-classement" href="/classement"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 6h3v2a3 3 0 0 1-3 3M7 6H4v2a3 3 0 0 0 3 3"/></svg></span>
+          <h3>Classement</h3><p>Joueurs et factions</p></a>
+        <div class="b b-enligne ferme" id="enligne"><div><b id="n-ligne">–</b><span><span class="barres"><i></i><i></i><i></i><i></i></span><span id="t-ligne">en ligne</span></span></div></div>
+        <a class="b b-cta" href="/inscription"><img class="perso" src="img/heros-perso.webp" alt="">
+          <div><h3>Prêt à rejoindre <span>la guerre</span> ?</h3><p>Crée ton compte gratuit en une minute, sans compte Microsoft.</p></div>
+          <img class="tnt" src="img/dynamite.png" alt=""></a>
       </div>
-      <div><button class="ip" id="etat" type="button" title="Copier l'adresse"><span class="point"></span><b>play.onyxfight.fr</b><span id="statut">…</span></button></div>
+      <a href="#nouveautes" class="descendre" aria-label="Descendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 7 6 6 6-6M6 13l6 6 6-6"/></svg></a>
     </div>
   </section>
 
-  <section class="bloc">
+  <section class="bloc" id="nouveautes">
     <div class="large">
       <h2 class="titre">Ce qui t'attend sur OnyxFight</h2>
       <p class="sous">Un serveur Faction avec du contenu à nous : nouveaux minerais, événements, boss et donjons.</p>
@@ -307,14 +379,15 @@ function compter(id, n) {
   requestAnimationFrame(pas);
 }
 document.addEventListener('DOMContentLoaded', async () => {
-  dessinerAgenda(); poussiere();
-  $('etat').onclick = () => { try { navigator.clipboard.writeText('play.onyxfight.fr'); $('statut').textContent = 'adresse copiée'; } catch (e) { /* rien */ } };
+  dessinerAgenda();
+  $('copie').onclick = (e) => { e.preventDefault(); e.stopPropagation();
+    try { navigator.clipboard.writeText('play.onyxfight.fr'); $('copie-txt').textContent = 'Adresse copiée !'; setTimeout(() => { $('copie-txt').textContent = 'play.onyxfight.fr'; }, 1600); } catch (x) { /* rien */ } };
   try {
     const s = await (await fetch('/api/statut')).json();
-    $('etat').classList.toggle('ouvert', !!s.enLigne);
-    $('statut').textContent = s.enLigne ? s.joueurs + ' en ligne' : 'serveur fermé pour le moment';
-    compter('n-joueurs', s.enLigne ? s.joueurs : 0);
-  } catch (e) { $('statut').textContent = ''; $('n-joueurs').textContent = '0'; }
+    $('enligne').classList.toggle('ferme', !s.enLigne);
+    $('t-ligne').textContent = s.enLigne ? 'EN LIGNE' : 'SERVEUR FERMÉ';
+    compter('n-ligne', s.enLigne ? s.joueurs : 0); compter('n-joueurs', s.enLigne ? s.joueurs : 0);
+  } catch (e) { $('n-ligne').textContent = '0'; $('n-joueurs').textContent = '0'; }
   try {
     const r = await (await fetch('/api/factions')).json();
     const l = (r.factions || []).sort((a, b) => b.puissance - a.puissance);
