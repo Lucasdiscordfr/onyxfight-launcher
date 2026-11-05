@@ -298,3 +298,10 @@ body::before { background: linear-gradient(180deg, rgba(10,10,10,.6), rgba(10,10
   filter: drop-shadow(0 4px 0 rgba(0,0,0,.3)); }
 .banniere-page p { color: #ece6f5; margin: 0; max-width: 34em; font-size: 17px; text-shadow: 0 2px 10px rgba(0,0,0,.7); }
 @media (max-width: 600px) { .banniere-page { min-height: 200px; padding: 24px; } }
+
+.banniere-page.plein { min-height: 0; aspect-ratio: 16 / 9; padding: 0; max-width: 960px; margin-left: auto; margin-right: auto; }
+.banniere-page.plein::before { display: none; }
+.banniere-page.plein img { object-position: 50% 45%; }
+.sous-banniere { text-align: center; color: var(--gris); margin: -14px auto 30px; max-width: 46em; line-height: 1.6; }
+
+.titre-cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
