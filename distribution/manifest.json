@@ -77,6 +77,24 @@
         "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar",
         "sha1": "c3e5733ba4503b102589a026000fd5ce0212f6f2",
         "taille": 1163890
+      },
+      {
+        "chemin": "mods/voicechat-neoforge-1.21.1-2.6.24.jar",
+        "url": "https://cdn.modrinth.com/data/9eGKb6K1/versions/qqNx1Yjm/voicechat-neoforge-1.21.1-2.6.24.jar",
+        "sha1": "436ee200d5192ffda65fcf70c42c086fcdc00826",
+        "taille": 4934688
+      },
+      {
+        "chemin": "mods/easy_npc-neoforge-1.21.1-7.18.0.jar",
+        "url": "https://cdn.modrinth.com/data/Epm6R3P2/versions/9TVwS7rU/easy_npc-neoforge-1.21.1-7.18.0.jar",
+        "sha1": "ca84b46e2c4d907c8b3fce3447d2ddf41034b8c8",
+        "taille": 3132335
+      },
+      {
+        "chemin": "mods/easy_npc_config_ui-neoforge-1.21.1-7.18.0.jar",
+        "url": "https://cdn.modrinth.com/data/uTGjf7vA/versions/5k9n62gb/easy_npc_config_ui-neoforge-1.21.1-7.18.0.jar",
+        "sha1": "7b9564421c4c50e4d0cd7168c5442bb3a34fabc3",
+        "taille": 1186275
       }
     ]
   },

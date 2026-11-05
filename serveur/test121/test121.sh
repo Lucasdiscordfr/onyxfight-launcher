@@ -61,6 +61,16 @@ echo "=== Mods tiers (téléchargés depuis leurs sites officiels) ==="
   "https://cdn.modrinth.com/data/ha1mEyJS/versions/yjxtkvnD/PlayerAnimationLibNeoforge-1.1.6%2Bmc.1.21.1.jar"
 [ -f mods/cloth-config-15.0.140-neoforge.jar ] || curl -fsSL -o mods/cloth-config-15.0.140-neoforge.jar \
   https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar
+# Simple Voice Chat (henkelmax) : chat vocal (port UDP 24454 à ouvrir)
+[ -f mods/voicechat-neoforge-1.21.1-2.6.24.jar ] || curl -fsSL -o mods/voicechat-neoforge-1.21.1-2.6.24.jar \
+  https://cdn.modrinth.com/data/9eGKb6K1/versions/qqNx1Yjm/voicechat-neoforge-1.21.1-2.6.24.jar
+# Easy NPC (MarkusBordihn) + son interface de réglage
+[ -f mods/easy_npc-neoforge-1.21.1-7.18.0.jar ] || curl -fsSL -o mods/easy_npc-neoforge-1.21.1-7.18.0.jar \
+  https://cdn.modrinth.com/data/Epm6R3P2/versions/9TVwS7rU/easy_npc-neoforge-1.21.1-7.18.0.jar
+[ -f mods/easy_npc_config_ui-neoforge-1.21.1-7.18.0.jar ] || curl -fsSL -o mods/easy_npc_config_ui-neoforge-1.21.1-7.18.0.jar \
+  https://cdn.modrinth.com/data/uTGjf7vA/versions/5k9n62gb/easy_npc_config_ui-neoforge-1.21.1-7.18.0.jar
+# Ouvre le port du chat vocal si le pare-feu ufw est actif
+if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow 24454/udp >/dev/null || true; fi
 ls -la mods
 
 echo "=== Plugin OnyxFight 1.21.1 ==="
