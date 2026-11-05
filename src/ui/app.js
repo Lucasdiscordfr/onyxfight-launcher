@@ -110,6 +110,18 @@ function ouvrirReglages() {
 
 // Un personnage différent à chaque ouverture (onyx, rubis, émeraude, saphir)
 const PERSONNAGES = ['onyx']; // thème noir/gris/blanc
+// Fond au hasard parmi les illustrations, qui change toutes les 40 secondes
+(function () {
+  const fond = document.querySelector('.fond');
+  if (!fond) return;
+  let n = 1 + Math.floor(Math.random() * 4);
+  const poser = () => { fond.style.backgroundImage = "url('../../assets/fond" + n + ".jpg')"; };
+  poser();
+  setInterval(() => {
+    fond.style.opacity = '0';
+    setTimeout(() => { n = n % 4 + 1; poser(); fond.style.opacity = '1'; }, 1200);
+  }, 40000);
+})();
 document.getElementById('personnage').src = '../../assets/personnage-' + PERSONNAGES[Math.floor(Math.random() * PERSONNAGES.length)] + '.png';
 
 async function demarrer() {

@@ -28,7 +28,8 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   position: fixed; inset: 0;
   background: url('../../assets/fond.jpg') center / cover no-repeat;
   transform: scale(1.03);
-  filter: grayscale(1) brightness(0.62) contrast(1.1);
+  filter: saturate(0.55) brightness(0.6) contrast(1.05);
+  transition: opacity 1.2s;
 }
 .voile {
   position: fixed; inset: 0;
