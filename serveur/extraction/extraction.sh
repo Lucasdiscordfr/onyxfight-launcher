@@ -30,7 +30,7 @@ id onyx >/dev/null 2>&1 || useradd -r -m -d "$RACINE" -s /bin/bash onyx
 echo "=== Arrêt du serveur Extraction (s'il tourne) ==="
 if sudo -u onyx tmux -L extraction has-session -t extraction 2>/dev/null; then
   sudo -u onyx tmux -L extraction send-keys -t extraction "stop" Enter
-  for i in $(seq 1 90); do pgrep -u onyx -f "arclight.jar" >/dev/null || break; sleep 1; done
+  for i in $(seq 1 90); do pgrep -u onyx -f "^java .*arclight.jar" >/dev/null || break; sleep 1; done
   sudo -u onyx tmux -L extraction kill-session -t extraction 2>/dev/null || true
 fi
 
