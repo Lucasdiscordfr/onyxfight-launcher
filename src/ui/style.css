@@ -158,3 +158,11 @@ main { z-index: 2; }
 .connexion input { background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.35); color: var(--texte); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 14px; }
 .connexion input:focus { outline: 2px solid var(--violet); border-color: transparent; }
 .connexion .petit .lien { padding: 0; font-size: inherit; }
+
+/* Choix du mode de jeu */
+.modes { display: flex; flex-direction: column; gap: 8px; }
+.mode { width: 100%; text-align: left; cursor: pointer; color: inherit; font: inherit; transition: border-color .15s, background .15s; }
+.mode:hover { border-color: rgba(255, 255, 255, 0.28); }
+.mode.actif { border-color: var(--texte); background: rgba(255, 255, 255, 0.07); }
+.badge { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 1px 6px; margin-left: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.14); color: var(--texte); vertical-align: 1px; }

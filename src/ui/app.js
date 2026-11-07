@@ -90,12 +90,35 @@ async function chargerActus() {
   });
 }
 
+// Modes de jeu : une carte par mode (nom, joueurs en ligne) ; le mode choisi est celui que JOUER lance
+let modes = [], modeActif = null;
 async function chargerStatut() {
-  const s = await window.onyx.statut();
-  $('pastille').className = 'pastille ' + (s.enLigne ? 'ok' : 'ko');
-  $('statut').textContent = s.enLigne ? `${s.joueurs} / ${s.max} joueurs en ligne` : 'Serveur hors ligne ou injoignable';
-  const titre = document.querySelector('#statut').parentElement.querySelector('strong');
-  if (titre) titre.textContent = 'Serveur OnyxFight';
+  const r = await window.onyx.modes();
+  modes = r.modes && r.modes.length ? r.modes : [{ id: 'faction', nom: 'Faction', sous: '', badge: '' }];
+  modeActif = modes.some((m) => m.id === r.choisi) ? r.choisi : modes[0].id;
+  const zone = $('modes');
+  zone.innerHTML = modes.map((m, i) => `<button class="carte serveur mode${m.id === modeActif ? ' actif' : ''}" data-i="${i}">
+      <span class="pastille" id="pastille-${i}"></span>
+      <div>
+        <strong>${echapper(m.nom)}${m.badge ? ` <em class="badge">${echapper(m.badge)}</em>` : ''}</strong>
+        <span class="petit" id="statut-${i}">${echapper(m.sous || 'Recherche du serveur…')}</span>
+      </div>
+    </button>`).join('');
+  zone.querySelectorAll('button[data-i]').forEach((el) => {
+    el.addEventListener('click', async () => {
+      if (enCours) return;
+      modeActif = modes[el.dataset.i].id;
+      zone.querySelectorAll('.mode').forEach((b) => b.classList.toggle('actif', b === el));
+      await window.onyx.choisirMode(modeActif);
+    });
+  });
+  modes.forEach(async (m, i) => {
+    const s = await window.onyx.statut(m.id);
+    const p = $('pastille-' + i), t = $('statut-' + i);
+    if (!p || !t) return;
+    p.className = 'pastille ' + (s.enLigne ? 'ok' : 'ko');
+    t.textContent = s.enLigne ? `${s.joueurs} / ${s.max} joueurs en ligne` : 'Hors ligne';
+  });
 }
 
 function ouvrirReglages() {

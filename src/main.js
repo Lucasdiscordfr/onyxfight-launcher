@@ -102,12 +102,43 @@ ipcMain.handle('actualites', async () => {
   }
 });
 
-ipcMain.handle('statut', async () => {
+/**
+ * Modes de jeu du manifeste (« modes »: [{id, nom, sous, badge, serveur, ajouts, fichiers, ouvert}]) ; chaque mode reprend la
+ * base « v121 » (NeoForge, mods communs) et ajoute ses propres fichiers. Sans « modes » : un seul mode, le Faction.
+ */
+function listeModes(m) {
+  const v = m.v121 || {};
+  const brut = Array.isArray(m.modes) && m.modes.length ? m.modes : [{ id: 'faction', nom: 'Faction' }];
+  return brut.filter((x) => x && x.id && x.ouvert !== false).map((x) => ({
+    id: String(x.id), nom: String(x.nom || x.id), sous: String(x.sous || ''), badge: String(x.badge || ''),
+    serveur: x.serveur || v.serveur || m.serveur || cfg.SERVEUR,
+    fichiers: Array.isArray(x.fichiers) ? x.fichiers : (v.fichiers || []).concat(Array.isArray(x.ajouts) ? x.ajouts : []),
+  }));
+}
+function modeChoisi(m) {
+  const l = listeModes(m);
+  return l.find((x) => x.id === reglages().mode) || l[0];
+}
+ipcMain.handle('modes', async () => {
   try {
     const m = await lireJson(cfg.MANIFESTE);
-    // Le serveur 1.21.1 est désormais le serveur OnyxFight (l'ancien 1.7.10 n'est plus proposé)
+    const choisi = modeChoisi(m);
+    return { modes: listeModes(m).map((x) => ({ id: x.id, nom: x.nom, sous: x.sous, badge: x.badge })), choisi: choisi && choisi.id };
+  } catch (e) {
+    return { modes: [], choisi: null };
+  }
+});
+ipcMain.handle('mode:choisir', async (e, id) => {
+  sauverReglages(Object.assign(reglages(), { mode: String(id || '') }));
+  return true;
+});
+
+ipcMain.handle('statut', async (e, id) => {
+  try {
+    const m = await lireJson(cfg.MANIFESTE);
+    const mode = listeModes(m).find((x) => x.id === id) || modeChoisi(m);
     const test = !!m.v121;
-    const s = test ? m.v121.serveur : m.serveur || cfg.SERVEUR;
+    const s = test ? mode.serveur : m.serveur || cfg.SERVEUR;
     const util = require('minecraft-server-util');
     const r = await util.status(s.hote, s.port || 25565, { timeout: 4000, enableSRV: !test });
     return { enLigne: true, joueurs: r.players.online, max: r.players.max, adresse: s.hote, test: !!test };
@@ -212,8 +243,11 @@ ipcMain.handle('jouer', async () => {
     Compte.regler(manifeste.comptes);
     if (manifeste.comptes) r.comptes = manifeste.comptes;
     const autorisation = await compte.pourJouer();
-    const v121 = manifeste.v121;
-    if (!v121) throw new Error("Le serveur OnyxFight n'est pas disponible pour le moment.");
+    if (!manifeste.v121) throw new Error("Le serveur OnyxFight n'est pas disponible pour le moment.");
+    // Le mode choisi : son serveur et ses mods, sur la base 1.21.1 commune
+    const mode = modeChoisi(manifeste);
+    const v121 = Object.assign({}, manifeste.v121, { serveur: mode.serveur, fichiers: mode.fichiers });
+    flux.write('Mode : ' + mode.id + ' (' + mode.serveur.hote + ':' + (mode.serveur.port || 25565) + ')\n');
     await jouer121(r, autorisation, v121, {
       etat: (texte, part) => envoyer('etat', { texte, part }),
       journal: (l) => flux.write(l.endsWith('\n') ? l : l + '\n'),
