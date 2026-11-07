@@ -98,5 +98,30 @@
       }
     ]
   },
-  "comptes": "https://play.onyxfight.fr"
+  "comptes": "https://play.onyxfight.fr",
+  "modes": [
+    {
+      "id": "faction",
+      "nom": "Faction",
+      "sous": "PvP, factions et événements"
+    },
+    {
+      "id": "extraction",
+      "nom": "Extraction",
+      "badge": "Test",
+      "sous": "Raids, armes, butin à ramener",
+      "serveur": {
+        "hote": "54.38.26.11",
+        "port": 25570
+      },
+      "ajouts": [
+        {
+          "chemin": "mods/tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar",
+          "url": "https://cdn.modrinth.com/data/OypNE65K/versions/62q6mB5Q/tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar",
+          "sha1": "c6ef4976de69a46c4e267bd7f91c730d2dc43a4e",
+          "taille": 57247579
+        }
+      ]
+    }
+  ]
 }
