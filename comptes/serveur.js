@@ -12,6 +12,9 @@ const path = require('path');
 const crypto = require('crypto');
 
 const PORT = parseInt(process.env.ONYX_PORT || '8090', 10);
+// Autres serveurs de jeu d'OnyxFight (ex. le VPS du mode Extraction) autorisés à vérifier les connexions, par adresse IP.
+// Caddy remplace l'en-tête X-Forwarded-For par l'adresse réelle : elle ne peut pas être falsifiée par le client.
+const CONFIANCE = new Set(String(process.env.ONYX_CONFIANCE || '').split(/[\s,]+/).filter(Boolean));
 const DONNEES = process.env.ONYX_DONNEES || path.join(__dirname, 'donnees');
 const SITE = process.env.ONYX_SITE || path.join(__dirname, 'site');
 const LOGS = path.join(DONNEES, 'logs'); // logs par joueur (une ligne JSON par événement)
@@ -1158,8 +1161,9 @@ http.createServer((req, res) => {
   // Adresse du joueur (Caddy la passe) ; directement sinon
   const ip = (local && req.headers['x-forwarded-for'] ? String(req.headers['x-forwarded-for']).split(',')[0].trim() : req.socket.remoteAddress) || '?';
   if (url.pathname === '/api/verifier') {
-    // Caddy ajoute X-Forwarded-For : une requête qui vient d'Internet n'y a jamais accès
-    if (!local || req.headers['x-forwarded-for']) return envoyer(res, 403, { erreur: 'Interdit' });
+    // Caddy ajoute X-Forwarded-For : une requête qui vient d'Internet n'y a accès que depuis nos autres serveurs de jeu
+    const xff = req.headers['x-forwarded-for'];
+    if (!local || (xff && !CONFIANCE.has(String(xff).split(',')[0].trim()))) return envoyer(res, 403, { erreur: 'Interdit' });
     const [c, r] = verifier(url.searchParams);
     return envoyer(res, c, r);
   }

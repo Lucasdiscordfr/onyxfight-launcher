@@ -76,6 +76,7 @@ After=network.target
 [Service]
 User=comptes
 Environment=ONYX_PORT=8090
+Environment="ONYX_CONFIANCE=${ONYX_CONFIANCE:-54.38.26.11 2001:41d0:20a:900::2b2b}"
 Environment=ONYX_DONNEES=$DOSSIER/donnees
 Environment=ONYX_SITE=$DOSSIER/site
 Environment=ONYX_SITE_MOD=$DOSSIER/site-moderation

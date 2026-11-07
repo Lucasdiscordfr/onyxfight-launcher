@@ -75,6 +75,10 @@ view-distance=10
 simulation-distance=8
 motd=OnyxFight - Extraction (test)
 EOF
+# Comptes OnyxFight : pseudo + mot de passe du site, vérifiés par le service des comptes du serveur principal
+# (il autorise ce VPS par son adresse IP : variable ONYX_CONFIANCE de comptes/installer.sh)
+mkdir -p config
+printf 'actif=true\napi=https://play.onyxfight.fr\ndelai_secondes=20\n' > config/onyxfight-comptes.properties
 chown -R onyx:onyx "$RACINE"
 if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow $PORT/tcp >/dev/null || true; fi
 
