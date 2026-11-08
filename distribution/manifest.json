@@ -182,10 +182,10 @@
           "taille": 6612829
         },
         {
-          "chemin": "mods/superbwarfare-1.21.1-0.8.8-final-0cfd00d5.jar",
-          "url": "https://cdn.modrinth.com/data/Cd3DYqzn/versions/IuVaj8GV/superbwarfare-1.21.1-0.8.8-final-0cfd00d5.jar",
-          "sha1": "154e5b39b4544c0ab7875413e4ec30ab54007390",
-          "taille": 25650908
+          "chemin": "mods/superbwarfare-0.8.9-final-mc1.21.1-9b5284f4.jar",
+          "url": "https://cdn.modrinth.com/data/Cd3DYqzn/versions/Qdwf6rIX/superbwarfare-0.8.9-final-mc1.21.1-9b5284f4.jar",
+          "sha1": "4efc370919a87480b95975f180f41d0288314ee3",
+          "taille": 31688244
         },
         {
           "chemin": "mods/SmoothPlayerAnimations_Neoforge_1.21.1_2.0.2.jar",
