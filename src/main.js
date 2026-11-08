@@ -103,7 +103,7 @@ ipcMain.handle('actualites', async () => {
 });
 
 /**
- * Modes de jeu du manifeste (« modes »: [{id, nom, sous, badge, serveur, ajouts, sans, fichiers, ouvert}]) ; chaque mode reprend la
+ * Modes de jeu du manifeste (« modes »: [{id, nom, sous, badge, serveur, neoforge, ajouts, sans, fichiers, ouvert}]) ; chaque mode reprend la
  * base « v121 » (NeoForge, mods communs) et ajoute ses propres fichiers. Sans « modes » : un seul mode, le Faction.
  */
 function listeModes(m) {
@@ -112,6 +112,8 @@ function listeModes(m) {
   return brut.filter((x) => x && x.id && x.ouvert !== false).map((x) => ({
     id: String(x.id), nom: String(x.nom || x.id), sous: String(x.sous || ''), badge: String(x.badge || ''),
     serveur: x.serveur || v.serveur || m.serveur || cfg.SERVEUR,
+    // Version de NeoForge propre au mode (sinon celle de la base)
+    neoforge: x.neoforge || v.neoforge,
     // « sans » : fichiers de la base que ce mode n'utilise pas (ex. un mod d'animations remplacé par un autre)
     fichiers: Array.isArray(x.fichiers) ? x.fichiers : (v.fichiers || [])
       .filter((f) => !(Array.isArray(x.sans) && x.sans.some((n) => String(f.chemin || '').includes(n))))
@@ -249,7 +251,7 @@ ipcMain.handle('jouer', async () => {
     if (!manifeste.v121) throw new Error("Le serveur OnyxFight n'est pas disponible pour le moment.");
     // Le mode choisi : son serveur et ses mods, sur la base 1.21.1 commune
     const mode = modeChoisi(manifeste);
-    const v121 = Object.assign({}, manifeste.v121, { serveur: mode.serveur, fichiers: mode.fichiers });
+    const v121 = Object.assign({}, manifeste.v121, { serveur: mode.serveur, fichiers: mode.fichiers, neoforge: mode.neoforge || manifeste.v121.neoforge });
     flux.write('Mode : ' + mode.id + ' (' + mode.serveur.hote + ':' + (mode.serveur.port || 25565) + ')\n');
     await jouer121(r, autorisation, v121, {
       etat: (texte, part) => envoyer('etat', { texte, part }),

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Serveur de TEST du mode Extraction (Arclight = NeoForge 1.21.1 + plugins Bukkit, mod OnyxFight + armes TaCZ), sur le VPS.
+# Serveur de TEST du mode Extraction (NeoForge 1.21.1 récent, sans Arclight : aucun plugin Bukkit ici), sur le VPS.
 #
 #   curl -fsSL https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/serveur/extraction/extraction.sh | sudo bash
 #
@@ -11,9 +11,8 @@
 set -euo pipefail
 RACINE=/opt/onyxfight
 DOSSIER=$RACINE/extraction
-NEOFORGE=21.1.192
+NEOFORGE=21.1.265
 PORT=25570
-ARCLIGHT=https://github.com/IzzelAliz/Arclight/releases/download/FeudalKings%2F1.0.1/arclight-neoforge-1.21.1-1.0.1-8ec9529.jar
 MOD=https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod121/onyxfight-1.21.1.jar
 JDK=/usr/lib/jvm/java-21-openjdk-amd64
 [ "$(id -u)" = 0 ] || { echo "Lance ce script avec sudo."; exit 1; }
@@ -44,8 +43,15 @@ fi
 install -d -o onyx -g onyx "$RACINE" "$DOSSIER" "$DOSSIER/mods" "$DOSSIER/plugins"
 cd "$DOSSIER"
 
-echo "=== Arclight (NeoForge $NEOFORGE + plugins) ==="
-[ -f arclight.jar ] || curl -fsSL -o arclight.jar "$ARCLIGHT"
+echo "=== NeoForge $NEOFORGE ==="
+# Installé une fois par version (l'installateur prépare les bibliothèques et les arguments de lancement)
+if [ ! -f "libraries/net/neoforged/neoforge/$NEOFORGE/unix_args.txt" ]; then
+  curl -fsSL --retry 4 -o neoforge-installer.jar "https://maven.neoforged.net/releases/net/neoforged/neoforge/$NEOFORGE/neoforge-$NEOFORGE-installer.jar"
+  sudo -u onyx "$JDK/bin/java" -jar neoforge-installer.jar --installServer >/dev/null 2>&1 || { echo "  ! installation de NeoForge impossible"; exit 1; }
+  rm -f neoforge-installer.jar neoforge-installer.jar.log run.bat
+fi
+# Ancien serveur Arclight : on le met de côté (et ses dossiers Bukkit ne servent plus)
+[ -f arclight.jar ] && mv -f arclight.jar arclight.jar.ancien
 echo "-Xms2G -Xmx6G -XX:+UseG1GC -XX:MaxGCPauseMillis=100" > user_jvm_args.txt
 echo "eula=true" > eula.txt
 
@@ -83,6 +89,10 @@ telecharger LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar https://cdn.modrint
 telecharger superbwarfare-1.21.1-0.8.8-final-0cfd00d5.jar https://cdn.modrinth.com/data/Cd3DYqzn/versions/IuVaj8GV/superbwarfare-1.21.1-0.8.8-final-0cfd00d5.jar
 # Côté serveur uniquement (les joueurs n'en ont pas besoin)
 telecharger worldedit-mod-7.3.8.jar https://cdn.modrinth.com/data/1u6JkXh5/versions/WTAFvuRx/worldedit-mod-7.3.8.jar
+# Débloqués par le passage à NeoForge récent
+telecharger spore_1.21.1_2.2.0j_neo.jar https://cdn.modrinth.com/data/X661i40C/versions/DwE3w8IX/spore_1.21.1_2.2.0j_neo.jar
+telecharger fracturepoint-1.21.1-3.0.0-PT1-fix.jar https://cdn.modrinth.com/data/N4vy2cag/versions/7pJnGOUF/fracturepoint-1.21.1-3.0.0-PT1-fix.jar
+telecharger ParCool-1.21.1-4.0.2.0.jar https://cdn.modrinth.com/data/Fsvx2bdR/versions/kMBO0X7s/ParCool-1.21.1-4.0.2.0.jar
 ls -la mods
 
 echo "=== Monde ==="
@@ -114,7 +124,7 @@ echo "=== Démarrage ==="
 # « lumiere » : met à jour toutes les cartes et recalcule l'éclairage (zones sombres sur les vieilles cartes) avant de démarrer
 OPTIONS=""
 if [ "${1:-}" = "lumiere" ]; then OPTIONS="--forceUpgrade --eraseCache"; echo "Mise à jour complète des cartes et de l'éclairage : le démarrage prendra plusieurs minutes."; fi
-sudo -u onyx tmux -L extraction new-session -d -s extraction "cd $DOSSIER && JAVA_HOME=$JDK PATH=$JDK/bin:\$PATH java @user_jvm_args.txt -jar arclight.jar nogui $OPTIONS; echo; echo 'Serveur Extraction arrêté. Entrée pour fermer.'; read"
+sudo -u onyx tmux -L extraction new-session -d -s extraction "cd $DOSSIER && JAVA_HOME=$JDK PATH=$JDK/bin:\$PATH java @user_jvm_args.txt @libraries/net/neoforged/neoforge/$NEOFORGE/unix_args.txt nogui $OPTIONS; echo; echo 'Serveur Extraction arrêté. Entrée pour fermer.'; read"
 echo "Serveur Extraction lancé sur le port $PORT (liste blanche active)."
 echo "Premier démarrage : 2 à 4 minutes (installation de NeoForge)."
 echo "Console : sudo -u onyx tmux -L extraction attach -t extraction   (Ctrl+B puis D pour sortir)"
