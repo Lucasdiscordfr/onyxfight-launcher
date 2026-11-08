@@ -110,7 +110,10 @@ chown -R onyx:onyx "$RACINE"
 if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow $PORT/tcp >/dev/null || true; fi
 
 echo "=== Démarrage ==="
-sudo -u onyx tmux -L extraction new-session -d -s extraction "cd $DOSSIER && JAVA_HOME=$JDK PATH=$JDK/bin:\$PATH java @user_jvm_args.txt -jar arclight.jar nogui; echo; echo 'Serveur Extraction arrêté. Entrée pour fermer.'; read"
+# « lumiere » : met à jour toutes les cartes et recalcule l'éclairage (zones sombres sur les vieilles cartes) avant de démarrer
+OPTIONS=""
+if [ "${1:-}" = "lumiere" ]; then OPTIONS="--forceUpgrade --eraseCache"; echo "Mise à jour complète des cartes et de l'éclairage : le démarrage prendra plusieurs minutes."; fi
+sudo -u onyx tmux -L extraction new-session -d -s extraction "cd $DOSSIER && JAVA_HOME=$JDK PATH=$JDK/bin:\$PATH java @user_jvm_args.txt -jar arclight.jar nogui $OPTIONS; echo; echo 'Serveur Extraction arrêté. Entrée pour fermer.'; read"
 echo "Serveur Extraction lancé sur le port $PORT (liste blanche active)."
 echo "Premier démarrage : 2 à 4 minutes (installation de NeoForge)."
 echo "Console : sudo -u onyx tmux -L extraction attach -t extraction   (Ctrl+B puis D pour sortir)"
