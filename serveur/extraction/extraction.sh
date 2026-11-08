@@ -50,8 +50,14 @@ echo "-Xms2G -Xmx6G -XX:+UseG1GC -XX:MaxGCPauseMillis=100" > user_jvm_args.txt
 echo "eula=true" > eula.txt
 
 echo "=== Mods ==="
-curl -fsSL -o mods/onyxfight-1.21.1.jar "$MOD"
-telecharger() { [ -f "mods/$1" ] || curl -fsSL -o "mods/$1" "$2"; }
+# Téléchargements avec délai maximum et nouvelles tentatives ; un fichier n'est gardé qu'une fois complet
+recuperer() {
+  echo "  - $2"
+  curl -fsSL --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 15 --max-time 600 -o "$1.part" "$3" && mv -f "$1.part" "$1" \
+    || { rm -f "$1.part"; echo "  ! échec : $2 (relance le script)"; exit 1; }
+}
+recuperer mods/onyxfight-1.21.1.jar onyxfight-1.21.1.jar "$MOD"
+telecharger() { [ -f "mods/$1" ] || recuperer "mods/$1" "$1" "$2"; }
 # Mêmes mods que le serveur principal 1.21.1 (le client du launcher les a déjà)
 telecharger coroutil-neoforge-1.21.0-1.3.8.jar https://cdn.modrinth.com/data/rLLJ1OZM/versions/H2YXCYUY/coroutil-neoforge-1.21.0-1.3.8.jar
 telecharger watut-neoforge-1.21.0-1.2.3.jar https://mediafilez.forgecdn.net/files/6315/277/watut-neoforge-1.21.0-1.2.3.jar
