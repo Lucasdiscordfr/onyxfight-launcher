@@ -5,6 +5,7 @@
 #
 # Relancer la commande met les mods à jour et redémarre le serveur (le monde est gardé).
 # Monde neuf : ... | sudo bash -s -- neuf
+# Vider l'espace du vaisseau (avant de poser une autre base) : ... | sudo bash -s -- vaisseau-neuf
 # Console : sudo -u onyx tmux -L extraction attach -t extraction   (Ctrl+B puis D pour sortir)
 # Ne touche à rien d'autre sur la machine (ni aux services crepuscule-*, ni à /srv).
 set -euo pipefail
@@ -60,6 +61,7 @@ ls -la mods
 
 echo "=== Monde ==="
 if [ "${1:-}" = "neuf" ]; then rm -rf world; echo "Monde remis à zéro."; fi
+if [ "${1:-}" = "vaisseau-neuf" ]; then rm -rf world/onyxfight/vaisseau; echo "Espace du vaisseau vidé (la base sera reposée avec /carte coller)."; fi
 
 # Serveur de test fermé : liste blanche active (ajouter quelqu'un : whitelist add Pseudo dans la console)
 cat > server.properties <<EOF
