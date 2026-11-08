@@ -70,6 +70,9 @@ telecharger geckolib-neoforge-1.21.1-4.9.3.jar https://cdn.modrinth.com/data/8Bm
 telecharger player-animation-lib-forge-2.0.4+1.21.1.jar https://cdn.modrinth.com/data/gedNE4y2/versions/HJZB6bmA/player-animation-lib-forge-2.0.4%2B1.21.1.jar
 telecharger zrikons_military_armor-1.0.2-neoforge-1.21.1.jar https://cdn.modrinth.com/data/TbpolJwJ/versions/pGTyY70z/zrikons_military_armor-1.0.2-neoforge-1.21.1.jar
 telecharger military_armor-neoforge-1.21.1-2.0.1.jar https://cdn.modrinth.com/data/3jCkacxI/versions/EcAyp7yP/military_armor-neoforge-1.21.1-2.0.1.jar
+telecharger curios-neoforge-9.5.1+1.21.1.jar https://cdn.modrinth.com/data/vvuO3ImH/versions/yohfFbgD/curios-neoforge-9.5.1%2B1.21.1.jar
+telecharger ncx_tacadd-1.4.0-neoforge-1.21.1.jar https://cdn.modrinth.com/data/wxXj6ZMS/versions/sejcFOAi/ncx_tacadd-1.4.0-neoforge-1.21.1.jar
+telecharger LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar https://cdn.modrinth.com/data/zSKr1DYY/versions/fcwJFQFG/LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar
 ls -la mods
 
 echo "=== Monde ==="

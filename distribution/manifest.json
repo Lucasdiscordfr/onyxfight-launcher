@@ -174,6 +174,24 @@
           "url": "https://cdn.modrinth.com/data/gedNE4y2/versions/HJZB6bmA/player-animation-lib-forge-2.0.4%2B1.21.1.jar",
           "sha1": "05be8ddcc78532b9a5520c718edc6c971cd0057c",
           "taille": 203149
+        },
+        {
+          "chemin": "mods/curios-neoforge-9.5.1+1.21.1.jar",
+          "url": "https://cdn.modrinth.com/data/vvuO3ImH/versions/yohfFbgD/curios-neoforge-9.5.1%2B1.21.1.jar",
+          "sha1": "418fcd42e3a7844c9bdc71c9b6401fdb3894e0c4",
+          "taille": 410690
+        },
+        {
+          "chemin": "mods/ncx_tacadd-1.4.0-neoforge-1.21.1.jar",
+          "url": "https://cdn.modrinth.com/data/wxXj6ZMS/versions/sejcFOAi/ncx_tacadd-1.4.0-neoforge-1.21.1.jar",
+          "sha1": "739aacba33e7f8f96d07269e8dfa64384af0a03f",
+          "taille": 26449481
+        },
+        {
+          "chemin": "mods/LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar",
+          "url": "https://cdn.modrinth.com/data/zSKr1DYY/versions/fcwJFQFG/LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar",
+          "sha1": "d4e5b0a5a2d03092cac11dd2b7b3a60dc4f5ddfd",
+          "taille": 6612829
         }
       ]
     }
