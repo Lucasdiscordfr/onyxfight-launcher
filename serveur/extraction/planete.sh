@@ -28,6 +28,19 @@ LEVEL=$(find "$TMP" -name level.dat | head -1)
 if [ -n "$LEVEL" ] && [ -d "$(dirname "$LEVEL")/region" ]; then REG="$(dirname "$LEVEL")/region"; else REG=$(find "$TMP" -type d -name region | head -1); fi
 [ -n "$REG" ] || { echo "Pas de dossier « region » dans le zip."; rm -rf "$TMP"; exit 1; }
 SRC=$(dirname "$REG")
+
+# Monde plus récent que le serveur (1.21.2 et +) : on le ramène en 1.21.1 (blocs inconnus remplacés par les plus proches)
+VERSION=0
+if [ -f "$SRC/level.dat" ]; then
+  command -v pip3 >/dev/null || apt-get -o DPkg::Lock::Timeout=900 install -yq python3-pip >/dev/null
+  python3 -c "import nbtlib" 2>/dev/null || pip3 install -q --break-system-packages nbtlib
+  VERSION=$(python3 -c "import nbtlib,sys; print(int(nbtlib.load(sys.argv[1])['Data'].get('DataVersion', 0)))" "$SRC/level.dat" 2>/dev/null || echo 0)
+fi
+if [ "$VERSION" -gt 3955 ]; then
+  echo "=== Monde en version $VERSION : conversion en 1.21.1 ==="
+  curl -fsSL "https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/serveur/extraction/descendre.py?t=$(date +%s)" -o "$TMP/descendre.py"
+  ( cd "$SRC" && python3 "$TMP/descendre.py" $(for d in region entities poi; do [ -d "$d" ] && echo "$d"; done) )
+fi
 rm -rf "$CIBLE"
 mkdir -p "$CIBLE"
 for d in region entities poi; do [ -d "$SRC/$d" ] && cp -a "$SRC/$d" "$CIBLE/"; done
