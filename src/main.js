@@ -103,7 +103,7 @@ ipcMain.handle('actualites', async () => {
 });
 
 /**
- * Modes de jeu du manifeste (« modes »: [{id, nom, sous, badge, serveur, ajouts, fichiers, ouvert}]) ; chaque mode reprend la
+ * Modes de jeu du manifeste (« modes »: [{id, nom, sous, badge, serveur, ajouts, sans, fichiers, ouvert}]) ; chaque mode reprend la
  * base « v121 » (NeoForge, mods communs) et ajoute ses propres fichiers. Sans « modes » : un seul mode, le Faction.
  */
 function listeModes(m) {
@@ -112,7 +112,10 @@ function listeModes(m) {
   return brut.filter((x) => x && x.id && x.ouvert !== false).map((x) => ({
     id: String(x.id), nom: String(x.nom || x.id), sous: String(x.sous || ''), badge: String(x.badge || ''),
     serveur: x.serveur || v.serveur || m.serveur || cfg.SERVEUR,
-    fichiers: Array.isArray(x.fichiers) ? x.fichiers : (v.fichiers || []).concat(Array.isArray(x.ajouts) ? x.ajouts : []),
+    // « sans » : fichiers de la base que ce mode n'utilise pas (ex. un mod d'animations remplacé par un autre)
+    fichiers: Array.isArray(x.fichiers) ? x.fichiers : (v.fichiers || [])
+      .filter((f) => !(Array.isArray(x.sans) && x.sans.some((n) => String(f.chemin || '').includes(n))))
+      .concat(Array.isArray(x.ajouts) ? x.ajouts : []),
   }));
 }
 function modeChoisi(m) {

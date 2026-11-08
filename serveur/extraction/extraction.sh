@@ -61,7 +61,8 @@ telecharger() { [ -f "mods/$1" ] || recuperer "mods/$1" "$1" "$2"; }
 # Mêmes mods que le serveur principal 1.21.1 (le client du launcher les a déjà)
 telecharger coroutil-neoforge-1.21.0-1.3.8.jar https://cdn.modrinth.com/data/rLLJ1OZM/versions/H2YXCYUY/coroutil-neoforge-1.21.0-1.3.8.jar
 telecharger watut-neoforge-1.21.0-1.2.3.jar https://mediafilez.forgecdn.net/files/6315/277/watut-neoforge-1.21.0-1.2.3.jar
-telecharger "cpa-5.9.10-neoforge+1.21.1.jar" "https://cdn.modrinth.com/data/EhthJpjM/versions/YvEolJOg/cpa-5.9.10-neoforge%2B1.21.1.jar"
+# Custom Player Animations remplacé par Smooth Player Animations (côté joueur uniquement) sur ce mode
+rm -f mods/cpa-*.jar
 telecharger "PlayerAnimationLibNeoforge-1.1.6+mc.1.21.1.jar" "https://cdn.modrinth.com/data/ha1mEyJS/versions/yjxtkvnD/PlayerAnimationLibNeoforge-1.1.6%2Bmc.1.21.1.jar"
 telecharger cloth-config-15.0.140-neoforge.jar https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar
 telecharger voicechat-neoforge-1.21.1-2.6.24.jar https://cdn.modrinth.com/data/9eGKb6K1/versions/qqNx1Yjm/voicechat-neoforge-1.21.1-2.6.24.jar

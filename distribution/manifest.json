@@ -134,12 +134,6 @@
           "taille": 7133477
         },
         {
-          "chemin": "mods/notenoughanimations-neoforge-1.12.7-mc1.21.1.jar",
-          "url": "https://cdn.modrinth.com/data/MPCX6s5C/versions/f9RkhlA0/notenoughanimations-neoforge-1.12.7-mc1.21.1.jar",
-          "sha1": "137a878ed276a3dfab2715df1864d14f60bd3237",
-          "taille": 1868196
-        },
-        {
           "chemin": "mods/militaristic_armor-1.0.0-neoforge-1.21.1.jar",
           "url": "https://cdn.modrinth.com/data/xqyS1U92/versions/aWRFRfRU/militaristic_armor-1.0.0-neoforge-1.21.1.jar",
           "sha1": "10a0de199987604942e2a13be2b2e8d48d28dd23",
@@ -192,7 +186,16 @@
           "url": "https://cdn.modrinth.com/data/Cd3DYqzn/versions/IuVaj8GV/superbwarfare-1.21.1-0.8.8-final-0cfd00d5.jar",
           "sha1": "154e5b39b4544c0ab7875413e4ec30ab54007390",
           "taille": 25650908
+        },
+        {
+          "chemin": "mods/SmoothPlayerAnimations_Neoforge_1.21.1_2.0.2.jar",
+          "url": "https://cdn.modrinth.com/data/ZdlGpqTS/versions/Rp12DJo7/SmoothPlayerAnimations_Neoforge_1.21.1_2.0.2.jar",
+          "sha1": "dc2fffff34060c8c74fc23b3c787d3e4c55b9249",
+          "taille": 723792
         }
+      ],
+      "sans": [
+        "mods/cpa-"
       ]
     }
   ]
