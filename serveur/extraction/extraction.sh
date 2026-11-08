@@ -66,6 +66,9 @@ telecharger tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar https://cdn.modrinth.com/da
 telecharger framework-neoforge-1.21.1-0.13.11.jar https://mediafilez.forgecdn.net/files/7530/361/framework-neoforge-1.21.1-0.13.11.jar
 telecharger refurbished_furniture-neoforge-1.21.1-1.0.22.jar https://mediafilez.forgecdn.net/files/7473/565/refurbished_furniture-neoforge-1.21.1-1.0.22.jar
 telecharger militaristic_armor-1.0.0-neoforge-1.21.1.jar https://cdn.modrinth.com/data/xqyS1U92/versions/aWRFRfRU/militaristic_armor-1.0.0-neoforge-1.21.1.jar
+telecharger geckolib-neoforge-1.21.1-4.9.3.jar https://cdn.modrinth.com/data/8BmcQJ2H/versions/Grwn5rUB/geckolib-neoforge-1.21.1-4.9.3.jar
+telecharger zrikons_military_armor-1.0.2-neoforge-1.21.1.jar https://cdn.modrinth.com/data/TbpolJwJ/versions/pGTyY70z/zrikons_military_armor-1.0.2-neoforge-1.21.1.jar
+telecharger military_armor-neoforge-1.21.1-2.0.1.jar https://cdn.modrinth.com/data/3jCkacxI/versions/EcAyp7yP/military_armor-neoforge-1.21.1-2.0.1.jar
 ls -la mods
 
 echo "=== Monde ==="

@@ -150,6 +150,24 @@
           "url": "https://cdn.modrinth.com/data/xqyS1U92/versions/aWRFRfRU/militaristic_armor-1.0.0-neoforge-1.21.1.jar",
           "sha1": "10a0de199987604942e2a13be2b2e8d48d28dd23",
           "taille": 2047947
+        },
+        {
+          "chemin": "mods/geckolib-neoforge-1.21.1-4.9.3.jar",
+          "url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/Grwn5rUB/geckolib-neoforge-1.21.1-4.9.3.jar",
+          "sha1": "5cfe835472a5c5457ae9ac192d9d7b317454d5ac",
+          "taille": 634531
+        },
+        {
+          "chemin": "mods/zrikons_military_armor-1.0.2-neoforge-1.21.1.jar",
+          "url": "https://cdn.modrinth.com/data/TbpolJwJ/versions/pGTyY70z/zrikons_military_armor-1.0.2-neoforge-1.21.1.jar",
+          "sha1": "e05fdb408c9ed618a3efc454c5cb01c42be3606c",
+          "taille": 5030696
+        },
+        {
+          "chemin": "mods/military_armor-neoforge-1.21.1-2.0.1.jar",
+          "url": "https://cdn.modrinth.com/data/3jCkacxI/versions/EcAyp7yP/military_armor-neoforge-1.21.1-2.0.1.jar",
+          "sha1": "c80b184a6e509cbe0285cdc9d0ab530d308aa573",
+          "taille": 86901
         }
       ]
     }
