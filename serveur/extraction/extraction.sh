@@ -63,6 +63,8 @@ telecharger too_many_bows-neoforge-1.21-1.2.0.jar https://cdn.modrinth.com/data/
 telecharger architectury-13.0.8-neoforge.jar https://cdn.modrinth.com/data/lhGA9TYQ/versions/ZxYGwlk0/architectury-13.0.8-neoforge.jar
 # Armes : TaCZ, portage NeoForge 1.21.1 (GPL-3.0), téléchargé depuis Modrinth
 telecharger tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar https://cdn.modrinth.com/data/OypNE65K/versions/62q6mB5Q/tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar
+telecharger framework-neoforge-1.21.1-0.13.11.jar https://mediafilez.forgecdn.net/files/7530/361/framework-neoforge-1.21.1-0.13.11.jar
+telecharger refurbished_furniture-neoforge-1.21.1-1.0.22.jar https://mediafilez.forgecdn.net/files/7473/565/refurbished_furniture-neoforge-1.21.1-1.0.22.jar
 ls -la mods
 
 echo "=== Monde ==="

@@ -120,6 +120,30 @@
           "url": "https://cdn.modrinth.com/data/OypNE65K/versions/62q6mB5Q/tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar",
           "sha1": "c6ef4976de69a46c4e267bd7f91c730d2dc43a4e",
           "taille": 57247579
+        },
+        {
+          "chemin": "mods/framework-neoforge-1.21.1-0.13.11.jar",
+          "url": "https://mediafilez.forgecdn.net/files/7530/361/framework-neoforge-1.21.1-0.13.11.jar",
+          "sha1": "e46eb138fbb13a12f37154fb4ec407d64b326475",
+          "taille": 387334
+        },
+        {
+          "chemin": "mods/refurbished_furniture-neoforge-1.21.1-1.0.22.jar",
+          "url": "https://mediafilez.forgecdn.net/files/7473/565/refurbished_furniture-neoforge-1.21.1-1.0.22.jar",
+          "sha1": "6c209e6b755ff26218efd55aedf2dea49183d29b",
+          "taille": 7133477
+        },
+        {
+          "chemin": "mods/notenoughanimations-neoforge-1.12.7-mc1.21.1.jar",
+          "url": "https://cdn.modrinth.com/data/MPCX6s5C/versions/f9RkhlA0/notenoughanimations-neoforge-1.12.7-mc1.21.1.jar",
+          "sha1": "137a878ed276a3dfab2715df1864d14f60bd3237",
+          "taille": 1868196
+        },
+        {
+          "chemin": "mods/firstperson-neoforge-2.7.3-mc1.21.1.jar",
+          "url": "https://cdn.modrinth.com/data/H5XMjpHi/versions/eaj8cYpD/firstperson-neoforge-2.7.3-mc1.21.1.jar",
+          "sha1": "6e0be1de6a5aab6cda8496984376a0114cf5a840",
+          "taille": 1537453
         }
       ]
     }
