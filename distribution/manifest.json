@@ -144,6 +144,12 @@
           "url": "https://cdn.modrinth.com/data/H5XMjpHi/versions/eaj8cYpD/firstperson-neoforge-2.7.3-mc1.21.1.jar",
           "sha1": "6e0be1de6a5aab6cda8496984376a0114cf5a840",
           "taille": 1537453
+        },
+        {
+          "chemin": "mods/militaristic_armor-1.0.0-neoforge-1.21.1.jar",
+          "url": "https://cdn.modrinth.com/data/xqyS1U92/versions/aWRFRfRU/militaristic_armor-1.0.0-neoforge-1.21.1.jar",
+          "sha1": "10a0de199987604942e2a13be2b2e8d48d28dd23",
+          "taille": 2047947
         }
       ]
     }
