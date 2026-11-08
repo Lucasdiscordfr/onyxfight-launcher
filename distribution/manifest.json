@@ -168,6 +168,12 @@
           "url": "https://cdn.modrinth.com/data/3jCkacxI/versions/EcAyp7yP/military_armor-neoforge-1.21.1-2.0.1.jar",
           "sha1": "c80b184a6e509cbe0285cdc9d0ab530d308aa573",
           "taille": 86901
+        },
+        {
+          "chemin": "mods/player-animation-lib-forge-2.0.4+1.21.1.jar",
+          "url": "https://cdn.modrinth.com/data/gedNE4y2/versions/HJZB6bmA/player-animation-lib-forge-2.0.4%2B1.21.1.jar",
+          "sha1": "05be8ddcc78532b9a5520c718edc6c971cd0057c",
+          "taille": 203149
         }
       ]
     }
