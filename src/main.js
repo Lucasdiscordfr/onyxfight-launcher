@@ -5,7 +5,7 @@ const fs = require('fs');
 const cfg = require('./config');
 const Compte = require('./compte');
 const { jouer121 } = require('./jeu121');
-const { lireJson } = require('./telechargement');
+const { lireJson, lireManifesteFrais } = require('./telechargement');
 const discord = require('./discord');
 
 let fenetre = null;
@@ -239,7 +239,7 @@ ipcMain.handle('jouer', async () => {
   flux.write(`OnyxFight Launcher ${app.getVersion()}\n`);
   try {
     if (compte.test && !(await modeTestOuvert())) throw new Error('Le mode test est fermé : connecte-toi avec ton compte OnyxFight.');
-    const manifeste = await lireJson(cfg.MANIFESTE);
+    const manifeste = await lireManifesteFrais(cfg.DEPOT, cfg.MANIFESTE);
     Compte.regler(manifeste.comptes);
     if (manifeste.comptes) r.comptes = manifeste.comptes;
     const autorisation = await compte.pourJouer();

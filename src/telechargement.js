@@ -6,13 +6,13 @@ const https = require('https');
 const http = require('http');
 
 /** Lit une adresse et renvoie le texte (suit les redirections). */
-function lire(url, essais = 3) {
+function lire(url, essais = 3, entetes = {}) {
   return new Promise((ok, ko) => {
     const lib = url.startsWith('https') ? https : http;
-    const req = lib.get(url, { headers: { 'User-Agent': 'OnyxFight-Launcher', 'Cache-Control': 'no-cache' } }, (res) => {
+    const req = lib.get(url, { headers: Object.assign({ 'User-Agent': 'OnyxFight-Launcher', 'Cache-Control': 'no-cache' }, entetes) }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         res.resume();
-        return ok(lire(new URL(res.headers.location, url).toString(), essais));
+        return ok(lire(new URL(res.headers.location, url).toString(), essais, entetes));
       }
       if (res.statusCode !== 200) {
         res.resume();
@@ -86,4 +86,20 @@ async function bon(fichier, attendu) {
   return true;
 }
 
-module.exports = { lire, lireJson, telecharger, sha1, bon };
+/**
+ * Manifeste toujours à jour : lu par l'API GitHub (pas le cache de quelques minutes de raw.githubusercontent), et sinon par
+ * l'adresse habituelle. Utilisé au moment de JOUER, pour que le mod du joueur corresponde toujours à celui du serveur.
+ */
+async function lireManifesteFrais(depot, urlBrute) {
+  try {
+    const t = await lire(`https://api.github.com/repos/${depot}/contents/distribution/manifest.json?ref=main&t=${Date.now()}`, 1,
+      { Accept: 'application/vnd.github.raw+json' });
+    const m = JSON.parse(t);
+    if (m && m.v121) return m;
+  } catch (e) {
+    // limite de l'API atteinte, réseau… : adresse habituelle
+  }
+  return lireJson(urlBrute);
+}
+
+module.exports = { lire, lireJson, lireManifesteFrais, telecharger, sha1, bon };
