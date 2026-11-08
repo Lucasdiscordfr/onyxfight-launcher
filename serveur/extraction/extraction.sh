@@ -62,7 +62,16 @@ recuperer() {
   curl -fsSL --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 15 --max-time 600 -o "$1.part" "$3" && mv -f "$1.part" "$1" \
     || { rm -f "$1.part"; echo "  ! échec : $2 (relance le script)"; exit 1; }
 }
-recuperer mods/onyxfight-1.21.1.jar onyxfight-1.21.1.jar "$MOD"
+# Le mod : lien direct, sinon via l'API GitHub (le lien direct renvoie parfois 404 juste après une nouvelle version)
+echo "  - onyxfight-1.21.1.jar"
+if ! curl -fsSL --retry 2 --retry-delay 3 --connect-timeout 15 --max-time 300 -o mods/onyxfight-1.21.1.jar.part "$MOD"; then
+  ID=$(curl -fsSL --connect-timeout 15 https://api.github.com/repos/Lucasdiscordfr/onyxfight-launcher/releases/tags/mod121 \
+    | python3 -c 'import sys,json; print(next(a["id"] for a in json.load(sys.stdin)["assets"] if a["name"]=="onyxfight-1.21.1.jar"))')
+  curl -fsSL --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 15 --max-time 300 -H "Accept: application/octet-stream" \
+    -o mods/onyxfight-1.21.1.jar.part "https://api.github.com/repos/Lucasdiscordfr/onyxfight-launcher/releases/assets/$ID" \
+    || { rm -f mods/onyxfight-1.21.1.jar.part; echo "  ! échec : onyxfight-1.21.1.jar (relance le script)"; exit 1; }
+fi
+mv -f mods/onyxfight-1.21.1.jar.part mods/onyxfight-1.21.1.jar
 telecharger() { [ -f "mods/$1" ] || recuperer "mods/$1" "$1" "$2"; }
 # Mêmes mods que le serveur principal 1.21.1 (le client du launcher les a déjà)
 telecharger coroutil-neoforge-1.21.0-1.3.8.jar https://cdn.modrinth.com/data/rLLJ1OZM/versions/H2YXCYUY/coroutil-neoforge-1.21.0-1.3.8.jar
