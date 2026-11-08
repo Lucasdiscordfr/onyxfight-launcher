@@ -31,8 +31,14 @@ id onyx >/dev/null 2>&1 || useradd -r -m -d "$RACINE" -s /bin/bash onyx
 echo "=== Arrêt du serveur Extraction (s'il tourne) ==="
 if sudo -u onyx tmux -L extraction has-session -t extraction 2>/dev/null; then
   sudo -u onyx tmux -L extraction send-keys -t extraction "stop" Enter
-  for i in $(seq 1 90); do pgrep -u onyx -f "^java .*arclight.jar" >/dev/null || break; sleep 1; done
+  for i in $(seq 1 90); do pgrep -u onyx java >/dev/null || break; sleep 1; done
   sudo -u onyx tmux -L extraction kill-session -t extraction 2>/dev/null || true
+fi
+# Plus aucun Java du serveur avant de toucher aux fichiers (sinon il réenregistre le monde par-dessus en s'arrêtant)
+if pgrep -u onyx java >/dev/null; then
+  pkill -TERM -u onyx java || true
+  for i in $(seq 1 60); do pgrep -u onyx java >/dev/null || break; sleep 1; done
+  pkill -KILL -u onyx java 2>/dev/null || true
 fi
 
 install -d -o onyx -g onyx "$RACINE" "$DOSSIER" "$DOSSIER/mods" "$DOSSIER/plugins"
