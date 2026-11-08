@@ -23,7 +23,9 @@ sudo -u onyx tmux -L extraction kill-session -t extraction 2>/dev/null || true
 echo "=== Monde « $NOM » ==="
 TMP=$(mktemp -d)
 unzip -q "$ZIP" -d "$TMP"
-REG=$(find "$TMP" -type d -name region | head -1)
+# Le monde principal : le dossier « region » placé à côté du level.dat (pas celui du Nether ou de l'End)
+LEVEL=$(find "$TMP" -name level.dat | head -1)
+if [ -n "$LEVEL" ] && [ -d "$(dirname "$LEVEL")/region" ]; then REG="$(dirname "$LEVEL")/region"; else REG=$(find "$TMP" -type d -name region | head -1); fi
 [ -n "$REG" ] || { echo "Pas de dossier « region » dans le zip."; rm -rf "$TMP"; exit 1; }
 SRC=$(dirname "$REG")
 rm -rf "$CIBLE"
