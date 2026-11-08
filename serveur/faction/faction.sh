@@ -63,6 +63,11 @@ if [ ! -d onyxfight/faction ]; then
   fi
 fi
 
+# L'émeraude est devenue l'axinite (mod OnyxFight) : noms dans la config du jeu Faction
+if [ -f onyxfight/faction/config.yml ]; then
+  sed -i -E -e 's/onyxfight:([a-z_]+)_emeraude/onyxfight:\1_axinite/g' -e 's/en émeraude/en axinite/g' -e 's/"EMERALD 0 40 Émeraude"/"onyxfight:axinite 0 40 Axinite"/' onyxfight/faction/config.yml
+fi
+
 echo "=== Mods ==="
 recuperer() {
   echo "  - $2"
