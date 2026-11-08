@@ -164,5 +164,7 @@ main { z-index: 2; }
 .mode { width: 100%; text-align: left; cursor: pointer; color: inherit; font: inherit; transition: border-color .15s, background .15s; }
 .mode:hover { border-color: rgba(255, 255, 255, 0.28); }
 .mode.actif { border-color: var(--texte); background: rgba(255, 255, 255, 0.07); }
+.modes.unifie .mode { cursor: default; }
+.modes.unifie .mode:hover { border-color: inherit; }
 .badge { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
   padding: 1px 6px; margin-left: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.14); color: var(--texte); vertical-align: 1px; }

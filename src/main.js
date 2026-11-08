@@ -109,7 +109,7 @@ ipcMain.handle('actualites', async () => {
 function listeModes(m) {
   const v = m.v121 || {};
   const brut = Array.isArray(m.modes) && m.modes.length ? m.modes : [{ id: 'faction', nom: 'Faction' }];
-  return brut.filter((x) => x && x.id && x.ouvert !== false).map((x) => ({
+  const modes = brut.filter((x) => x && x.id && x.ouvert !== false).map((x) => ({
     id: String(x.id), nom: String(x.nom || x.id), sous: String(x.sous || ''), badge: String(x.badge || ''),
     serveur: x.serveur || v.serveur || m.serveur || cfg.SERVEUR,
     // Version de NeoForge propre au mode (sinon celle de la base)
@@ -118,7 +118,30 @@ function listeModes(m) {
     fichiers: Array.isArray(x.fichiers) ? x.fichiers : (v.fichiers || [])
       .filter((f) => !(Array.isArray(x.sans) && x.sans.some((n) => String(f.chemin || '').includes(n))))
       .concat(Array.isArray(x.ajouts) ? x.ajouts : []),
+    sans: Array.isArray(x.sans) ? x.sans : [],
   }));
+  // Jeu unique (« unifie ») : un seul bouton JOUER, tous les mods de tous les modes, et le choix du serveur se fait
+  // dans le menu du jeu. Les serveurs de la liste sont ceux des modes.
+  if (m.unifie && modes.length) {
+    const u = m.unifie;
+    const sans = [].concat(...modes.map((x) => x.sans));
+    const vus = new Set();
+    const fichiers = [];
+    for (const x of modes) {
+      for (const f of x.fichiers) {
+        const c = String(f.chemin || '');
+        if (vus.has(c) || sans.some((n) => c.includes(n))) continue;
+        vus.add(c);
+        fichiers.push(f);
+      }
+    }
+    return [{
+      id: 'onyxfight', nom: String(u.nom || 'OnyxFight'), sous: String(u.sous || ''), badge: String(u.badge || ''),
+      serveur: modes[0].serveur, neoforge: u.neoforge || v.neoforge, fichiers,
+      serveurs: modes.map((x) => ({ id: x.id, nom: x.nom, sous: x.sous, badge: x.badge, hote: x.serveur.hote, port: x.serveur.port || 25565 })),
+    }];
+  }
+  return modes;
 }
 function modeChoisi(m) {
   const l = listeModes(m);
@@ -128,7 +151,12 @@ ipcMain.handle('modes', async () => {
   try {
     const m = await lireJson(cfg.MANIFESTE);
     const choisi = modeChoisi(m);
-    return { modes: listeModes(m).map((x) => ({ id: x.id, nom: x.nom, sous: x.sous, badge: x.badge })), choisi: choisi && choisi.id };
+    const l = listeModes(m);
+    // Jeu unique : les cartes montrent les serveurs (pour info), le choix se fait dans le jeu
+    if (l.length === 1 && l[0].serveurs) {
+      return { modes: l[0].serveurs.map((x) => ({ id: x.id, nom: x.nom, sous: x.sous, badge: x.badge })), choisi: null, unifie: true };
+    }
+    return { modes: l.map((x) => ({ id: x.id, nom: x.nom, sous: x.sous, badge: x.badge })), choisi: choisi && choisi.id };
   } catch (e) {
     return { modes: [], choisi: null };
   }
@@ -141,9 +169,11 @@ ipcMain.handle('mode:choisir', async (e, id) => {
 ipcMain.handle('statut', async (e, id) => {
   try {
     const m = await lireJson(cfg.MANIFESTE);
-    const mode = listeModes(m).find((x) => x.id === id) || modeChoisi(m);
+    const l = listeModes(m);
+    const srv = l.length === 1 && l[0].serveurs ? l[0].serveurs.find((x) => x.id === id) : null;
+    const mode = l.find((x) => x.id === id) || modeChoisi(m);
     const test = !!m.v121;
-    const s = test ? mode.serveur : m.serveur || cfg.SERVEUR;
+    const s = srv ? { hote: srv.hote, port: srv.port } : test ? mode.serveur : m.serveur || cfg.SERVEUR;
     const util = require('minecraft-server-util');
     const r = await util.status(s.hote, s.port || 25565, { timeout: 4000, enableSRV: !test });
     return { enLigne: true, joueurs: r.players.online, max: r.players.max, adresse: s.hote, test: !!test };
@@ -251,7 +281,8 @@ ipcMain.handle('jouer', async () => {
     if (!manifeste.v121) throw new Error("Le serveur OnyxFight n'est pas disponible pour le moment.");
     // Le mode choisi : son serveur et ses mods, sur la base 1.21.1 commune
     const mode = modeChoisi(manifeste);
-    const v121 = Object.assign({}, manifeste.v121, { serveur: mode.serveur, fichiers: mode.fichiers, neoforge: mode.neoforge || manifeste.v121.neoforge });
+    const v121 = Object.assign({}, manifeste.v121, { serveur: mode.serveur, fichiers: mode.fichiers, neoforge: mode.neoforge || manifeste.v121.neoforge,
+      serveurs: mode.serveurs || null });
     flux.write('Mode : ' + mode.id + ' (' + mode.serveur.hote + ':' + (mode.serveur.port || 25565) + ')\n');
     await jouer121(r, autorisation, v121, {
       etat: (texte, part) => envoyer('etat', { texte, part }),

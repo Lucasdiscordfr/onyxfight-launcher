@@ -166,6 +166,8 @@ async function jouer121(reglages, autorisation, v121, ev) {
   const srv = v121.serveur || cfg.SERVEUR;
   fs.writeFileSync(path.join(racine, 'onyxfight-client.json'), JSON.stringify({
     serveur: { hote: srv.hote, port: srv.port || 25565 },
+    // Jeu unique : les serveurs proposés dans le menu du jeu (Faction, Extraction…)
+    serveurs: v121.serveurs || [],
     site: v121.site || cfg.SITE,
     discord: v121.discord || cfg.DISCORD,
     saison: v121.saison || '',

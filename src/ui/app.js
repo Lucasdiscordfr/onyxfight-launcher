@@ -95,9 +95,11 @@ let modes = [], modeActif = null;
 async function chargerStatut() {
   const r = await window.onyx.modes();
   modes = r.modes && r.modes.length ? r.modes : [{ id: 'faction', nom: 'Faction', sous: '', badge: '' }];
-  modeActif = modes.some((m) => m.id === r.choisi) ? r.choisi : modes[0].id;
+  const unifie = !!r.unifie;
+  modeActif = unifie ? null : modes.some((m) => m.id === r.choisi) ? r.choisi : modes[0].id;
   const zone = $('modes');
-  zone.innerHTML = modes.map((m, i) => `<button class="carte serveur mode${m.id === modeActif ? ' actif' : ''}" data-i="${i}">
+  zone.classList.toggle('unifie', unifie);
+  zone.innerHTML = modes.map((m, i) => `<button class="carte serveur mode${m.id === modeActif ? ' actif' : ''}" data-i="${i}"${unifie ? ' tabindex="-1"' : ''}>
       <span class="pastille" id="pastille-${i}"></span>
       <div>
         <strong>${echapper(m.nom)}${m.badge ? ` <em class="badge">${echapper(m.badge)}</em>` : ''}</strong>
@@ -106,7 +108,7 @@ async function chargerStatut() {
     </button>`).join('');
   zone.querySelectorAll('button[data-i]').forEach((el) => {
     el.addEventListener('click', async () => {
-      if (enCours) return;
+      if (enCours || unifie) return; // jeu unique : le serveur se choisit dans le jeu
       modeActif = modes[el.dataset.i].id;
       zone.querySelectorAll('.mode').forEach((b) => b.classList.toggle('actif', b === el));
       await window.onyx.choisirMode(modeActif);
