@@ -223,5 +223,10 @@
       ],
       "neoforge": "21.1.265"
     }
-  ]
+  ],
+  "unifie": {
+    "nom": "OnyxFight",
+    "sous": "Faction et Extraction, un seul jeu",
+    "neoforge": "21.1.265"
+  }
 }
