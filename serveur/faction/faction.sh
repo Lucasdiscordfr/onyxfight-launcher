@@ -102,6 +102,8 @@ telecharger military_armor-neoforge-1.21.1-2.0.1.jar https://cdn.modrinth.com/da
 telecharger curios-neoforge-9.5.1+1.21.1.jar https://cdn.modrinth.com/data/vvuO3ImH/versions/yohfFbgD/curios-neoforge-9.5.1%2B1.21.1.jar
 telecharger ncx_tacadd-1.4.0-neoforge-1.21.1.jar https://cdn.modrinth.com/data/wxXj6ZMS/versions/sejcFOAi/ncx_tacadd-1.4.0-neoforge-1.21.1.jar
 telecharger LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar https://cdn.modrinth.com/data/zSKr1DYY/versions/fcwJFQFG/LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar
+# Kotlin for Forge (thedarkcolour) : demandé par Superb Warfare 0.8.9
+telecharger kotlinforforge-5.12.0-all.jar https://cdn.modrinth.com/data/ordsPcFz/versions/uhJhCT7X/kotlinforforge-5.12.0-all.jar
 rm -f mods/superbwarfare-1.21.1-0.8.8-*.jar
 telecharger superbwarfare-0.8.9-final-mc1.21.1-9b5284f4.jar https://cdn.modrinth.com/data/Cd3DYqzn/versions/Qdwf6rIX/superbwarfare-0.8.9-final-mc1.21.1-9b5284f4.jar
 # Côté serveur uniquement (les joueurs n'en ont pas besoin)

@@ -210,6 +210,12 @@
           "url": "https://cdn.modrinth.com/data/Fsvx2bdR/versions/kMBO0X7s/ParCool-1.21.1-4.0.2.0.jar",
           "sha1": "34f1f737127c523c2f228557caac1b1c14edf0c1",
           "taille": 1265497
+        },
+        {
+          "chemin": "mods/kotlinforforge-5.12.0-all.jar",
+          "url": "https://cdn.modrinth.com/data/ordsPcFz/versions/uhJhCT7X/kotlinforforge-5.12.0-all.jar",
+          "sha1": "d10d062caf1aad9aec82d7852f2fee1781735c1f",
+          "taille": 7279264
         }
       ],
       "sans": [
