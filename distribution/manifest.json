@@ -186,6 +186,12 @@
           "url": "https://cdn.modrinth.com/data/zSKr1DYY/versions/fcwJFQFG/LesRaisins-Tactical-Equipements-1.21.1-0.4.3.jar",
           "sha1": "d4e5b0a5a2d03092cac11dd2b7b3a60dc4f5ddfd",
           "taille": 6612829
+        },
+        {
+          "chemin": "mods/superbwarfare-1.21.1-0.8.8-final-0cfd00d5.jar",
+          "url": "https://cdn.modrinth.com/data/Cd3DYqzn/versions/IuVaj8GV/superbwarfare-1.21.1-0.8.8-final-0cfd00d5.jar",
+          "sha1": "154e5b39b4544c0ab7875413e4ec30ab54007390",
+          "taille": 25650908
         }
       ]
     }
