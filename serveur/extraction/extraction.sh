@@ -61,7 +61,7 @@ ls -la mods
 
 echo "=== Monde ==="
 if [ "${1:-}" = "neuf" ]; then rm -rf world; echo "Monde remis à zéro."; fi
-if [ "${1:-}" = "vaisseau-neuf" ]; then rm -rf world/onyxfight/vaisseau; echo "Espace du vaisseau vidé (la base sera reposée avec /carte coller)."; fi
+if [ "${1:-}" = "vaisseau-neuf" ]; then rm -rf world/dimensions/onyxfight/vaisseau world/onyxfight/vaisseau; echo "Espace du vaisseau vidé (la base sera reposée avec /carte coller)."; fi
 
 # Serveur de test fermé : liste blanche active (ajouter quelqu'un : whitelist add Pseudo dans la console)
 cat > server.properties <<EOF
