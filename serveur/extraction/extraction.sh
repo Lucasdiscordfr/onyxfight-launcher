@@ -66,7 +66,7 @@ recuperer() {
 echo "  - onyxfight-1.21.1.jar"
 if ! curl -fsSL --retry 2 --retry-delay 3 --connect-timeout 15 --max-time 300 -o mods/onyxfight-1.21.1.jar.part "$MOD"; then
   ID=$(curl -fsSL --connect-timeout 15 https://api.github.com/repos/Lucasdiscordfr/onyxfight-launcher/releases/tags/mod121 \
-    | python3 -c 'import sys,json; print(next(a["id"] for a in json.load(sys.stdin)["assets"] if a["name"]=="onyxfight-1.21.1.jar"))')
+    | python3 -c 'import sys,json; a=json.load(sys.stdin)["assets"]; e=[x for x in a if x["name"]=="onyxfight-1.21.1.jar"] or sorted([x for x in a if x["name"].startswith("onyxfight-1.21.1-")], key=lambda x: x["created_at"])[-1:]; print(e[0]["id"] if e else "")')
   curl -fsSL --retry 4 --retry-delay 3 --retry-all-errors --connect-timeout 15 --max-time 300 -H "Accept: application/octet-stream" \
     -o mods/onyxfight-1.21.1.jar.part "https://api.github.com/repos/Lucasdiscordfr/onyxfight-launcher/releases/assets/$ID" \
     || { rm -f mods/onyxfight-1.21.1.jar.part; echo "  ! échec : onyxfight-1.21.1.jar (relance le script)"; exit 1; }
