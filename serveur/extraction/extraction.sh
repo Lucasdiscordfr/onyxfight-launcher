@@ -107,6 +107,20 @@ telecharger fracturepoint-1.21.1-3.0.0-PT1-fix.jar https://cdn.modrinth.com/data
 telecharger ParCool-1.21.1-4.0.2.0.jar https://cdn.modrinth.com/data/Fsvx2bdR/versions/kMBO0X7s/ParCool-1.21.1-4.0.2.0.jar
 ls -la mods
 
+echo "=== Réglages des mods (les cartes restent intactes) ==="
+# Les tirs ne cassent plus les vitres et n'allument plus de feu ; les explosions ne détruisent plus les bâtiments ;
+# les infectés de Spore ne cassent pas de blocs. (Les fichiers sont créés au premier démarrage du serveur.)
+regle() { [ -f "$1" ] && sed -i -E "s/^([[:space:]]*\"?$2\"?[[:space:]]*=[[:space:]]*).*/\1$3/" "$1" || true; }
+regle config/tacz-common.toml DestroyGlass false
+regle config/tacz-common.toml IgniteBlock false
+regle config/tacz-common.toml ExplosiveAmmoDestroysBlock false
+regle config/superbwarfare-server.toml explosion_destroy false
+regle config/superbwarfare-server.toml extra_explosion_effect false
+regle config/superbwarfare-server.toml allow_projectile_destroy_blocks false
+regle config/spore-startup.toml "Should explosion break blocks \\?" false
+regle config/spore-startup.toml "Should some infected have higher thinking such as opening doors or trying to break certain blocks\\?" false
+grep -h -E "DestroyGlass|explosion_destroy" config/tacz-common.toml config/superbwarfare-server.toml 2>/dev/null || true
+
 echo "=== Monde ==="
 if [ "${1:-}" = "neuf" ]; then rm -rf world; echo "Monde remis à zéro."; fi
 if [ "${1:-}" = "vaisseau-neuf" ]; then rm -rf world/dimensions/onyxfight/vaisseau world/onyxfight/vaisseau; echo "Espace du vaisseau vidé (la base sera reposée avec /carte coller)."; fi
