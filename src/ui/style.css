@@ -34,9 +34,14 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   position: absolute; inset: 0; overflow: hidden;
   transition: filter .5s ease;
 }
-/* Coupe en biais : la séparation va de 54 % en haut à 46 % en bas */
+/* Coupe en biais. Au survol, le monde visé s'agrandit (la coupe glisse) et l'autre se réduit, avec une animation */
+.monde, .separation { transition: clip-path .75s cubic-bezier(.65, 0, .25, 1), filter .5s ease; }
 .monde.faction { clip-path: polygon(0 0, 54% 0, 46% 100%, 0 100%); }
 .monde.extraction { clip-path: polygon(54% 0, 100% 0, 100% 100%, 46% 100%); }
+.survol-faction .monde.faction { clip-path: polygon(0 0, 74% 0, 66% 100%, 0 100%); }
+.survol-faction .monde.extraction { clip-path: polygon(74% 0, 100% 0, 100% 100%, 66% 100%); }
+.survol-extraction .monde.faction { clip-path: polygon(0 0, 34% 0, 26% 100%, 0 100%); }
+.survol-extraction .monde.extraction { clip-path: polygon(34% 0, 100% 0, 100% 100%, 26% 100%); }
 
 .m-fond {
   position: absolute; inset: -20px;
@@ -59,20 +64,20 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 
 /* Personnage de chaque monde, avec son aura */
 .perso {
-  position: absolute; bottom: -2%; height: 70%;
+  position: absolute; bottom: -1%; height: 76%;
+  transition: left .75s cubic-bezier(.65, 0, .25, 1), right .75s cubic-bezier(.65, 0, .25, 1), filter .5s ease;
   transform-origin: 50% 100%;
   animation: respire 6s ease-in-out infinite;
-  transition: filter .5s ease;
   pointer-events: none;
 }
-.faction .perso { left: 14%; filter: drop-shadow(0 0 22px rgba(201, 184, 255, .25)); }
-.extraction .perso { right: 14%; transform: scaleX(-1); filter: drop-shadow(0 0 22px rgba(255, 90, 60, .22)); animation-name: respire-miroir; }
+.faction .perso { left: 10%; filter: drop-shadow(0 0 22px rgba(201, 184, 255, .25)); }
+.extraction .perso { right: 10%; filter: drop-shadow(0 0 22px rgba(255, 90, 60, .22)); }
 .aura {
   position: absolute; bottom: 4%; width: 420px; height: 420px; border-radius: 50%;
   opacity: .25; transition: opacity .5s ease, transform .5s ease; pointer-events: none;
 }
-.faction .aura { left: calc(14% - 80px); background: radial-gradient(circle, rgba(157, 123, 255, .55) 0%, rgba(157, 123, 255, .12) 45%, transparent 70%); }
-.extraction .aura { right: calc(14% - 80px); background: radial-gradient(circle, rgba(255, 60, 30, .55) 0%, rgba(255, 60, 30, .12) 45%, transparent 70%); }
+.faction .aura { transition: left .75s cubic-bezier(.65, 0, .25, 1), opacity .5s, transform .5s; left: calc(10% - 60px); background: radial-gradient(circle, rgba(157, 123, 255, .55) 0%, rgba(157, 123, 255, .12) 45%, transparent 70%); }
+.extraction .aura { transition: right .75s cubic-bezier(.65, 0, .25, 1), opacity .5s, transform .5s; right: calc(10% - 60px); background: radial-gradient(circle, rgba(255, 60, 30, .55) 0%, rgba(255, 60, 30, .12) 45%, transparent 70%); }
 
 /* Infos de chaque monde (titre, accroche, joueurs en ligne) */
 .m-infos { position: absolute; top: 70px; max-width: 280px; z-index: 1; transition: transform .5s ease; }
@@ -94,7 +99,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .monde:hover .m-fond { transform: scale(1.09); filter: saturate(1) brightness(.62); }
 .monde:hover .aura { opacity: 1; transform: scale(1.12); animation: pulse 2.2s ease-in-out infinite; }
 .faction:hover .perso { animation: avance 2.6s ease-in-out infinite; filter: drop-shadow(0 0 18px rgba(201, 184, 255, .9)) drop-shadow(0 0 46px rgba(157, 123, 255, .7)); }
-.extraction:hover .perso { animation: avance-miroir 2.6s ease-in-out infinite; filter: drop-shadow(0 0 18px rgba(255, 120, 90, .9)) drop-shadow(0 0 46px rgba(255, 45, 26, .7)); }
+.extraction:hover .perso { animation: avance 2.6s ease-in-out infinite; filter: drop-shadow(0 0 18px rgba(255, 120, 90, .9)) drop-shadow(0 0 46px rgba(255, 45, 26, .7)); }
 .monde:hover .m-infos { transform: translateY(-4px); }
 
 @keyframes respire { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
@@ -109,14 +114,24 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 }
 @keyframes pulse { 0%, 100% { opacity: .85; } 50% { opacity: 1; filter: brightness(1.25); } }
 
-/* Barre de séparation lumineuse, en biais (même biais que la coupe des deux mondes) */
-.separation { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, .8)) drop-shadow(0 0 22px rgba(255, 255, 255, .35)); }
-.separation line { vector-effect: non-scaling-stroke; }
-.separation .trait { stroke: url(#degrade); stroke-width: 3; }
-.separation .eclat { stroke: #fff; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 12 88;
-  animation: glisse 4s linear infinite; }
-@keyframes glisse { from { stroke-dashoffset: 12; } to { stroke-dashoffset: -88; } }
+/* Barre de séparation lumineuse : une bande fine qui suit la coupe (et glisse avec elle) */
+.separation {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, #c9b8ff, #ffffff 50%, #ff5a3c);
+  clip-path: polygon(calc(54% - 1.5px) 0, calc(54% + 1.5px) 0, calc(46% + 1.5px) 100%, calc(46% - 1.5px) 100%);
+}
+.survol-faction .separation { clip-path: polygon(calc(74% - 1.5px) 0, calc(74% + 1.5px) 0, calc(66% + 1.5px) 100%, calc(66% - 1.5px) 100%); }
+.survol-extraction .separation { clip-path: polygon(calc(34% - 1.5px) 0, calc(34% + 1.5px) 0, calc(26% + 1.5px) 100%, calc(26% - 1.5px) 100%); }
+.mondes::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, .0), transparent);
+}
+.separation span {
+  position: absolute; left: 0; right: 0; height: 22%;
+  background: linear-gradient(180deg, transparent, #fff, transparent);
+  animation: glisse 3.5s ease-in-out infinite;
+}
+@keyframes glisse { 0% { top: -22%; } 100% { top: 100%; } }
 
 /* ---------- Barre du haut ---------- */
 .barre {
@@ -248,3 +263,9 @@ input[type=checkbox] { accent-color: var(--violet); width: 16px; height: 16px; }
 .serveur > div { display: flex; flex-direction: column; }
 .badge { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
   padding: 1px 6px; margin-left: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.14); color: var(--texte); vertical-align: 1px; }
+
+/* Le monde agrandi rapproche son personnage du centre */
+.survol-faction .faction .perso { left: 17%; }
+.survol-faction .faction .aura { left: calc(17% - 60px); }
+.survol-extraction .extraction .perso { right: 17%; }
+.survol-extraction .extraction .aura { right: calc(17% - 60px); }

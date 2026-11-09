@@ -141,8 +141,12 @@ function ouvrirReglages() {
   $('reglages').classList.remove('cache');
 }
 
-// Deux mondes : survoler l'un l'illumine et assombrit l'autre
+// Deux mondes : survoler l'un l'agrandit (animation) et assombrit l'autre ; un personnage au hasard de chaque côté
 (function () {
+  for (const m of ['faction', 'extraction']) {
+    const img = document.getElementById('perso-' + m);
+    if (img) img.src = '../../assets/perso-' + m + '-' + (1 + Math.floor(Math.random() * 5)) + '.webp';
+  }
   const mondes = document.getElementById('mondes');
   if (!mondes) return;
   mondes.querySelectorAll('.monde').forEach((m) => {
