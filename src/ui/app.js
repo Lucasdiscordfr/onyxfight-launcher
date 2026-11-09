@@ -114,13 +114,21 @@ async function chargerStatut() {
       await window.onyx.choisirMode(modeActif);
     });
   });
-  modes.forEach(async (m, i) => {
+  zone.classList.toggle('cache', unifie);
+  const totaux = {};
+  await Promise.all(modes.map(async (m, i) => {
     const s = await window.onyx.statut(m.id);
-    const p = $('pastille-' + i), t = $('statut-' + i);
-    if (!p || !t) return;
-    p.className = 'pastille ' + (s.enLigne ? 'ok' : 'ko');
-    t.textContent = s.enLigne ? `${s.joueurs} / ${s.max} joueurs en ligne` : 'Hors ligne';
-  });
+    totaux[m.id] = s.enLigne ? s.joueurs : 0;
+    const texte = s.enLigne ? `${s.joueurs} / ${s.max} joueurs en ligne` : 'Hors ligne';
+    // Carte de la moitié du monde (Faction, Extraction) et ancienne carte de mode
+    for (const [p, t] of [[$('pastille-' + m.id), $('statut-' + m.id)], [$('pastille-' + i), $('statut-' + i)]]) {
+      if (!p || !t) continue;
+      p.className = 'pastille ' + (s.enLigne ? 'ok' : 'ko');
+      t.textContent = texte;
+    }
+  }));
+  const n = Object.values(totaux).reduce((a, b) => a + b, 0);
+  $('total').textContent = n > 0 ? `${n} joueur${n > 1 ? 's' : ''} connecté${n > 1 ? 's' : ''}` : '';
 }
 
 function ouvrirReglages() {
@@ -133,21 +141,15 @@ function ouvrirReglages() {
   $('reglages').classList.remove('cache');
 }
 
-// Un personnage différent à chaque ouverture (onyx, rubis, émeraude, saphir)
-const PERSONNAGES = ['onyx']; // thème noir/gris/blanc
-// Fond au hasard parmi les illustrations, qui change toutes les 40 secondes
+// Deux mondes : survoler l'un l'illumine et assombrit l'autre
 (function () {
-  const fond = document.querySelector('.fond');
-  if (!fond) return;
-  let n = 1 + Math.floor(Math.random() * 4);
-  const poser = () => { fond.style.backgroundImage = "url('../../assets/fond" + n + ".jpg')"; };
-  poser();
-  setInterval(() => {
-    fond.style.opacity = '0';
-    setTimeout(() => { n = n % 4 + 1; poser(); fond.style.opacity = '1'; }, 1200);
-  }, 40000);
+  const mondes = document.getElementById('mondes');
+  if (!mondes) return;
+  mondes.querySelectorAll('.monde').forEach((m) => {
+    m.addEventListener('mouseenter', () => mondes.classList.add('survol-' + m.dataset.id));
+    m.addEventListener('mouseleave', () => mondes.classList.remove('survol-' + m.dataset.id));
+  });
 })();
-document.getElementById('personnage').src = '../../assets/personnage-' + PERSONNAGES[Math.floor(Math.random() * PERSONNAGES.length)] + '.png';
 
 async function demarrer() {
   infos = await window.onyx.infos();
@@ -158,6 +160,8 @@ async function demarrer() {
   $('site').onclick = () => window.onyx.ouvrir(infos.site);
   $('discord').onclick = () => window.onyx.ouvrir(infos.discord);
   $('ouvrir-reglages').onclick = ouvrirReglages;
+  $('ouvrir-actus').onclick = () => $('actus-modale').classList.remove('cache');
+  $('fermer-actus').onclick = () => $('actus-modale').classList.add('cache');
   $('ram').oninput = () => ($('ram-valeur').textContent = $('ram').value);
   $('dossier').onclick = () => window.onyx.ouvrirDossier();
   $('fermer-reglages').onclick = async () => {
@@ -196,22 +200,22 @@ async function demarrer() {
     if (!profil || enCours) return;
     enCours = true;
     $('jouer').disabled = true;
-    $('jouer').textContent = 'PRÉPARATION…';
+    $('jouer').firstElementChild.textContent = 'PRÉPARATION…';
     etat('Préparation…', 0);
     const r = await window.onyx.jouer();
     if (r.erreur) {
       enCours = false;
       $('jouer').disabled = false;
-      $('jouer').textContent = 'JOUER';
+      $('jouer').firstElementChild.textContent = 'JOUER';
       etat(r.erreur, null, true);
     }
   };
 
   window.onyx.surEtat((d) => {
-    if (d.lance) $('jouer').textContent = 'EN JEU';
+    if (d.lance) $('jouer').firstElementChild.textContent = 'EN JEU';
     if (d.fini) {
       enCours = false;
-      $('jouer').textContent = 'JOUER';
+      $('jouer').firstElementChild.textContent = 'JOUER';
       $('jouer').disabled = !profil;
       etat(d.texte, null, !!d.texte);
       return;

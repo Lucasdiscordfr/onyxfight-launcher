@@ -8,9 +8,40 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="fond"></div>
-  <div class="voile"></div>
-  <img class="personnage" id="personnage" src="../../assets/personnage-onyx.png" alt="">
+  <!-- Deux mondes : Faction à gauche, Extraction à droite, séparés par une barre lumineuse en biais -->
+  <div class="mondes" id="mondes">
+    <section class="monde faction" data-id="faction">
+      <div class="m-fond"></div>
+      <div class="m-voile"></div>
+      <div class="aura"></div>
+      <img class="perso" src="../../assets/perso-faction.png" alt="">
+      <div class="m-infos">
+        <span class="m-sur">Monde I</span>
+        <h1>Faction</h1>
+        <p>Bâtis ta faction, conquiers des terres, domine le KOTH.</p>
+        <div class="m-statut"><span class="pastille" id="pastille-faction"></span><span id="statut-faction">Recherche du serveur…</span></div>
+      </div>
+    </section>
+    <section class="monde extraction" data-id="extraction">
+      <div class="m-fond"></div>
+      <div class="m-voile"></div>
+      <div class="aura"></div>
+      <img class="perso" src="../../assets/perso-extraction.png" alt="">
+      <div class="m-infos">
+        <span class="m-sur">Monde II</span>
+        <h1>Extraction</h1>
+        <p>Pille les planètes, survis à la nuit, rejoins la zone rouge.</p>
+        <div class="m-statut"><span class="pastille" id="pastille-extraction"></span><span id="statut-extraction">Recherche du serveur…</span></div>
+      </div>
+    </section>
+    <svg class="separation" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="degrade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#c9b8ff"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#ff5a3c"/>
+      </linearGradient></defs>
+      <line class="trait" x1="54" y1="0" x2="46" y2="100"/>
+      <line class="eclat" x1="54" y1="0" x2="46" y2="100" pathLength="100"/>
+    </svg>
+  </div>
 
   <header class="barre">
     <div class="titre"><img src="../../assets/icone.png" alt=""><span>OnyxFight Launcher</span><small id="version"></small></div>
@@ -20,51 +51,54 @@
     </div>
   </header>
 
-  <main>
-    <section class="gauche">
-      <img class="logo" src="../../assets/logo.png" alt="OnyxFight">
-      <div class="actus">
-        <h2>Actualités</h2>
-        <div id="actus" class="liste-actus"><p class="vide">Chargement…</p></div>
-      </div>
-    </section>
+  <img class="logo" src="../../assets/logo.png" alt="OnyxFight">
+  <div class="total" id="total"></div>
 
-    <section class="droite">
-      <div class="carte compte" id="compte">
-        <div id="sans-compte">
-          <form id="form-connexion" class="connexion">
-            <p class="petit">Connecte-toi avec ton compte OnyxFight</p>
-            <input id="pseudo-site" type="text" maxlength="16" placeholder="Pseudo" autocomplete="username" spellcheck="false">
-            <input id="mdp-site" type="password" maxlength="128" placeholder="Mot de passe" autocomplete="current-password">
-            <button id="connecter" class="bouton secondaire" type="submit">Se connecter</button>
-            <p class="petit">Pas encore de compte ? <button id="inscription" class="lien" type="button">Crée-le sur le site</button></p>
-          </form>
+  <!-- Centre bas : compte, JOUER, progression, liens -->
+  <main class="centre">
+    <div class="carte compte" id="compte">
+      <div id="sans-compte">
+        <form id="form-connexion" class="connexion">
+          <p class="petit">Connecte-toi avec ton compte OnyxFight</p>
+          <input id="pseudo-site" type="text" maxlength="16" placeholder="Pseudo" autocomplete="username" spellcheck="false">
+          <input id="mdp-site" type="password" maxlength="128" placeholder="Mot de passe" autocomplete="current-password">
+          <button id="connecter" class="bouton secondaire" type="submit">Se connecter</button>
+          <p class="petit">Pas encore de compte ? <button id="inscription" class="lien" type="button">Crée-le sur le site</button></p>
+        </form>
+      </div>
+      <div id="avec-compte" class="cache">
+        <img id="tete" class="tete" alt="">
+        <div class="qui">
+          <span class="petit">Connecté en tant que</span>
+          <strong id="pseudo"></strong>
         </div>
-        <div id="avec-compte" class="cache">
-          <img id="tete" class="tete" alt="">
-          <div class="qui">
-            <span class="petit">Connecté en tant que</span>
-            <strong id="pseudo"></strong>
-          </div>
-          <button id="deconnecter" class="lien" title="Se déconnecter">Changer de compte</button>
-        </div>
+        <button id="deconnecter" class="lien" title="Se déconnecter">Changer</button>
       </div>
+    </div>
 
-      <div id="modes" class="modes"></div>
+    <div id="modes" class="modes cache"></div>
 
-      <div class="jouer-zone">
-        <button id="jouer" class="bouton jouer" disabled>JOUER</button>
-        <div class="progression cache" id="progression"><div id="barre"></div></div>
-        <p id="etat" class="etat"></p>
-      </div>
+    <div class="jouer-zone">
+      <button id="jouer" class="bouton jouer" disabled><span>JOUER</span></button>
+      <div class="progression cache" id="progression"><div id="barre"></div></div>
+      <p id="etat" class="etat"></p>
+    </div>
 
-      <div class="pied">
-        <button id="ouvrir-reglages" class="lien">⚙ Réglages</button>
-        <button id="site" class="lien">Site</button>
-        <button id="discord" class="lien">Discord</button>
-      </div>
-    </section>
+    <div class="pied">
+      <button id="ouvrir-actus" class="lien">Actualités</button>
+      <button id="ouvrir-reglages" class="lien">Réglages</button>
+      <button id="site" class="lien">Site</button>
+      <button id="discord" class="lien">Discord</button>
+    </div>
   </main>
+
+  <div id="actus-modale" class="modale cache">
+    <div class="boite actus-boite">
+      <h2>Actualités</h2>
+      <div id="actus" class="liste-actus"><p class="vide">Chargement…</p></div>
+      <div class="actions"><span></span><button id="fermer-actus" class="bouton secondaire">Fermer</button></div>
+    </div>
+  </div>
 
   <div id="reglages" class="modale cache">
     <div class="boite">
