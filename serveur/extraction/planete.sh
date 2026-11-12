@@ -16,8 +16,10 @@ echo "=== Arrêt du serveur Extraction ==="
 if sudo -u onyx tmux -L extraction has-session -t extraction 2>/dev/null; then
   sudo -u onyx tmux -L extraction send-keys -t extraction "stop" Enter
 fi
-for i in $(seq 1 90); do pgrep -u onyx java >/dev/null || break; sleep 1; done
-pkill -KILL -u onyx java 2>/dev/null || true
+# Seulement le Java du serveur Extraction (lancé depuis $DOSSIER), jamais les autres serveurs de la machine
+java_extraction() { for p in $(pgrep -u onyx java 2>/dev/null); do [ "$(readlink -f /proc/$p/cwd 2>/dev/null)" = "$DOSSIER" ] && echo "$p"; done; true; }
+for i in $(seq 1 90); do [ -n "$(java_extraction)" ] || break; sleep 1; done
+P=$(java_extraction); [ -z "$P" ] || kill -KILL $P 2>/dev/null || true
 sudo -u onyx tmux -L extraction kill-session -t extraction 2>/dev/null || true
 
 echo "=== Monde « $NOM » ==="

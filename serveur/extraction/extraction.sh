@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Serveur de TEST du mode Extraction (NeoForge 1.21.1 récent, sans Arclight : aucun plugin Bukkit ici), sur le VPS.
+# Serveur de TEST du mode Extraction (NeoForge 1.21.1 récent, sans Arclight : aucun plugin Bukkit ici).
+# Il tourne sur le serveur dédié, À CÔTÉ des autres serveurs Minecraft : ce script n'arrête que le Java lancé depuis
+# /opt/onyxfight/extraction (jamais les autres serveurs de l'utilisateur onyx).
 #
 #   curl -fsSL https://raw.githubusercontent.com/Lucasdiscordfr/onyxfight-launcher/main/serveur/extraction/extraction.sh | sudo bash
 #
@@ -7,15 +9,19 @@
 # Monde neuf : ... | sudo bash -s -- neuf
 # Vider l'espace du vaisseau (avant de poser une autre base) : ... | sudo bash -s -- vaisseau-neuf
 # Console : sudo -u onyx tmux -L extraction attach -t extraction   (Ctrl+B puis D pour sortir)
-# Ne touche à rien d'autre sur la machine (ni aux services crepuscule-*, ni à /srv).
+# Ne touche à rien d'autre sur la machine (ni aux services crepuscule-*, ni à /srv, ni aux autres serveurs Minecraft).
 set -euo pipefail
 RACINE=/opt/onyxfight
 DOSSIER=$RACINE/extraction
 NEOFORGE=21.1.265
 PORT=25570
+# Chat vocal : 24454 est déjà pris par le serveur principal sur le dédié
+VOIX=24455
 MOD=https://github.com/Lucasdiscordfr/onyxfight-launcher/releases/download/mod121/onyxfight-1.21.1.jar
 JDK=/usr/lib/jvm/java-21-openjdk-amd64
 [ "$(id -u)" = 0 ] || { echo "Lance ce script avec sudo."; exit 1; }
+# Java du serveur Extraction uniquement : ceux dont le dossier de travail est $DOSSIER
+java_extraction() { for p in $(pgrep -u onyx java 2>/dev/null); do [ "$(readlink -f /proc/$p/cwd 2>/dev/null)" = "$DOSSIER" ] && echo "$p"; done; true; }
 
 echo "=== Paquets (Java 21, tmux) ==="
 if [ ! -x "$JDK/bin/java" ] || ! command -v tmux >/dev/null 2>&1; then
@@ -30,14 +36,14 @@ id onyx >/dev/null 2>&1 || useradd -r -m -d "$RACINE" -s /bin/bash onyx
 echo "=== Arrêt du serveur Extraction (s'il tourne) ==="
 if sudo -u onyx tmux -L extraction has-session -t extraction 2>/dev/null; then
   sudo -u onyx tmux -L extraction send-keys -t extraction "stop" Enter
-  for i in $(seq 1 90); do pgrep -u onyx java >/dev/null || break; sleep 1; done
+  for i in $(seq 1 90); do [ -n "$(java_extraction)" ] || break; sleep 1; done
   sudo -u onyx tmux -L extraction kill-session -t extraction 2>/dev/null || true
 fi
 # Plus aucun Java du serveur avant de toucher aux fichiers (sinon il réenregistre le monde par-dessus en s'arrêtant)
-if pgrep -u onyx java >/dev/null; then
-  pkill -TERM -u onyx java || true
-  for i in $(seq 1 60); do pgrep -u onyx java >/dev/null || break; sleep 1; done
-  pkill -KILL -u onyx java 2>/dev/null || true
+if [ -n "$(java_extraction)" ]; then
+  kill -TERM $(java_extraction) 2>/dev/null || true
+  for i in $(seq 1 60); do [ -n "$(java_extraction)" ] || break; sleep 1; done
+  P=$(java_extraction); [ -z "$P" ] || kill -KILL $P 2>/dev/null || true
 fi
 
 install -d -o onyx -g onyx "$RACINE" "$DOSSIER" "$DOSSIER/mods" "$DOSSIER/plugins"
@@ -139,12 +145,19 @@ view-distance=10
 simulation-distance=8
 motd=OnyxFight - Extraction (test)
 EOF
-# Comptes OnyxFight : pseudo + mot de passe du site, vérifiés par le service des comptes du serveur principal
-# (il autorise ce VPS par son adresse IP : variable ONYX_CONFIANCE de comptes/installer.sh)
+# Comptes OnyxFight : pseudo + mot de passe du site, vérifiés par le service des comptes. Sur la même machine que lui,
+# on l'appelle en local (127.0.0.1:8090) ; ailleurs, par le site (il faut alors autoriser l'IP : ONYX_CONFIANCE).
 mkdir -p config
-printf 'actif=true\napi=https://play.onyxfight.fr\ndelai_secondes=20\n' > config/onyxfight-comptes.properties
+if curl -s -o /dev/null --max-time 3 http://127.0.0.1:8090/; then API=http://127.0.0.1:8090; else API=https://play.onyxfight.fr; fi
+printf 'actif=true\napi=%s\ndelai_secondes=20\n' "$API" > config/onyxfight-comptes.properties
+echo "Comptes vérifiés par : $API"
+# Chat vocal sur son propre port UDP
+mkdir -p config/voicechat
+F=config/voicechat/voicechat-server.properties
+if [ -f "$F" ] && grep -q '^port=' "$F"; then sed -i -E "s/^port=.*/port=$VOIX/" "$F"; else echo "port=$VOIX" >> "$F"; fi
+echo "Chat vocal : port UDP $VOIX"
 chown -R onyx:onyx "$RACINE"
-if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow $PORT/tcp >/dev/null || true; fi
+if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then ufw allow $PORT/tcp >/dev/null || true; ufw allow $VOIX/udp >/dev/null || true; fi
 
 echo "=== Démarrage ==="
 # « lumiere » : met à jour toutes les cartes et recalcule l'éclairage (zones sombres sur les vieilles cartes) avant de démarrer

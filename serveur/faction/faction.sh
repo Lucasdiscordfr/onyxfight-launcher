@@ -27,7 +27,7 @@ echo "=== Java 21 ==="
 echo "=== Arrêt du serveur Faction de test (s'il tourne) ==="
 if sudo -u onyx tmux -L test121 has-session -t test121 2>/dev/null; then
   sudo -u onyx tmux -L test121 send-keys -t test121 "stop" Enter
-  for i in $(seq 1 120); do pgrep -u onyx -f "test121|arclight.jar|neoforge/$NEOFORGE" >/dev/null || break; sleep 1; done
+  for i in $(seq 1 120); do A=""; for p in $(pgrep -u onyx java 2>/dev/null); do [ "$(readlink -f /proc/$p/cwd 2>/dev/null)" = "$DOSSIER" ] && A=1; done; [ -n "$A" ] || break; sleep 1; done
   sudo -u onyx tmux -L test121 kill-session -t test121 2>/dev/null || true
 fi
 
