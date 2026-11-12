@@ -21,7 +21,7 @@ COPIE=/usr/local/lib/onyxfight-demenager.sh
 [ -f "$CLE" ] || { echo "Clé $CLE introuvable."; exit 1; }
 SSH="ssh -i $CLE -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=30"
 vps() { $SSH "$VPS" "$@"; }
-synchro() { rsync -aHx --numeric-ids --delete --info=stats1 -e "$SSH" --rsync-path="sudo rsync" "$VPS:/opt/onyxfight/extraction/" "$DOSSIER/"; }
+synchro() { nice rsync -aHx --numeric-ids --delete --info=stats1 -e "$SSH" --rsync-path="sudo rsync" "$VPS:/opt/onyxfight/extraction/" "$DOSSIER/"; }
 
 # Les étapes longues tournent en arrière-plan (elles continuent si la connexion SSH se coupe)
 en_fond() {
@@ -54,7 +54,7 @@ copier)
   command -v rsync >/dev/null || apt-get -o DPkg::Lock::Timeout=900 install -yq rsync
   install -d -o onyx -g onyx /opt/onyxfight "$DOSSIER" 2>/dev/null || install -d "$DOSSIER"
   echo "Copie à chaud depuis le VPS (le serveur y tourne encore)…"
-  nice synchro
+  synchro
   echo "COPIE TERMINÉE ($(du -sh "$DOSSIER" | cut -f1)). Étape suivante : basculer."
   ;;
 basculer)
